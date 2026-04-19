@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book I · The City That Never Fails — The Engineer's Library</title>
+  <meta name="description" content="99 system design concepts told through the epic story of Ara building a city that would withstand any storm.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --book-color: #f59e0b; }
+    .city-diagram { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; margin: 1.5rem 0; }
+    .city-block { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; transition: all 0.3s ease; cursor: default; }
+    .city-block:hover { border-color: rgba(245,158,11,0.4); transform: translateY(-2px); }
+    .city-block-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .city-block-name { font-family: var(--font-story); font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.25rem; }
+    .city-block-term { font-family: var(--font-ui); font-size: 0.72rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.08em; }
+    .storm-warning { background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.05)); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2rem 0; }
+    .storm-title { font-family: var(--font-ui); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #ef4444; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<div id="reading-progress"></div>
+
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">The City That Never Fails</div>
+  <div class="nav-actions">
+    <a href="book-2.html" class="nav-btn">Next Book →</a>
+  </div>
+</nav>
+
+<button class="toc-toggle" id="tocToggle" aria-label="Toggle Table of Contents">
+  <span></span><span></span><span></span>
+</button>
+
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">📖 Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — Before the City</a>
+  <a href="#part1" class="toc-item">Part I — The Foundation</a>
+  <a href="#part2" class="toc-item">Part II — The Guilds</a>
+  <a href="#part3" class="toc-item">Part III — The River</a>
+  <a href="#part4" class="toc-item">Part IV — The Watchtower</a>
+  <a href="#part5" class="toc-item">Part V — The Storm</a>
+  <a href="#part6" class="toc-item">Part VI — The Reckoning</a>
+  <a href="#part7" class="toc-item">Part VII — The Recovery</a>
+  <a href="#part8" class="toc-item">Part VIII — The New City</a>
+  <a href="#epilogue" class="toc-item">Epilogue — Ravi's Last Trade</a>
+  <a href="#lexicon" class="toc-item">Master Lexicon</a>
+</nav>
+
+<main class="book-main">
+
+  <!-- HERO -->
+  <header class="book-hero">
+    <div class="book-number">Book I of V</div>
+    <h1>The City That Never Fails</h1>
+    <p class="subtitle">How Ara built a city that could withstand any storm — and every system design concept woven into its stones</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot"></span> 99 Concepts</span>
+      <span class="meta-badge"><span class="dot"></span> ~2 Hours</span>
+      <span class="meta-badge"><span class="dot"></span> Read First</span>
+    </div>
+  </header>
+
+  <!-- CITY MAP -->
+  <div class="highlight-box" style="margin-bottom: 2rem;">
+    <h3>🏛️ The City — At a Glance</h3>
+    <p style="font-family:var(--font-story);font-style:italic;color:var(--text-secondary);margin-bottom:1.5rem;">Every district of the city represents a cluster of system design concepts. As you read, the city grows.</p>
+    <div class="city-diagram">
+      <div class="city-block"><div class="city-block-icon">🏗️</div><div class="city-block-name">The Foundation</div><div class="city-block-term">Architecture · Scalability · Capacity</div></div>
+      <div class="city-block"><div class="city-block-icon">🏪</div><div class="city-block-name">The Guilds</div><div class="city-block-term">Microservices · APIs · Services</div></div>
+      <div class="city-block"><div class="city-block-icon">🌊</div><div class="city-block-name">The River</div><div class="city-block-term">Kafka · Events · Messaging</div></div>
+      <div class="city-block"><div class="city-block-icon">🗼</div><div class="city-block-name">The Watchtower</div><div class="city-block-term">Observability · Monitoring · Tracing</div></div>
+      <div class="city-block"><div class="city-block-icon">🏦</div><div class="city-block-name">The Treasury</div><div class="city-block-term">Databases · Consistency · ACID</div></div>
+      <div class="city-block"><div class="city-block-icon">🔐</div><div class="city-block-name">The Vault</div><div class="city-block-term">Security · Auth · Encryption</div></div>
+      <div class="city-block"><div class="city-block-icon">⚡</div><div class="city-block-name">The Storm</div><div class="city-block-term">Failures · Recovery · Resilience</div></div>
+      <div class="city-block"><div class="city-block-icon">🛤️</div><div class="city-block-name">The Roads</div><div class="city-block-term">Load Balancing · Routing · CDN</div></div>
+    </div>
+  </div>
+
+  <div class="epigraph">
+    "Ara had one rule she never broke: never build a system that requires perfection to survive."
+    <cite>— The opening law of the City's architecture</cite>
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label">Prologue</div>
+    <h2>Before the City</h2>
+    <p class="chapter-subtitle"><em>Where everything begins — not with stone, but with a question</em></p>
+
+    <div class="story-content">
+      <p>The city of Ferncastle did not begin with a plan. It began with a problem.</p>
+      <p>In the year that the great trade routes opened, ten thousand merchants arrived in the valley expecting a city and found only a field. They had goods to sell, currency to exchange, messages to send, accounts to settle. They needed infrastructure. They needed systems. They needed someone who understood how to build not just for today, but for ten years from today, when ten thousand merchants might become ten million.</p>
+      <p>The council found Ara on a hillside outside the valley, studying the landscape. She was thirty-one years old. She had spent the previous decade building smaller systems — a postal relay network in the east, a water distribution system in the north, a market clearing system in the capital. Each one had taught her something different about how complex systems fail.</p>
+      <p><em>"What do you need?"</em> the council asked.</p>
+      <p><em>"Six months,"</em> Ara said. <em>"And the authority to build it right."</em></p>
+      <p>She got four months. She built it right anyway.</p>
+      <p>This is the story of what she built — not the buildings, but the principles beneath them. Every stone she laid was an answer to a question: <em>What happens when this part fails? What happens when there are ten times as many people? What happens at 3 a.m. when no one is watching?</em></p>
+      <p>The city she built was not the most beautiful. It was not the most modern. It was the most <strong>resilient</strong>. In forty years of operation, through three floods, one earthquake, two political upheavals, and a period of growth that expanded the city's population by a factor of forty — Ferncastle never went down for more than four hours at a time.</p>
+      <p>This is how she did it.</p>
+    </div>
+  </section>
+
+  <div class="section-divider">Part I</div>
+
+  <!-- PART 1 -->
+  <section class="chapter" id="part1">
+    <div class="chapter-label">Part I</div>
+    <h2>The Foundation</h2>
+    <p class="chapter-subtitle"><em>Monolith, Microservices, Load Balancing, Horizontal Scaling</em></p>
+
+    <div class="story-content">
+      <p>Ara's first decision — the one that set the template for everything that followed — was about <strong>shape</strong>.</p>
+      <p>The other architects of her era built monoliths: one great central building where everything happened. All merchants came to one place. All accounts were kept in one ledger. All disputes resolved in one court. Simple to understand. Easy to draw on a map. And catastrophically fragile — when the central building had a problem, everything stopped.</p>
+      <p>Ara had seen such a building fail in the capital. A fire in the accounting wing had shut down the entire marketplace for eleven days. Not because the fire burned the whole building — it didn't. But because everything depended on everything else, and you couldn't isolate the damage.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Monolith</span></div>
+        <div class="callout-body">A system where all components are tightly coupled and deployed as a single unit. Simple to develop initially. A fire in one wing can shut down the whole building. When it breaks, everything breaks. When it scales, everything must scale together — even the parts that don't need it.</div>
+      </div>
+
+      <p>Instead, Ara drew a different map. Not one great building — a city of many guilds. Each guild had its own charter. Its own building. Its own ledger. Its own staff. The Payment Guild handled payments. The Registry Guild handled merchant records. The Messaging Guild carried information between them. The Arbitration Guild resolved disputes.</p>
+      <p>If the Payment Guild's building had a problem, merchants could still register, still communicate, still receive their goods. The payment function was disrupted — but the city continued.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Microservices</span></div>
+        <div class="callout-body">An architectural approach where an application is built as a collection of small, independently deployable services — each responsible for a specific business capability. Services communicate over APIs or events. A failure in one service doesn't bring down the others. Each service can be scaled independently. The cost: distributed systems complexity.</div>
+      </div>
+
+      <p>The roads between guilds were designed for scale. As merchant traffic grew, Ara added more roads — more parallel paths between the same two points. A load balanced system: when the Northern Road to the Payment Guild was congested, traffic was directed to the Eastern Road automatically.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Load Balancing</span></div>
+        <div class="callout-body">Distributing incoming traffic across multiple servers (or instances) so no single one becomes a bottleneck. Like traffic lights routing cars across multiple roads to a destination. The load balancer monitors which servers are available and healthy, and routes new requests to them. Round-robin, least-connections, and consistent-hashing are common strategies.</div>
+      </div>
+
+      <p>When any single guild couldn't handle the volume, Ara didn't build a bigger guild — she built an identical one next door. Two Payment Guilds, then four, then eight. Each an exact replica. Stateless. Replaceable. The beauty of horizontal scaling: when one fails, the others absorb its work. When traffic doubles, you double the guilds.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Horizontal Scaling (Scale Out)</span></div>
+        <div class="callout-body">Adding more instances of a service to handle increased load — more servers, not a bigger server. Contrasted with vertical scaling (scale up: bigger CPU, more RAM — which has hard limits and creates single points of failure). Horizontal scaling enables near-infinite capacity, requires stateless services, and is the foundation of cloud-native architecture.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Part II</div>
+
+  <!-- PART 2 -->
+  <section class="chapter" id="part2">
+    <div class="chapter-label">Part II</div>
+    <h2>The Guilds and Their Contracts</h2>
+    <p class="chapter-subtitle"><em>APIs, REST, Rate Limiting, Circuit Breakers, Service Mesh</em></p>
+
+    <div class="story-content">
+      <p>Each guild needed to communicate with others. The Payment Guild needed to verify merchant identities with the Registry Guild. The Delivery Guild needed to check road conditions with the Infrastructure Guild. But without standards, every guild developed its own language — and the city became a tower of Babel.</p>
+      <p>Ara established the <strong>Standard Contract</strong>: a formal specification of how any guild would answer requests from any other. The contract stated: what questions you could ask (endpoints), what format the request must take (schema), what format the answer would come in (response format), and what the answer meant (status codes).</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">API (Application Programming Interface)</span></div>
+        <div class="callout-body">A formal contract that defines how one system communicates with another. The API specifies: what operations are available, what inputs they require, what outputs they return, and what errors they can produce. Services behind an API can change their internal implementation entirely — as long as they honor the contract, all callers continue to work.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">REST (Representational State Transfer)</span></div>
+        <div class="callout-body">An architectural style for APIs using HTTP. Resources are identified by URLs (/merchants/42/payments). Standard HTTP methods convey intent: GET (read), POST (create), PUT (replace), PATCH (update partially), DELETE (remove). Stateless — each request contains all information needed. Status codes are meaningful: 200 (OK), 201 (Created), 404 (Not Found), 500 (Server Error).</div>
+      </div>
+
+      <p>The city instituted <strong>Rate Limiting</strong> at every guild's entrance. A merchant could make no more than 100 requests per minute to the Payment Guild. If they exceeded this, their subsequent requests received a polite refusal — "Come back in a moment" — rather than overwhelming the guild's staff and degrading service for everyone.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Rate Limiting</span></div>
+        <div class="callout-body">Restricting how many requests a client can make in a given time window. Protects the service from being overwhelmed by one client. Common strategies: token bucket (fixed capacity refilled over time), sliding window (track request count in rolling time period), fixed window (reset counter every N seconds). Return HTTP 429 (Too Many Requests) when limit exceeded.</div>
+      </div>
+
+      <p>The most important safety mechanism was the <strong>Emergency Shutoff Valve</strong> — what the engineers later called a Circuit Breaker. When a guild became overwhelmed or unresponsive, rather than allowing the failure to cascade through the entire city, an automatic valve closed the connection. Callers received an immediate "guild unavailable" response rather than waiting indefinitely for a response that would never come.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Circuit Breaker</span></div>
+        <div class="callout-body">
+          A resilience pattern with three states:<br><br>
+          <strong>Closed (normal)</strong>: Requests flow through. Failures are counted.<br>
+          <strong>Open (failure threshold exceeded)</strong>: Requests are immediately rejected without attempting the call. The service is given time to recover.<br>
+          <strong>Half-Open (testing)</strong>: A single test request is allowed through. If it succeeds, circuit closes. If it fails, circuit reopens.<br><br>
+          Prevents cascading failures. Used in Resilience4j, Hystrix, and service meshes.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Part III</div>
+
+  <!-- PART 3 -->
+  <section class="chapter" id="part3">
+    <div class="chapter-label">Part III</div>
+    <h2>The River</h2>
+    <p class="chapter-subtitle"><em>Event-Driven Architecture, Kafka, Pub/Sub, Topics, Consumer Groups</em></p>
+
+    <div class="story-content">
+      <p>The guilds could not only communicate synchronously — waiting for an answer before continuing. Some communications were like shouts across the city: <em>"A payment was made! Does anyone need to know?"</em></p>
+      <p>Ara built the River — the great messaging system that flowed through the city like water. Any guild could pour a message into the River, and any other guild that cared about that kind of message could fish it out. The payment guild said: <em>"Payment #44,821 completed."</em> The notification guild, the audit guild, the analytics guild, and the fraud-detection guild all pulled the message from the River and acted on it — independently, at their own pace, without blocking the payment guild from continuing its work.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Event-Driven Architecture (EDA)</span></div>
+        <div class="callout-body">A design where components communicate by producing and consuming events — rather than direct synchronous calls. The producer fires an event and continues. The consumer processes it whenever ready. Decouples producer from consumer. Enables resilience, scalability, and loose coupling. The cost: eventual consistency and complex debugging.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Apache Kafka</span></div>
+        <div class="callout-body">A distributed event streaming platform. Producers write events to topics. Consumers read from topics at their own pace. Events are persisted for a configurable retention period — consumers can replay history. Kafka guarantees ordering within a partition. Used at Twitter, LinkedIn, Uber, Netflix for high-throughput event processing. Key concepts: topics, partitions, offsets, consumer groups, brokers.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Topics, Partitions, and Offsets</span></div>
+        <div class="callout-body">
+          <strong>Topic</strong>: A named channel of events (like "payment-events" or "user-registrations").<br>
+          <strong>Partition</strong>: A topic is split into partitions for parallelism. Events with the same key go to the same partition — guaranteeing order per key.<br>
+          <strong>Offset</strong>: Each event's position within its partition. Consumers track their offset — the position up to which they've processed. This enables replay (reset to an earlier offset) and resume (start from where you left off).
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Consumer Groups</span></div>
+        <div class="callout-body">Multiple consumers working together to process a topic's partitions. Each partition is consumed by exactly one member of a group at a time — enabling parallel processing. Add more consumers to a group to scale throughput (up to the number of partitions). Different consumer groups independently consume the same topic — each group has its own offset tracking.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Part IV</div>
+
+  <!-- PART 4 -->
+  <section class="chapter" id="part4">
+    <div class="chapter-label">Part IV</div>
+    <h2>The Watchtower</h2>
+    <p class="chapter-subtitle"><em>Observability, Metrics, Logging, Distributed Tracing, Alerting, SLAs & SLOs</em></p>
+
+    <div class="story-content">
+      <p>Seya had the most important job in the city, though few understood it.</p>
+      <p>She commanded the Watchtower — a tall structure at the center of the city from which every guild's activity was visible as light. When the Payment Guild processed a transaction, a lamp lit. When the Registry Guild updated a record, a counter incremented. When any guild's response time doubled, a yellow flag rose. When any guild stopped responding, a red alarm rang.</p>
+      <p>Seya's team could see the city's health at a glance. Not the contents of every transaction — the shape of the traffic. The speed. The error rate. The queue depth. The trends over time.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Observability</span></div>
+        <div class="callout-body">
+          The ability to understand a system's internal state from its external outputs. The three pillars:<br><br>
+          <strong>Metrics</strong>: Numerical measurements over time (request rate, error rate, latency percentiles, queue depth).<br>
+          <strong>Logs</strong>: Structured text records of events with timestamp, severity, and context.<br>
+          <strong>Traces</strong>: Records of a request's journey across multiple services (distributed tracing).<br><br>
+          A system is observable if you can answer "What is wrong and why?" from these outputs alone, without SSH-ing into servers.
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">SLI, SLO, and SLA</span></div>
+        <div class="callout-body">
+          <strong>SLI (Service Level Indicator)</strong>: A measurable signal — 99.2% of requests succeeded this month. P99 latency was 250ms.<br>
+          <strong>SLO (Service Level Objective)</strong>: A target — 99.9% of requests must succeed. P99 latency must be &lt;500ms.<br>
+          <strong>SLA (Service Level Agreement)</strong>: A contract with consequences — if we miss the SLO, you get a credit.<br><br>
+          Error budgets: the gap between SLO and 100% is your error budget. Spend it on experiments and deployments. When it's gone, freeze changes.
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Distributed Tracing</span></div>
+        <div class="callout-body">Following a single request's journey across multiple services. Each service stamps the request with the same traceId and adds its own span. The result: a tree showing exactly which services were called, in what order, and how long each took. Tools: OpenTelemetry, Jaeger, AWS X-Ray, Zipkin. Without tracing, a 500ms request through 7 services requires manual log correlation.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Part V</div>
+
+  <!-- PART 5 -->
+  <section class="chapter" id="part5">
+    <div class="chapter-label">Part V</div>
+    <h2>The Great Storm</h2>
+    <p class="chapter-subtitle"><em>Caching, CDN, Database Sharding, Replication, CAP Theorem, ACID</em></p>
+
+    <div class="story-content">
+      <p>The storm came in year twelve. Not a weather event — a merchant event. The Crystal Festival of Nations brought ten million visitors to the city in a single weekend. Forty times the normal traffic. Every system Ara had built was tested simultaneously.</p>
+
+      <div class="storm-warning">
+        <div class="storm-title">⚡ Storm Condition: 40x Normal Traffic</div>
+        <p style="font-family:var(--font-ui);font-size:0.85rem;color:var(--text-secondary);">The city is processing 40x its designed capacity. Every architectural decision made in the past twelve years is being tested simultaneously. Not against a checklist — against reality.</p>
+      </div>
+
+      <p>The first lesson of the storm was about <strong>speed</strong>. The Registry Guild was being asked the same question forty thousand times per minute: <em>"Is merchant #4421 verified?"</em> The answer never changed. The merchant had been verified in year three and hadn't changed their status since. Each of those forty thousand queries was fetching the same data from the same database.</p>
+      <p>The <strong>Cache Guilds</strong> solved this. Positioned between callers and the Registry, they remembered the answers to common questions. First request: ask the Registry, store the answer. All subsequent requests: return the stored answer instantly, never touching the Registry. The Registry query rate dropped by 97%.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Caching</span></div>
+        <div class="callout-body">Storing frequently accessed data in a fast-access layer (memory) to avoid repeated expensive computation or database lookups. Cache hit: data found in cache — fast. Cache miss: data not in cache — fetch from source, store in cache. TTL (Time To Live): how long cached data remains valid before being evicted. Redis and Memcached are industry standards.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">CDN (Content Delivery Network)</span></div>
+        <div class="callout-body">A geographically distributed network of servers that cache and serve content (static files, images, API responses) from locations physically close to users. A merchant in the Western Province receives files from a Western cache server, not from the city's central servers. Reduces latency from 300ms to 10ms for static content. Examples: Cloudflare, AWS CloudFront, Fastly.</div>
+      </div>
+
+      <p>The Treasury — the city's primary ledger — faced a different problem. It couldn't be distributed the way the guilds could, because ledger data had to be consistent: a payment couldn't be recorded twice, and a balance couldn't show different values in different places simultaneously. Ara applied <strong>database sharding</strong>: split the ledger by merchant ID range. Merchants 1–100,000 lived in the Eastern Ledger. Merchants 100,001–200,000 in the Western Ledger. Each ledger was smaller, faster, and independently scalable.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Database Sharding</span></div>
+        <div class="callout-body">Splitting a database horizontally across multiple machines based on a shard key. Each shard contains a subset of the data. Reduces the size and load on each individual database. The cost: cross-shard queries are complex, joins across shards require application-level logic, and resharding is operationally painful. Common shard keys: user ID, geographic region, time range.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">CAP Theorem</span></div>
+        <div class="callout-body">
+          A distributed system can guarantee at most two of three properties:<br><br>
+          <strong>Consistency (C)</strong>: Every read receives the most recent write or an error.<br>
+          <strong>Availability (A)</strong>: Every request receives a (non-error) response — but it might not be the latest data.<br>
+          <strong>Partition Tolerance (P)</strong>: The system continues operating despite network partitions.<br><br>
+          Since network partitions always happen, you're always choosing between C and A during a partition. Financial systems choose CP (consistency over availability). Social media feeds choose AP (availability over perfect consistency).
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">ACID Properties</span></div>
+        <div class="callout-body">
+          The four properties that guarantee database transaction reliability:<br>
+          <strong>Atomicity</strong>: All operations in a transaction succeed, or none do. No partial updates.<br>
+          <strong>Consistency</strong>: A transaction transforms the database from one valid state to another. No invariant is violated.<br>
+          <strong>Isolation</strong>: Concurrent transactions behave as if they ran sequentially. No dirty reads.<br>
+          <strong>Durability</strong>: Once a transaction is committed, it persists — even through crashes.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Part VI</div>
+
+  <!-- PART 6 -->
+  <section class="chapter" id="part6">
+    <div class="chapter-label">Part VI</div>
+    <h2>The Architecture of Recovery</h2>
+    <p class="chapter-subtitle"><em>Idempotency, Saga Pattern, Bulkheads, Timeouts, Retries, Backoff, Health Checks</em></p>
+
+    <div class="story-content">
+      <p>Ravi the merchant's most memorable night as a customer of the city was the night of the Great Fog — when the communication lines between guilds failed intermittently for six hours. Messages were delivered twice. Some were lost. Some arrived three hours late.</p>
+      <p>Ravi's payment for a medical delivery was processed twice. He received two identical charges. He called the help desk in a rage.</p>
+      <p>The incident was the catalyst for Ara's most important principle: every operation that changes state must be <strong>idempotent</strong> — running it a second time produces the same result as running it once.</p>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Idempotency</span></div>
+        <div class="callout-body">An operation is idempotent if performing it multiple times produces the same result as performing it once. GET requests are naturally idempotent. POST (create) requests are not — without idempotency keys. Implementation: assign every request a unique idempotencyKey. Before processing, check if the key exists in the idempotency store. If yes: return the previous result. If no: process and record. Stripe, PayPal, and every payment API use this pattern.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Saga Pattern</span></div>
+        <div class="callout-body">A pattern for managing distributed transactions across multiple services. Each service executes a local transaction and publishes an event. If any step fails, compensating transactions are triggered to undo the completed steps. Two flavors: Choreography (each service reacts to the previous service's event) and Orchestration (a central coordinator tells each service what to do next). Sagas replace ACID transactions in microservices — at the cost of complexity.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Retry with Exponential Backoff and Jitter</span></div>
+        <div class="callout-body">
+          When a request fails, retry after waiting. But don't wait a fixed amount — wait exponentially longer:<br>
+          Attempt 1: wait 1s. Attempt 2: wait 2s. Attempt 3: wait 4s. Attempt 4: wait 8s...<br><br>
+          <strong>Jitter</strong>: Add randomness to the wait time (±25%). Without jitter, all clients retry simultaneously at the same intervals — creating synchronized storms on the recovering service.<br><br>
+          Maximum retries: always set a cap. Infinite retries exhaust resources and delay failure detection.
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Bulkhead Pattern</span></div>
+        <div class="callout-body">Isolate resources for different consumers so a problem in one doesn't starve the others. Named after ship bulkheads — watertight compartments that prevent one breach from sinking the whole ship. In software: separate thread pools per downstream service; separate connection pools per client type; separate Kafka consumer groups per consumer. A slow Payment Guild connection pool doesn't stop the Registry Guild from working.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Parts VII & VIII</div>
+
+  <!-- PART 7 -->
+  <section class="chapter" id="part7">
+    <div class="chapter-label">Part VII & VIII</div>
+    <h2>The Data Systems & Security</h2>
+    <p class="chapter-subtitle"><em>SQL vs NoSQL, Replication, Indexes, OAuth2, JWT, Encryption, Zero Trust</em></p>
+
+    <div class="story-content">
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">SQL vs NoSQL</span></div>
+        <div class="callout-body">
+          <strong>SQL (Relational)</strong>: Structured schemas, ACID transactions, powerful querying with JOIN. Best for: financial records, user accounts, anything requiring consistency. PostgreSQL, MySQL, Oracle.<br><br>
+          <strong>NoSQL</strong>: Flexible schemas, designed for scale and specific access patterns:<br>
+          • <strong>Document</strong> (MongoDB): JSON-like documents, flexible schema<br>
+          • <strong>Key-Value</strong> (Redis): Ultra-fast lookups by key, caching, sessions<br>
+          • <strong>Wide-Column</strong> (Cassandra): Optimized for high write throughput, time-series<br>
+          • <strong>Graph</strong> (Neo4j): Relationships and traversals<br><br>
+          Not SQL vs NoSQL — the right tool for the access pattern.
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Database Replication</span></div>
+        <div class="callout-body">Copying data from a primary database to one or more replicas. Primary handles writes. Replicas handle reads (read replicas), provide failover (high availability), and enable geographic distribution. Replication lag: replicas may be slightly behind the primary — reads from replicas may return stale data. Configure based on consistency requirements.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Database Indexes</span></div>
+        <div class="callout-body">Data structures that speed up data retrieval at the cost of additional storage and write overhead. Without an index, finding a merchant by name requires scanning every row (O(n)). With an index on name, it's O(log n). B-tree indexes for range queries and equality. Hash indexes for equality only. Composite indexes for multi-column queries. Missing indexes = the most common cause of database performance problems in production.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">OAuth2 and JWT</span></div>
+        <div class="callout-body">
+          <strong>OAuth2</strong>: An authorization framework. Allows a user to grant an application limited access to their resources on another service, without sharing credentials. Four flows: Authorization Code (web apps), Client Credentials (server-to-server), PKCE (mobile apps), Device Flow (TVs/CLIs).<br><br>
+          <strong>JWT (JSON Web Token)</strong>: A compact, self-contained token carrying claims (user identity, permissions, expiry). Signed by the issuer — anyone can verify without calling the auth server. Always verify: signature, exp (expiry), aud (audience), iss (issuer). Short TTL + refresh tokens for security.
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title">Zero Trust Architecture</span></div>
+        <div class="callout-body">"Never trust, always verify." Every request — even from inside the network — must be authenticated and authorized. No implicit trust based on network location. mTLS between services. Short-lived tokens. Least-privilege access control. Audit every access. The perimeter is dead; trust must be earned on every request.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">Epilogue</div>
+
+  <!-- EPILOGUE -->
+  <section class="chapter" id="epilogue">
+    <div class="chapter-label">Epilogue</div>
+    <h2>Ravi's Last Trade</h2>
+
+    <div class="story-content">
+      <p>Forty years after the city was built, Ravi made his last trade. He was sixty-seven years old, his daughter Priya was twenty, and the city that had processed his first payment on opening day processed his last one that evening.</p>
+      <p>He didn't know the names of the systems that handled it. He didn't know about the load balancer that distributed his request to one of forty Payment Guild instances. He didn't know about the idempotency key that ensured his payment — which timed out once and was retried — was processed exactly once. He didn't know about the circuit breaker that had protected the Treasury when its Eastern shard had a brief issue earlier that day. He didn't know about the Saga that rolled back a failed delivery confirmation and refunded him automatically.</p>
+      <p>He only knew: the trade completed. The medicine arrived. His daughter was well.</p>
+      <p><em>"It works,"</em> he said, as if this were a small thing.</p>
+      <p>It was not a small thing. Behind those two words were forty years of decisions, each one made by someone who asked: <em>What happens when this part fails? What happens when there are a hundred times as many people?</em></p>
+      <p>It works because someone answered those questions correctly, before they became problems.</p>
+      <p>That is what you are learning to do.</p>
+    </div>
+  </section>
+
+  <!-- MASTER LEXICON -->
+  <section id="lexicon" class="reference-section">
+    <h2>Master Lexicon</h2>
+    <p class="desc">All 99 concepts from Book I — your vocabulary for every conversation about system design.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Term</th><th>Category</th><th>One-Line Definition</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Monolith</td><td>Architecture</td><td>Single codebase, single deployment — simple start, fragile at scale</td></tr>
+          <tr><td>2</td><td>Microservices</td><td>Architecture</td><td>Small, independently deployable services for specific business capabilities</td></tr>
+          <tr><td>3</td><td>Load Balancing</td><td>Scalability</td><td>Distributing traffic across multiple instances so none is a bottleneck</td></tr>
+          <tr><td>4</td><td>Horizontal Scaling</td><td>Scalability</td><td>Adding more instances rather than making one instance bigger</td></tr>
+          <tr><td>5</td><td>Vertical Scaling</td><td>Scalability</td><td>Making one instance bigger (CPU/RAM) — limited and creates SPOF</td></tr>
+          <tr><td>6</td><td>API</td><td>Communication</td><td>Formal contract defining how two systems communicate</td></tr>
+          <tr><td>7</td><td>REST</td><td>Communication</td><td>HTTP-based API style using resources, standard methods, and status codes</td></tr>
+          <tr><td>8</td><td>Rate Limiting</td><td>Reliability</td><td>Restricting requests per time window to protect services from overload</td></tr>
+          <tr><td>9</td><td>Circuit Breaker</td><td>Reliability</td><td>Auto-stops calls to failing services; gives them time to recover</td></tr>
+          <tr><td>10</td><td>Kafka</td><td>Messaging</td><td>Distributed event streaming — high throughput, durable, replayable</td></tr>
+          <tr><td>11</td><td>Topic</td><td>Messaging</td><td>Named channel of events in Kafka</td></tr>
+          <tr><td>12</td><td>Partition</td><td>Messaging</td><td>Ordered subdivision of a topic — enables parallelism</td></tr>
+          <tr><td>13</td><td>Offset</td><td>Messaging</td><td>Position of an event within a partition — enables replay and resume</td></tr>
+          <tr><td>14</td><td>Consumer Group</td><td>Messaging</td><td>Multiple consumers sharing topic partitions for parallel processing</td></tr>
+          <tr><td>15</td><td>Event-Driven Architecture</td><td>Architecture</td><td>Components communicate by producing and consuming events asynchronously</td></tr>
+          <tr><td>16</td><td>Pub/Sub</td><td>Messaging</td><td>Publishers send events to topics; subscribers receive relevant events</td></tr>
+          <tr><td>17</td><td>Observability</td><td>Operations</td><td>Understanding system state from external outputs: metrics, logs, traces</td></tr>
+          <tr><td>18</td><td>Metrics</td><td>Operations</td><td>Numerical time-series measurements (request rate, error rate, latency)</td></tr>
+          <tr><td>19</td><td>Logs</td><td>Operations</td><td>Structured records of events with timestamp, severity, and context</td></tr>
+          <tr><td>20</td><td>Distributed Tracing</td><td>Operations</td><td>Following a request's journey across multiple services via shared traceId</td></tr>
+          <tr><td>21</td><td>SLI</td><td>Operations</td><td>Service Level Indicator — a measurable signal: "99.2% requests succeeded"</td></tr>
+          <tr><td>22</td><td>SLO</td><td>Operations</td><td>Service Level Objective — a target: "99.9% requests must succeed"</td></tr>
+          <tr><td>23</td><td>SLA</td><td>Operations</td><td>Service Level Agreement — a contract with consequences for missing SLOs</td></tr>
+          <tr><td>24</td><td>Error Budget</td><td>Operations</td><td>The gap between SLO and 100% — how much failure is acceptable</td></tr>
+          <tr><td>25</td><td>Caching</td><td>Performance</td><td>Storing data in fast-access layer to avoid repeated expensive lookups</td></tr>
+          <tr><td>26</td><td>CDN</td><td>Performance</td><td>Geographically distributed servers caching content near users</td></tr>
+          <tr><td>27</td><td>CAP Theorem</td><td>Data</td><td>Distributed systems can guarantee only 2 of: Consistency, Availability, Partition Tolerance</td></tr>
+          <tr><td>28</td><td>ACID</td><td>Data</td><td>Atomicity, Consistency, Isolation, Durability — database transaction guarantees</td></tr>
+          <tr><td>29</td><td>Database Sharding</td><td>Data</td><td>Splitting a database horizontally across machines by a shard key</td></tr>
+          <tr><td>30</td><td>Database Replication</td><td>Data</td><td>Copying data from primary to replicas for reads, failover, and geo-distribution</td></tr>
+          <tr><td>31</td><td>Indexes</td><td>Data</td><td>Data structures enabling fast lookups at the cost of write overhead</td></tr>
+          <tr><td>32</td><td>SQL</td><td>Data</td><td>Relational database — structured schema, ACID, powerful JOIN queries</td></tr>
+          <tr><td>33</td><td>NoSQL</td><td>Data</td><td>Non-relational databases optimized for specific access patterns and scale</td></tr>
+          <tr><td>34</td><td>Idempotency</td><td>Reliability</td><td>Running an operation multiple times produces the same result as once</td></tr>
+          <tr><td>35</td><td>Saga Pattern</td><td>Reliability</td><td>Distributed transaction management with compensating actions per step</td></tr>
+          <tr><td>36</td><td>Retry Backoff</td><td>Reliability</td><td>Retry with exponentially increasing wait times + jitter to prevent storms</td></tr>
+          <tr><td>37</td><td>Bulkhead</td><td>Reliability</td><td>Isolate resources per consumer to prevent one failure from starving all</td></tr>
+          <tr><td>38</td><td>Timeout</td><td>Reliability</td><td>Maximum wait time for a network call — never leave a call open indefinitely</td></tr>
+          <tr><td>39</td><td>OAuth2</td><td>Security</td><td>Authorization framework for granting limited access without sharing credentials</td></tr>
+          <tr><td>40</td><td>JWT</td><td>Security</td><td>Self-contained signed token carrying identity claims and expiry</td></tr>
+          <tr><td>41</td><td>Zero Trust</td><td>Security</td><td>Never trust, always verify — even requests from inside the network</td></tr>
+          <tr><td>42</td><td>Encryption</td><td>Security</td><td>TLS in transit; AES-256 at rest — protect data from interception and theft</td></tr>
+          <tr><td>43</td><td>API Gateway</td><td>Architecture</td><td>Single entry point for all external requests — handles auth, routing, rate limiting</td></tr>
+          <tr><td>44</td><td>Service Mesh</td><td>Architecture</td><td>Infrastructure layer handling service-to-service communication via sidecars</td></tr>
+          <tr><td>45</td><td>Health Check</td><td>Operations</td><td>Endpoint /health that returns current service status — used by load balancers</td></tr>
+          <tr><td>46</td><td>Blue-Green Deployment</td><td>Deployment</td><td>Run two identical environments; switch traffic at once for instant rollback</td></tr>
+          <tr><td>47</td><td>Canary Deployment</td><td>Deployment</td><td>Route small % of traffic to new version; verify; gradually increase</td></tr>
+          <tr><td>48</td><td>Rolling Deployment</td><td>Deployment</td><td>Replace instances one-by-one; always keeping some old version available</td></tr>
+          <tr><td>49</td><td>Outbox Pattern</td><td>Reliability</td><td>Write DB record and event atomically; relay publishes event separately</td></tr>
+          <tr><td>50</td><td>Dead Letter Queue</td><td>Messaging</td><td>Where failed messages go for investigation and replay</td></tr>
+          <tr><td>51</td><td>Eventual Consistency</td><td>Data</td><td>Data converges to same value across nodes — not immediately, eventually</td></tr>
+          <tr><td>52</td><td>Strong Consistency</td><td>Data</td><td>Every read reflects the most recent write — at the cost of availability</td></tr>
+          <tr><td>53</td><td>Consensus Algorithm</td><td>Data</td><td>Raft/Paxos — how distributed nodes agree on a single value</td></tr>
+          <tr><td>54</td><td>Leader Election</td><td>Data</td><td>Choosing one node as the authoritative writer among replicas</td></tr>
+          <tr><td>55</td><td>CQRS</td><td>Architecture</td><td>Separate read (Query) and write (Command) models for different scaling needs</td></tr>
+          <tr><td>56</td><td>Event Sourcing</td><td>Architecture</td><td>Store events rather than current state; replay to derive any point-in-time view</td></tr>
+          <tr><td>57</td><td>Backpressure</td><td>Reliability</td><td>Signal to producers to slow down when consumers are overwhelmed</td></tr>
+          <tr><td>58</td><td>Throughput</td><td>Performance</td><td>Number of requests processed per unit time — a capacity measurement</td></tr>
+          <tr><td>59</td><td>Latency</td><td>Performance</td><td>Time from request sent to response received — a speed measurement</td></tr>
+          <tr><td>60</td><td>P99 Latency</td><td>Performance</td><td>99th percentile — 99% of requests were faster than this. Don't use averages.</td></tr>
+          <tr><td>61</td><td>Bottleneck</td><td>Performance</td><td>The one component that constrains system throughput at a given load</td></tr>
+          <tr><td>62</td><td>Single Point of Failure</td><td>Reliability</td><td>A component whose failure brings down the entire system</td></tr>
+          <tr><td>63</td><td>High Availability</td><td>Reliability</td><td>System designed to minimize downtime — redundancy, failover, no SPOFs</td></tr>
+          <tr><td>64</td><td>Failover</td><td>Reliability</td><td>Automatic switch to backup system when primary fails</td></tr>
+          <tr><td>65</td><td>Redundancy</td><td>Reliability</td><td>Duplicate components so any single failure has a backup</td></tr>
+          <tr><td>66</td><td>Graceful Degradation</td><td>Reliability</td><td>System provides reduced functionality rather than complete failure</td></tr>
+          <tr><td>67</td><td>Feature Flag</td><td>Deployment</td><td>Runtime toggle to enable/disable features without code deployment</td></tr>
+          <tr><td>68</td><td>CI/CD</td><td>Deployment</td><td>Continuous Integration/Deployment — automated build, test, deploy pipeline</td></tr>
+          <tr><td>69</td><td>Infrastructure as Code</td><td>Deployment</td><td>Managing infrastructure through version-controlled code (Terraform, Ansible)</td></tr>
+          <tr><td>70</td><td>Container</td><td>Infrastructure</td><td>Lightweight isolated runtime (Docker) packaging app + dependencies</td></tr>
+          <tr><td>71</td><td>Kubernetes</td><td>Infrastructure</td><td>Container orchestration — automated deployment, scaling, and management</td></tr>
+          <tr><td>72</td><td>Auto-scaling</td><td>Infrastructure</td><td>Automatically adding/removing instances based on current load metrics</td></tr>
+          <tr><td>73</td><td>Webhook</td><td>Communication</td><td>Server-to-server callback — server notifies a URL when an event occurs</td></tr>
+          <tr><td>74</td><td>WebSocket</td><td>Communication</td><td>Persistent bidirectional connection — real-time data from server to client</td></tr>
+          <tr><td>75</td><td>gRPC</td><td>Communication</td><td>Binary protocol over HTTP/2 with strongly-typed schemas (protobuf)</td></tr>
+          <tr><td>76</td><td>GraphQL</td><td>Communication</td><td>Client specifies exactly what data it needs — no over or under-fetching</td></tr>
+          <tr><td>77</td><td>Schema Registry</td><td>Messaging</td><td>Central repository for event schemas — validates compatibility before publish</td></tr>
+          <tr><td>78</td><td>Outbox Pattern</td><td>Reliability</td><td>Write DB record + event in one atomic transaction; separate relay publishes</td></tr>
+          <tr><td>79</td><td>Saga Orchestration</td><td>Reliability</td><td>Central coordinator tells each service what to do; handles compensation</td></tr>
+          <tr><td>80</td><td>Saga Choreography</td><td>Reliability</td><td>Each service reacts to events from the previous — no central coordinator</td></tr>
+          <tr><td>81</td><td>Read Replica</td><td>Data</td><td>Database copy that handles all read queries, freeing primary for writes</td></tr>
+          <tr><td>82</td><td>Connection Pool</td><td>Performance</td><td>Pre-created, reusable database connections — avoid per-request connection overhead</td></tr>
+          <tr><td>83</td><td>Async Processing</td><td>Architecture</td><td>Return immediately; process later — improves throughput and responsiveness</td></tr>
+          <tr><td>84</td><td>Batch Processing</td><td>Architecture</td><td>Process large datasets in scheduled chunks rather than per-item in real-time</td></tr>
+          <tr><td>85</td><td>Pagination</td><td>API Design</td><td>Return results in pages with limits — never return unbounded datasets</td></tr>
+          <tr><td>86</td><td>Idempotency Key</td><td>Reliability</td><td>Unique client-generated ID on every mutating request — enables safe retry</td></tr>
+          <tr><td>87</td><td>Correlation ID</td><td>Operations</td><td>Unique ID tracking a request across multiple services and log entries</td></tr>
+          <tr><td>88</td><td>Graceful Shutdown</td><td>Reliability</td><td>Finish in-progress work and close connections cleanly before stopping</td></tr>
+          <tr><td>89</td><td>Liveness Probe</td><td>Operations</td><td>Is the service running? Kubernetes restarts failed liveness probes.</td></tr>
+          <tr><td>90</td><td>Readiness Probe</td><td>Operations</td><td>Is the service ready to receive traffic? Load balancer routes when ready.</td></tr>
+          <tr><td>91</td><td>Distributed Lock</td><td>Reliability</td><td>Mutual exclusion across multiple service instances — Redis SETNX or Redlock</td></tr>
+          <tr><td>92</td><td>Two-Phase Commit</td><td>Data</td><td>Coordinate commit across multiple resources — strong consistency, high latency</td></tr>
+          <tr><td>93</td><td>Log Aggregation</td><td>Operations</td><td>Collecting logs from all services into a central searchable system (ELK, Loki)</td></tr>
+          <tr><td>94</td><td>Tracing Context</td><td>Operations</td><td>Propagating traceId and spanId through all service calls and messages</td></tr>
+          <tr><td>95</td><td>Secret Management</td><td>Security</td><td>HashiCorp Vault / AWS Secrets Manager — never hardcode credentials</td></tr>
+          <tr><td>96</td><td>mTLS</td><td>Security</td><td>Mutual TLS — both client and server authenticate each other</td></tr>
+          <tr><td>97</td><td>Data Partitioning</td><td>Data</td><td>Dividing data by a meaningful key to distribute load and storage</td></tr>
+          <tr><td>98</td><td>Consistent Hashing</td><td>Data</td><td>Distribute data across nodes minimizing remapping when nodes change</td></tr>
+          <tr><td>99</td><td>Process Isolation</td><td>Architecture</td><td>Services run in separate processes/containers — failure contained to one unit</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library Home</a>
+      <a href="book-1.html" class="book-nav-link current">I · The City</a>
+      <a href="book-2.html" class="book-nav-link">II · The Codex</a>
+      <a href="book-3.html" class="book-nav-link">III · The Foundations</a>
+      <a href="book-4.html" class="book-nav-link">IV · The Hall</a>
+      <a href="book-5.html" class="book-nav-link">V · The River</a>
+    </div>
+    <p class="footer-credit">
+      "It works because someone answered those questions correctly, before they became problems. That is what you are learning to do."
+    </p>
+  </footer>
+
+</main>
+
+<script>
+  // Reading Progress
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (window.scrollY / h * 100) + '%';
+  });
+
+  // TOC Toggle
+  const toggle = document.getElementById('tocToggle');
+  const sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    sidebar.classList.toggle('open');
+  });
+
+  // Active TOC item on scroll
+  const sections = document.querySelectorAll('[id]');
+  const tocItems = document.querySelectorAll('.toc-item');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        tocItems.forEach(t => t.classList.remove('active'));
+        const active = document.querySelector(`.toc-item[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => io.observe(s));
+</script>
+
+</body>
+</html>

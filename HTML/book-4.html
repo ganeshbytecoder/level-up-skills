@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book IV · The Hall of Failures — The Engineer's Library</title>
+  <meta name="description" content="12 failure categories, 20 real-world outages from Amazon, GitHub, Stripe and more — and the FAANG pre-flight checklist to prevent them.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --book-color: #ef4444; }
+    .gallery-header { display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem 1.5rem; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-md); margin: 2.5rem 0 1.5rem; }
+    .gallery-icon { font-size: 2rem; }
+    .gallery-num { font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #ef4444; margin-bottom: 0.2rem; }
+    .gallery-name { font-family: var(--font-story); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
+    .failure-card { background: var(--bg-card); border: 1px solid rgba(239,68,68,0.15); border-radius: var(--radius-md); padding: 1.25rem; margin: 0.75rem 0; transition: all 0.3s; }
+    .failure-card:hover { border-color: rgba(239,68,68,0.4); transform: translateX(3px); }
+    .failure-title { font-family: var(--font-story); font-size: 1rem; font-weight: 700; color: #ef4444; margin-bottom: 0.4rem; }
+    .failure-body { font-family: var(--font-ui); font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6; }
+    .real-outage { background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-md); padding: 1.25rem; margin: 1rem 0; }
+    .outage-label { font-family: var(--font-ui); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #ef4444; margin-bottom: 0.4rem; }
+    .outage-company { font-family: var(--font-story); font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; }
+    .outage-detail { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .outage-lesson { font-family: var(--font-ui); font-size: 0.8rem; color: #fca5a5; margin-top: 0.6rem; border-top: 1px solid rgba(239,68,68,0.15); padding-top: 0.6rem; }
+    .preflight { background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(245,158,11,0.05)); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-xl); padding: 2rem; margin: 2rem 0; }
+    .preflight h3 { font-family: var(--font-story); font-size: 1.4rem; color: #ef4444; margin-bottom: 1.25rem; }
+    .preflight-item { display: flex; gap: 1rem; align-items: flex-start; padding: 0.75rem 0; border-bottom: 1px solid rgba(239,68,68,0.1); }
+    .preflight-item:last-child { border: none; }
+    .preflight-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-size: 0.78rem; font-weight: 700; color: #ef4444; flex-shrink: 0; }
+    .preflight-q { font-family: var(--font-ui); font-size: 0.88rem; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+    .preflight-why { font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem; }
+  </style>
+</head>
+<body>
+<div id="reading-progress"></div>
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">The Hall of Failures</div>
+  <div class="nav-actions">
+    <a href="book-3.html" class="nav-btn">← Book III</a>
+    <a href="book-5.html" class="nav-btn">Book V →</a>
+  </div>
+</nav>
+<button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">🔥 Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — The Archivist</a>
+  <a href="#act1" class="toc-item">Act I — Human Error</a>
+  <a href="#act2" class="toc-item">Act II — Missing Limits</a>
+  <a href="#act3" class="toc-item">Act III — Dependency Failures</a>
+  <a href="#act4" class="toc-item">Act IV — Data Inconsistency</a>
+  <a href="#act5" class="toc-item">Act V — Configuration Disasters</a>
+  <a href="#outages" class="toc-item">20 Real Outages</a>
+  <a href="#act6" class="toc-item">Act VI — Maren's Last Notes</a>
+  <a href="#preflight" class="toc-item">FAANG Pre-Flight Checklist</a>
+  <a href="#taxonomy" class="toc-item">Failure Taxonomy</a>
+</nav>
+
+<main class="book-main">
+  <header class="book-hero" style="--book-color:#ef4444">
+    <div class="book-number" style="color:#ef4444">Book IV of V</div>
+    <h1>The Hall of Failures</h1>
+    <p class="subtitle">Twelve galleries of preserved disasters. Every failure that has ever brought a production system to its knees — understood so they need never be repeated.</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot" style="background:#ef4444"></span> 12 Failure Categories</span>
+      <span class="meta-badge"><span class="dot" style="background:#ef4444"></span> 20 Real Outages</span>
+      <span class="meta-badge"><span class="dot" style="background:#ef4444"></span> ~3 Hours</span>
+    </div>
+  </header>
+
+  <div class="epigraph" style="border-left-color:#ef4444">
+    "Every failure in this hall was once a blind spot. The engineers who caused them did not know they were in danger. That is why we preserve them — not to judge, but to illuminate."
+    <cite>— Maren, Archivist of the Hall of Failures, to every new apprentice</cite>
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label" style="color:#ef4444">Prologue</div>
+    <h2>The Archivist's Invitation</h2>
+    <div class="story-content">
+      <p>Maren met Kira at the entrance to the Hall the morning after Kira's first major production incident — a deployment that had taken the city's payment system offline for three hours during the Harvest Festival peak.</p>
+      <p><em>"Come,"</em> Maren said simply. <em>"I want to show you something."</em></p>
+      <p>The Hall of Failures was not a place of punishment nor shame. It was a museum. Each gallery contained the careful, loving preservation of a disaster — not to remember who failed, but to remember what patterns had caused the failure. Not names, not dates, not blame. Only: what happened, why it happened, and what a different shape would have prevented it.</p>
+      <p><em>"In forty years of studying production failures,"</em> Maren said as they entered, <em>"I have found that almost every one falls into one of twelve categories. The same twelve. Over and over. Different systems. Different companies. Different years. The same twelve shapes."</em></p>
+    </div>
+  </section>
+
+  <!-- ACT 1 -->
+  <section class="chapter" id="act1">
+    <div class="chapter-label" style="color:#ef4444">Gallery One</div>
+    <h2>The Human Error Gallery</h2>
+    <p class="chapter-subtitle"><em>Failures caused by human action without sufficient safeguards</em></p>
+    <div class="story-content">
+      <p>The largest gallery in the hall. Every failure here had a human being at the triggering moment. But that was never the root cause — human error is expected. The root cause was always the same: a system that had no safeguard between a human intention and a catastrophic outcome.</p>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Unreversible Command</div>
+      <div class="failure-body">An engineer runs a database command directly in production that cannot be undone. No staging test. No dry-run. No second approval. Result: 72 hours of data loss.<br><br>
+      <strong>Prevention:</strong> No direct production DB access. All changes via migration scripts versioned in git. Dry-run mode required. Multi-person approval for destructive operations.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Accidental Flag</div>
+      <div class="failure-body">A feature flag is accidentally enabled in production instead of staging — activating unfinished code for all users. Result: billing system sends incorrect invoices to 2M merchants.<br><br>
+      <strong>Prevention:</strong> Environment-specific flag namespaces. UI clearly distinguishes production from staging flags. Audit log on every flag change.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Forgotten Rollback</div>
+      <div class="failure-body">A deployment is made. Five minutes later, error rates spike. The engineer who knows how to roll back is on a flight. No documented rollback procedure. No runbook. Two hours to diagnose what took five seconds to introduce.<br><br>
+      <strong>Prevention:</strong> Runbook for every deployment. Rollback procedure tested quarterly. On-call engineer briefed on every deployment before it happens.</div>
+    </div>
+  </section>
+
+  <!-- ACT 2 -->
+  <section class="chapter" id="act2">
+    <div class="chapter-label" style="color:#ef4444">Gallery Two</div>
+    <h2>The Missing Limits Gallery</h2>
+    <p class="chapter-subtitle"><em>Failures caused by infinite requests, unbounded data, and missing constraints</em></p>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Runaway Queue</div>
+      <div class="failure-body">A job queue has no maximum depth limit. One malfunctioning consumer stops processing. The queue grows to 40 million items. When the consumer restarts, it tries to process all 40M simultaneously — taking down the database that stores the queue state.<br><br>
+      <strong>Prevention:</strong> Always set max queue depth. Dead Letter Queue for items exceeding retry limit. Consumer lag alerting — alert before queue is full, not after.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Unbounded Query</div>
+      <div class="failure-body">An API endpoint returns all records matching a query — with no LIMIT clause. In development this returns 50 rows. In production it returns 4 million. The JSON serialization allocates 8GB of heap. The service OOMs and dies.<br><br>
+      <strong>Prevention:</strong> All list endpoints require explicit pagination. Server-enforced maximum page size. Never trust the client to set a reasonable limit.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Missing Rate Limit</div>
+      <div class="failure-body">One client — a rogue analytics job — sends 50,000 requests per second to an API with no rate limiting. The database cannot respond to any other clients for 40 minutes.<br><br>
+      <strong>Prevention:</strong> Rate limit per client ID on every public and internal API. Token bucket with 429 responses. Circuit break the offending client automatically when sustained high rate is detected.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Infinite Retry Loop</div>
+      <div class="failure-body">Service A calls Service B. B returns a 503. A retries immediately. B retries its own downstream. Every retry generates more retries. Within 90 seconds, total request rate is 40,000/second across the cluster. All services go down.<br><br>
+      <strong>Prevention:</strong> Exponential backoff + jitter on all retries. Maximum retry count (usually 3). Jitter prevents synchronized retry storms. Circuit breakers stop cascading retries.</div>
+    </div>
+  </section>
+
+  <!-- ACT 3 -->
+  <section class="chapter" id="act3">
+    <div class="chapter-label" style="color:#ef4444">Gallery Three</div>
+    <h2>The Dependency Failure Gallery</h2>
+    <p class="chapter-subtitle"><em>Failures caused by trusting that everything external will always work</em></p>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Blocking Call Without Timeout</div>
+      <div class="failure-body">Service A calls Service B with no timeout configured. B starts responding slowly — not down, just slow. A's threads accumulate waiting for B's response. In 3 minutes, all of A's threads are blocked. A stops responding to all requests — including unrelated ones that don't call B at all.<br><br>
+      <strong>Prevention:</strong> Every network call must have a timeout. Default timeouts in the SDK are often wrong — set them explicitly. Alert when response time approaches timeout.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Missing Circuit Breaker</div>
+      <div class="failure-body">The Fraud Detection Service goes down. Every payment request times out waiting for fraud detection (10 seconds). Users see spinning loaders. The timeout thread pool fills. The Load Balancer marks the Payment Service as unhealthy. The Payment Service has been taken down by a non-critical dependency.<br><br>
+      <strong>Prevention:</strong> Circuit Breaker on every inter-service call. Define fallback behavior: can payment proceed without fraud check? (With risk flag?) Can fraud check be async?</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Third-Party API Gone Dark</div>
+      <div class="failure-body">The system depends on an external geocoding API. One Tuesday morning, the provider has an outage. Every delivery address is unresolvable. Thousands of orders fail silently — showing success to the merchant but failing internally.<br><br>
+      <strong>Prevention:</strong> Cache previous successful responses with generous TTL. Graceful degradation: accept the order without geocoding, geocode asynchronously. Never let a non-essential third party take down core functionality.</div>
+    </div>
+  </section>
+
+  <!-- ACT 4 -->
+  <section class="chapter" id="act4">
+    <div class="chapter-label" style="color:#ef4444">Gallery Four</div>
+    <h2>The Data Inconsistency Gallery</h2>
+    <p class="chapter-subtitle"><em>Failures caused by state that doesn't agree with itself</em></p>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Dual Write</div>
+      <div class="failure-body">The service writes to the database, then publishes to Kafka. The DB write succeeds. Before the Kafka publish, the service crashes. The event is never published. The order exists in the DB but downstream services never know — inventory is never decremented, shipping is never triggered.<br><br>
+      <strong>Prevention:</strong> Outbox Pattern: write the event to the same DB transaction as the data. A relay service publishes from the outbox table. Atomic and guaranteed.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Missing Idempotency</div>
+      <div class="failure-body">A payment request is made. The response is lost in transit — the client doesn't know if it succeeded. The client retries. The payment is processed twice. The merchant is charged double. The refund process takes 5 business days.<br><br>
+      <strong>Prevention:</strong> Every mutating operation accepts an idempotency key. Check key before processing. Return previous result if key was already processed. Stripe and every payments API implement this.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Race Condition</div>
+      <div class="failure-body">A merchant's account balance is $100. Two payments of $80 are initiated simultaneously. Both read the balance: $100. Both check: sufficient. Both deduct $80. Final balance: -$60. Overdraft of $60 — in a system with no overdraft protection.<br><br>
+      <strong>Prevention:</strong> Optimistic locking (version field on records) or pessimistic locking (SELECT FOR UPDATE). Database-level constraints. Atomic operations (compare-and-swap).</div>
+    </div>
+  </section>
+
+  <!-- ACT 5 -->
+  <section class="chapter" id="act5">
+    <div class="chapter-label" style="color:#ef4444">Gallery Five</div>
+    <h2>The Configuration Gallery</h2>
+    <p class="chapter-subtitle"><em>Failures caused by the wrong setting in the wrong place</em></p>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Wrong Environment Variable</div>
+      <div class="failure-body">A deployment to production accidentally uses staging's database URL. For four hours, production traffic is processed against the staging database. Staging data is corrupted. Production has four hours of unrecorded transactions.<br><br>
+      <strong>Prevention:</strong> Config validation on startup — fail fast if critical config is wrong. Environment-specific checks. Alert on unexpected database connection counts in production.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Connection Pool Too Small</div>
+      <div class="failure-body">The service has a connection pool of 5. Load increases from 20 rps to 200 rps. Threads queue for available connections. The 95th percentile latency climbs from 20ms to 8 seconds. The service appears "up" to health checks but is functionally down for users.<br><br>
+      <strong>Prevention:</strong> Connection pool size based on load testing. Alert on connection pool exhaustion. Measure pool wait time as a metric.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">💀 The Memory Leak Nobody Noticed</div>
+      <div class="failure-body">A new version introduces a small memory leak — 1MB per 1000 requests. At 10 rps, unnoticeable. After 6 hours, the service has leaked 2GB and is OOM-killed. Since the deployment was 6 hours ago, no one connects the crash to the deployment.<br><br>
+      <strong>Prevention:</strong> Monitor JVM/heap metrics continuously. Alert on steady upward memory trend. Canary deployment with extended monitoring before full rollout.</div>
+    </div>
+  </section>
+
+  <!-- 20 REAL OUTAGES -->
+  <section class="chapter" id="outages">
+    <div class="chapter-label" style="color:#ef4444">The Gallery of Real Failures</div>
+    <h2>Twenty Real Outages — Every Pattern Illustrated</h2>
+    <p class="chapter-subtitle"><em>Amazon, GitHub, Facebook, Stripe, Cloudflare, and more — real incidents with real lessons</em></p>
+
+    <div class="real-outage">
+      <div class="outage-label">🏢 Amazon S3 · 2017 · 4 hours</div>
+      <div class="outage-company">A Typo That Took Down Half the Internet</div>
+      <div class="outage-detail">An engineer debugging the S3 billing system accidentally typed a parameter that removed too many servers from the capacity management system. S3 entered a state it had never been in — taking down almost every major website and app that relied on it.</div>
+      <div class="outage-lesson">→ Lesson: Validate parameters against a safe range before executing. Manual operations in production need a second approval. Recovery procedures must be tested before they're needed. Never assume safe config ranges.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">💻 GitHub · 2018 · 24 hours</div>
+      <div class="outage-company">The Split-Brain Database That Wouldn't Heal</div>
+      <div class="outage-detail">A maintenance operation created network partitioning between GitHub's primary database and replica. When the network recovered, the replica had become a primary. Two primaries now existed. Merging the diverged data without data loss took 24 hours.</div>
+      <div class="outage-lesson">→ Lesson: Split-brain scenarios must have a documented resolution procedure tested in drills. Automated failover without careful validation can cause more damage than the original failure.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">📘 Facebook · 2021 · 6 hours</div>
+      <div class="outage-company">BGP Routing That Locked Engineers Out</div>
+      <div class="outage-detail">A routine BGP update accidentally removed all of Facebook's route advertisements. Facebook entirely disappeared from the internet. The BGP update also took down the internal systems Facebook engineers used to connect remotely — locking them out of the tools needed to fix the issue. Engineers physically drove to the datacenter to fix it.</div>
+      <div class="outage-lesson">→ Lesson: Emergency access to fix systems must not depend on the systems being fixed. Out-of-band access procedures. Change validation with rollback capability before BGP changes.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">💳 Stripe · 2019 · 2 hours</div>
+      <div class="outage-company">The SSL Certificate That Expired During Peak Traffic</div>
+      <div class="outage-detail">An SSL certificate expired during peak payment processing hours. Stripe's infrastructure had automated renewal, but a configuration change two weeks earlier had quietly disabled it. Thousands of payment integrations began returning SSL errors.</div>
+      <div class="outage-lesson">→ Lesson: Certificate expiry monitoring with 30/14/7/1 day alerts. Test renewal automation regularly. Config changes should audit the effect on automated operations.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">☁️ Cloudflare · 2019 · 27 minutes</div>
+      <div class="outage-company">The Regex That Consumed All CPU</div>
+      <div class="outage-detail">A new WAF rule introduced a poorly written regex that backtracked catastrophically — consuming 100% CPU across all Cloudflare's processing nodes globally within seconds of deployment. Traffic dropped to near zero worldwide.</div>
+      <div class="outage-lesson">→ Lesson: Test regex patterns with performance profiling. Deploy WAF rules gradually with canary rollout. Immediate rollback capability for all rule changes.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🌐 AWS us-east-1 · 2011 · Multiple days</div>
+      <div class="outage-company">The EBS Cascade That Exposed Single-Region Danger</div>
+      <div class="outage-detail">An automated network change caused EBS volumes to enter a "re-mirroring storm" — every EBS volume began re-mirroring simultaneously, consuming all available capacity. Services that had been architected as single-region with no failover stayed down for days.</div>
+      <div class="outage-lesson">→ Lesson: Critical systems must be multi-region. Single availability zone = single point of failure. Health check design must differentiate "service itself is broken" from "cloud provider has an issue."</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🎯 Reddit · 2016 · 1.5 hours</div>
+      <div class="outage-company">The Autoscaler That Deleted All the Servers</div>
+      <div class="outage-detail">An autoscaling policy was misconfigured to scale down aggressively during low-traffic periods. It correctly identified that traffic was low at 3 AM and terminated all servers. When traffic returned, it attempted to scale up — but the AMI used for new instances had a misconfigured database connection string. Startup failed on every new instance.</div>
+      <div class="outage-lesson">→ Lesson: Set minimum instance counts that prevent autoscaler from going to zero. Test scale-up procedures from zero. New AMI validation before it enters the autoscaling group.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🗄️ GitLab · 2017 · 18 hours of data loss</div>
+      <div class="outage-company">The Database Deletion Nobody Could Undo</div>
+      <div class="outage-detail">A DBA, trying to remove data from the wrong server, ran a command that deleted the primary production database. The database backup had been failing silently for months. The replication was lagging and couldn't recover the lost data. 6 hours of data and 5000 projects were permanently lost.</div>
+      <div class="outage-lesson">→ Lesson: Backup success must be monitored — not just that the backup ran, but that it completed and is restorable. Test restores monthly. Separate human error from database deletion (delete → staging first, then production).</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">📦 npm · 2016 · Multiple hours</div>
+      <div class="outage-company">The left-pad Unpubish That Broke the Internet</div>
+      <div class="outage-detail">A developer unpublished a tiny 11-line npm package (left-pad) after a trademark dispute. Thousands of packages that depended on it — including React and Babel — failed to build worldwide, breaking CI/CD pipelines globally.</div>
+      <div class="outage-lesson">→ Lesson: Vendor lock-in risk, even in open source. Pin exact versions in lock files. Mirror critical dependencies internally. Understand the transitive dependency tree — left-pad was a 4th-level transitive dependency for most affected packages.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">📱 Instagram · 2012 · Ongoing degradation</div>
+      <div class="outage-company">The N+1 Query That Scaled Quadratically</div>
+      <div class="outage-detail">An endpoint that loaded a user's feed executed one query per post to load author details. At 100 followers with 5 posts each: 501 queries per page load. At 1M users: millions of queries per second, nearly all redundant. Database could not keep up with O(n) queries per user.</div>
+      <div class="outage-lesson">→ Lesson: Profile all database queries in production traffic. N+1 queries are invisible in unit tests. ORM queries must be audited. Batch loading (DataLoader, JPA @BatchFetch) is mandatory at scale.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🐦 Twitter · 2009 · "Fail Whale" Era</div>
+      <div class="outage-company">The Database That Couldn't Scale with Social Graph Reads</div>
+      <div class="outage-detail">Twitter's monolithic MySQL database could not serve the read volume generated by celebrity users with millions of followers. Every tweet from a celebrity triggered millions of timeline updates in a fan-out write model. The database became a bottleneck that no amount of hardware could solve.</div>
+      <div class="outage-lesson">→ Lesson: Fan-out write vs fan-out read is an architectural decision with massive scale implications. Hybrid approaches (cache for celebrities, fan-out-on-write for small followings) must be designed early, not retrofitted.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">⚡ Heroku · 2017 · 2 hours</div>
+      <div class="outage-company">The Scheduler That Ran 10,000 Times in 5 Minutes</div>
+      <div class="outage-detail">A bug in Heroku's scheduler caused a scheduled job to run in an infinite loop instead of once. In 5 minutes, it sent 10,000 emails to 500,000 users. Support requests flooded in from users confused about why they were receiving duplicate system emails.</div>
+      <div class="outage-lesson">→ Lesson: Scheduled jobs must be idempotent. Execution count alerting: if a job that runs daily has run 5 times today — alert immediately. Emails need deduplication at the mailer level.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🔐 LastPass · 2022 · Ongoing</div>
+      <div class="outage-company">The Developer Machine That Started an Enterprise Breach</div>
+      <div class="outage-detail">A threat actor compromised a developer's machine, gained credentials, and accessed LastPass's development environment. Over months, they exfiltrated encrypted password vault backups and encryption keys from different systems.</div>
+      <div class="outage-lesson">→ Lesson: Blast radius of employee compromise must be bounded. Short-lived credentials. Least privilege for every access. Separation of dev environments from production data — always.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🎮 PlayStation Network · 2011 · 23 days</div>
+      <div class="outage-company">The Breach That No One Was Ready to Recover From</div>
+      <div class="outage-detail">An intrusion into PSN systems led to 77 million account records being compromised. Sony chose to take the network down rather than continue operating with a breach in progress. Recovery was complicated by unclear incident response procedures and legal requirements across multiple jurisdictions.</div>
+      <div class="outage-lesson">→ Lesson: Incident response procedures must be documented and drilled before they're needed. Legal and PR involvement in security incident response planning. Recovery time is determined by preparation, not by the incident itself.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🚘 Uber · 2015 · Multiple hours</div>
+      <div class="outage-company">The Deployment That Broke Surge Pricing at New Year</div>
+      <div class="outage-detail">A deployment of changes to Uber's pricing service was made on New Year's Eve — the highest-traffic day of the year. The deployment introduced a bug in surge pricing calculation. Thousands of rides were priced incorrectly. Revenue impact and customer refund costs were significant.</div>
+      <div class="outage-lesson">→ Lesson: Deployment freeze windows for peak traffic events. Canary releases that include business metric validation (not just technical health). No deployments without verified rollback paths.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">📊 Google · 2014 · 5 minutes</div>
+      <div class="outage-company">The BGP Leak That Made Google Routes Disappear</div>
+      <div class="outage-detail">A BGP configuration change by a third-party provider accidentally caused Google's IP prefixes to be advertised via routes with incorrect AS paths. Global traffic destined for Google was rerouted or dropped.</div>
+      <div class="outage-lesson">→ Lesson: BGP route changes must go through validation pipelines with staged rollout. Route filtering to prevent accepting obviously invalid BGP advertisements. Even Google needs defense against third-party configuration errors.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🏦 TSB Bank · 2018 · 5 weeks</div>
+      <div class="outage-company">The Platform Migration That Locked Customers Out for Weeks</div>
+      <div class="outage-detail">TSB migrated 5.2 million customer accounts from an old system to a new banking platform. The migration had not been tested at full scale. The new system could not handle production load. Customers were locked out of their accounts for up to 5 weeks.</div>
+      <div class="outage-lesson">→ Lesson: Production-scale load testing before migration. Phased migration (not big-bang). Rollback plan that actually works at scale. Never migrate a banking system during peak period without a tested, validated fallback path.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">☁️ Azure · 2019 · 9 hours</div>
+      <div class="outage-company">The Certificate Rotation That Broke Authentication</div>
+      <div class="outage-detail">An automated certificate rotation changed a certificate before all services had been updated to trust the new certificate. Authentication services began rejecting valid tokens. The rollout order had not accounted for dependency between certificate issuance and certificate trust.</div>
+      <div class="outage-lesson">→ Lesson: Certificate rotation must be backwards-compatible during the transition window. Both old and new certificates must be trusted simultaneously. Test rotation procedures in staging before production.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🎵 Spotify · 2022 · Multiple hours</div>
+      <div class="outage-company">The Cache Stampede After a Sudden Outage</div>
+      <div class="outage-detail">A brief datacenter issue caused Spotify's caches to flush simultaneously. When service restored, every client reconnected at once. Every cache was cold. Every request went to the database. The database — not designed to serve 100% of traffic without cache — fell over under the load.</div>
+      <div class="outage-lesson">→ Lesson: Cache warmup procedures before returning traffic after an outage. Traffic shaping during recovery (not all clients at once). Database load testing at cache-miss traffic levels.</div>
+    </div>
+
+    <div class="real-outage">
+      <div class="outage-label">🔄 AWS DynamoDB · 2019 · 8 hours</div>
+      <div class="outage-company">The Metadata Partitioning Bug</div>
+      <div class="outage-detail">A bug in DynamoDB's internal metadata service caused it to be overloaded. Requests to DynamoDB were timing out or failing, affecting thousands of AWS customers and downstream services across the internet.</div>
+      <div class="outage-lesson">→ Lesson: Cloud provider failures are your business's failures. Multi-region and multi-provider strategies for critical paths. Graceful degradation when the database itself is unavailable.</div>
+    </div>
+  </section>
+
+  <!-- ACT 6: MAREN'S LAST NOTES -->
+  <section class="chapter" id="act6">
+    <div class="chapter-label" style="color:#ef4444">Act VI — Maren's Last Notes</div>
+    <h2>The Advanced Gallery</h2>
+    <p class="chapter-subtitle"><em>Event Sourcing, O(n²) Complexity, Large Transactions, OAuth2 Security, and the patterns that appear in senior-level interviews</em></p>
+
+    <div class="failure-card">
+      <div class="failure-title">⚡ Event Sourcing Gone Wrong</div>
+      <div class="failure-body">A team adopts Event Sourcing (storing events rather than current state). After one year, replaying 10 million events to rebuild a merchant's current state takes 45 seconds. Every API call that needs current state triggers a full replay.<br><br>
+      <strong>Pattern:</strong> Event Sourcing is powerful but requires Snapshot support. Periodically save the current state as a snapshot. Replay only from the last snapshot, not from the beginning of time.<br><br>
+      <strong>When to use Event Sourcing:</strong> When the history of changes is as important as the current state. Audit trails, financial records, debugging complex state. Not as a default choice.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">⚡ The O(n²) Hidden in Production</div>
+      <div class="failure-body">A guild matching algorithm worked perfectly in testing with 100 merchants. In production with 10,000 merchants, it ran for 8 hours. The algorithm was O(n²) — comparing every merchant to every other merchant.<br><br>
+      <strong>n=100:</strong> 10,000 operations. <strong>n=10,000:</strong> 100,000,000 operations.<br><br>
+      <strong>Prevention:</strong> Analyze algorithm complexity during code review. Benchmark with production-scale data. Load testing is not just for throughput — also for correctness at scale.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">⚡ The Large Transaction Timeout</div>
+      <div class="failure-body">An end-of-month settlement process runs a single giant database transaction updating 500,000 merchant balances. It takes 45 minutes. At minute 44, the database's transaction timeout kills it. The rollback of 44 minutes of work takes another 20 minutes.<br><br>
+      <strong>Prevention:</strong> Break large operations into batches of 1,000-10,000. Each batch is its own transaction. Track progress. Resume from last successful batch on failure. Never run multi-hour transactions in production.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">⚡ The Read Replica Serving Stale Data on Critical Reads</div>
+      <div class="failure-body">The system routes all reads to read replicas to reduce primary load. The payment verification check reads from a replica. The replica lags 2 seconds behind the primary. A payment is made. The refund check happens within 2 seconds and reads the pre-payment balance from the replica — marking the refund as unsuccessful.<br><br>
+      <strong>Prevention:</strong> Consistency requirements per read. Critical reads (post-write verification) must go to the primary. Analytical reads can go to replicas. Know the replication lag.</div>
+    </div>
+
+    <div class="failure-card">
+      <div class="failure-title">⚡ JWT Signature Not Verified</div>
+      <div class="failure-body">The authentication service issues JWTs. An internal service decodes the JWT payload to extract the user ID — but never verifies the signature. An attacker with a test account crafts a JWT with an admin user ID. The internal service trusts it entirely.<br><br>
+      <strong>Prevention:</strong> Always verify the JWT signature. Always check exp (expiry), iss (issuer), and aud (audience). Never decode without verifying. A JWT is only as secure as the signature verification step.</div>
+    </div>
+  </section>
+
+  <!-- PREFLIGHT CHECKLIST -->
+  <section id="preflight" class="chapter">
+    <div class="chapter-label" style="color:#ef4444">The FAANG Pre-Flight Checklist</div>
+    <h2>Six Questions Before Any Production Feature</h2>
+    <div class="preflight">
+      <h3>⚡ Run This Before Every Deploy</h3>
+      <div class="preflight-item">
+        <div class="preflight-num">1</div>
+        <div>
+          <div class="preflight-q">Is every mutating operation idempotent?</div>
+          <div class="preflight-why">Networks fail. Clients retry. Double processing = double charging, double shipping, double deleting. Every write operation must handle being called twice.</div>
+        </div>
+      </div>
+      <div class="preflight-item">
+        <div class="preflight-num">2</div>
+        <div>
+          <div class="preflight-q">Are retries bounded with backoff and jitter?</div>
+          <div class="preflight-why">Unbounded immediate retries amplify failures rather than recovering from them. Every retry must wait longer and add randomness.</div>
+        </div>
+      </div>
+      <div class="preflight-item">
+        <div class="preflight-num">3</div>
+        <div>
+          <div class="preflight-q">Does every external call have a timeout and circuit breaker?</div>
+          <div class="preflight-why">A slow downstream should not block all your threads indefinitely. A dead downstream should not take down your service.</div>
+        </div>
+      </div>
+      <div class="preflight-item">
+        <div class="preflight-num">4</div>
+        <div>
+          <div class="preflight-q">Is schema evolution backward compatible?</div>
+          <div class="preflight-why">Old consumers will still be running when the new schema is deployed. Required fields must never be added without defaults. Field types must never change.</div>
+        </div>
+      </div>
+      <div class="preflight-item">
+        <div class="preflight-num">5</div>
+        <div>
+          <div class="preflight-q">Are metrics, logs, and traces in place?</div>
+          <div class="preflight-why">You cannot debug what you cannot observe. Shipping a feature without observability is shipping a feature you cannot fix in production.</div>
+        </div>
+      </div>
+      <div class="preflight-item">
+        <div class="preflight-num">6</div>
+        <div>
+          <div class="preflight-q">What is the blast radius and rollback plan?</div>
+          <div class="preflight-why">Every deployment introduces risk. Know who is affected if this goes wrong. Know exactly how to undo it in under 5 minutes.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAXONOMY TABLE -->
+  <section id="taxonomy" class="reference-section">
+    <h2>The Failure Taxonomy Reference</h2>
+    <p class="desc">Every failure pattern from the Hall — your recurring checklist for any production system.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Category</th><th>Pattern Name</th><th>Root Cause</th><th>Prevention</th></tr></thead>
+        <tbody>
+          <tr><td>Human Error</td><td>Unreversible Command</td><td>No staging test, no dry-run, no second approval</td><td>No direct prod DB access; migration scripts; multi-approval</td></tr>
+          <tr><td>Human Error</td><td>Forgotten Rollback</td><td>No documented rollback procedure</td><td>Runbook per deployment; tested rollback; on-call briefed</td></tr>
+          <tr><td>Missing Limits</td><td>Runaway Queue</td><td>No max queue depth; no DLQ</td><td>Max depth; DLQ; lag alerting</td></tr>
+          <tr><td>Missing Limits</td><td>Unbounded Query</td><td>No LIMIT clause; no pagination enforcement</td><td>Server-enforced pagination; max page size</td></tr>
+          <tr><td>Missing Limits</td><td>Missing Rate Limit</td><td>No per-client request throttle</td><td>Token bucket rate limit on every API; 429 responses</td></tr>
+          <tr><td>Missing Limits</td><td>Infinite Retry Loop</td><td>Immediate unlimited retries</td><td>Exponential backoff + jitter; max 3 retries; circuit breaker</td></tr>
+          <tr><td>Dependency Failure</td><td>Blocking Call Without Timeout</td><td>No timeout on network calls</td><td>Explicit timeout on every call; alert when approaching timeout</td></tr>
+          <tr><td>Dependency Failure</td><td>Missing Circuit Breaker</td><td>Non-critical dep takes down critical service</td><td>Circuit breaker + fallback on every inter-service call</td></tr>
+          <tr><td>Dependency Failure</td><td>Third-Party Gone Dark</td><td>Essential dep with no fallback</td><td>Cache previous responses; degrade gracefully; async fallback</td></tr>
+          <tr><td>Data Inconsistency</td><td>Dual Write</td><td>DB write + event publish not atomic</td><td>Outbox Pattern; atomic write + relay</td></tr>
+          <tr><td>Data Inconsistency</td><td>Missing Idempotency</td><td>No idempotency key on mutating ops</td><td>Idempotency key on every mutation; check before process</td></tr>
+          <tr><td>Data Inconsistency</td><td>Race Condition</td><td>Concurrent reads/writes without locking</td><td>Optimistic locking; atomic operations; database constraints</td></tr>
+          <tr><td>Configuration</td><td>Wrong Environment Variable</td><td>Staging config in production</td><td>Config validation on startup; fail fast; monitoring</td></tr>
+          <tr><td>Configuration</td><td>Connection Pool Too Small</td><td>Pool exhausted under load</td><td>Load-test-based pool sizing; pool wait time monitoring</td></tr>
+          <tr><td>Configuration</td><td>Memory Leak</td><td>Gradual leak not caught by health checks</td><td>Heap monitoring; canary with extended memory tracking</td></tr>
+          <tr><td>Scale</td><td>N+1 Query</td><td>One DB query per item in a list</td><td>ORM query auditing; batch loading; DataLoader</td></tr>
+          <tr><td>Scale</td><td>Cache Stampede</td><td>All clients hit DB simultaneously after cache cold</td><td>Traffic shaping during recovery; cache warmup before traffic</td></tr>
+          <tr><td>Scale</td><td>O(n²) Algorithm</td><td>Quadratic complexity invisible at small scale</td><td>Complexity analysis in code review; production-scale benchmarks</td></tr>
+          <tr><td>Advanced</td><td>Event Sourcing Without Snapshots</td><td>Full replay needed for current state</td><td>Periodic snapshots; replay from most recent snapshot</td></tr>
+          <tr><td>Advanced</td><td>JWT Not Verified</td><td>Payload decoded without signature check</td><td>Always verify signature, exp, iss, aud; never trust unverified JWT</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library</a>
+      <a href="book-1.html" class="book-nav-link">I · The City</a>
+      <a href="book-2.html" class="book-nav-link">II · The Codex</a>
+      <a href="book-3.html" class="book-nav-link">III · The Foundations</a>
+      <a href="book-4.html" class="book-nav-link current">IV · The Hall</a>
+      <a href="book-5.html" class="book-nav-link">V · The River</a>
+    </div>
+    <p class="footer-credit">"We do not preserve failures to create fear. We preserve them to create foresight." — Maren</p>
+  </footer>
+</main>
+
+<script>
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - window.innerHeight; bar.style.width = (window.scrollY / h * 100) + '%'; });
+  const toggle = document.getElementById('tocToggle'), sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => { toggle.classList.toggle('open'); sidebar.classList.toggle('open'); });
+  const io = new IntersectionObserver((e) => { e.forEach(en => { if (en.isIntersecting) { document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active')); const a = document.querySelector(`.toc-item[href="#${en.target.id}"]`); if (a) a.classList.add('active'); } }); }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(s => io.observe(s));
+</script>
+</body>
+</html>

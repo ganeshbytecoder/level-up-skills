@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book II · The Architect's Codex — The Engineer's Library</title>
+  <meta name="description" content="23 GoF Design Patterns told through Priya discovering Corvin's ancient Codex while building the Universal Trading Platform.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --book-color: #8b5cf6; }
+    .pattern-category-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.5rem; background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+      margin: 2.5rem 0 1.5rem;
+    }
+    .category-icon { font-size: 1.8rem; }
+    .category-info h3 { font-family: var(--font-story); font-size: 1.2rem; color: #8b5cf6; margin-bottom: 0.2rem; border: none; padding: 0; }
+    .category-info p { font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-muted); }
+    .selector-box { background: #0a0a14; border: 1px solid rgba(139,92,246,0.2); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2rem 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; color: #c4b5fd; }
+    .selector-box .branch { color: #a78bfa; }
+    .selector-box .leaf { color: #e0d8f0; }
+    .selector-box .arrow { color: #f59e0b; }
+  </style>
+</head>
+<body>
+
+<div id="reading-progress"></div>
+
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">The Architect's Codex</div>
+  <div class="nav-actions">
+    <a href="book-1.html" class="nav-btn">← Book I</a>
+    <a href="book-3.html" class="nav-btn">Book III →</a>
+  </div>
+</nav>
+
+<button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
+
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">🏛️ Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — The Library on the Hill</a>
+  <a href="#creational" class="toc-item">Part I — Creational (5)</a>
+  <a href="#singleton" class="toc-item level2">1. Singleton</a>
+  <a href="#factory" class="toc-item level2">2. Factory Method</a>
+  <a href="#abstract-factory" class="toc-item level2">3. Abstract Factory</a>
+  <a href="#builder" class="toc-item level2">4. Builder</a>
+  <a href="#prototype" class="toc-item level2">5. Prototype</a>
+  <a href="#structural" class="toc-item">Part II — Structural (7)</a>
+  <a href="#adapter" class="toc-item level2">6. Adapter</a>
+  <a href="#bridge" class="toc-item level2">7. Bridge</a>
+  <a href="#composite" class="toc-item level2">8. Composite</a>
+  <a href="#decorator" class="toc-item level2">9. Decorator</a>
+  <a href="#facade" class="toc-item level2">10. Facade</a>
+  <a href="#flyweight" class="toc-item level2">11. Flyweight</a>
+  <a href="#proxy" class="toc-item level2">12. Proxy</a>
+  <a href="#behavioral" class="toc-item">Part III — Behavioral (11)</a>
+  <a href="#chain" class="toc-item level2">13. Chain of Responsibility</a>
+  <a href="#command" class="toc-item level2">14. Command</a>
+  <a href="#iterator" class="toc-item level2">15. Iterator</a>
+  <a href="#mediator" class="toc-item level2">16. Mediator</a>
+  <a href="#memento" class="toc-item level2">17. Memento</a>
+  <a href="#observer" class="toc-item level2">18. Observer</a>
+  <a href="#state" class="toc-item level2">19. State</a>
+  <a href="#strategy" class="toc-item level2">20. Strategy</a>
+  <a href="#template" class="toc-item level2">21. Template Method</a>
+  <a href="#visitor" class="toc-item level2">22. Visitor</a>
+  <a href="#interpreter" class="toc-item level2">23. Interpreter</a>
+  <a href="#epilogue" class="toc-item">Epilogue — The 24th Entry</a>
+  <a href="#selector" class="toc-item">Pattern Selector</a>
+  <a href="#reference" class="toc-item">Complete Reference</a>
+</nav>
+
+<main class="book-main">
+
+  <header class="book-hero" style="--book-color:#8b5cf6">
+    <div class="book-number" style="color:#8b5cf6">Book II of V</div>
+    <h1>The Architect's Codex</h1>
+    <p class="subtitle">23 Patterns Every Master Builder Must Know — Discovered by One Engineer Who Almost Got Them All Wrong</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot" style="background:#8b5cf6"></span> 23 GoF Patterns</span>
+      <span class="meta-badge"><span class="dot" style="background:#8b5cf6"></span> ~3 Hours</span>
+      <span class="meta-badge"><span class="dot" style="background:#8b5cf6"></span> Read After Book I</span>
+    </div>
+  </header>
+
+  <div class="epigraph" style="border-left-color:#8b5cf6">
+    "A pattern is not a solution. It is the name for a problem that keeps appearing, and proof that someone, somewhere, solved it before you. Your job is not to be clever. Your job is to recognize which problem you are actually facing."
+    <cite>— Corvin, First Architect of the Codex, 200 years before Priya was born</cite>
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label" style="color:#8b5cf6">Prologue</div>
+    <h2>The Library on the Hill</h2>
+    <div class="story-content">
+      <p>Two years after the night the River broke, Priya was promoted. The title: <strong>Lead Architect, Universal Trading Platform</strong>. The mission: design and build the most complex system the city had ever attempted — a single platform through which every merchant in the known world could trade, regardless of which kingdom they came from, which currency they used, which guild they belonged to.</p>
+      <p>Seventeen kingdoms. Forty-two merchant types. A hundred years of incompatible legacy systems. Six months to build. One engineer to design it.</p>
+      <p>On her first morning, she sat at her desk and stared at an empty parchment for two hours. Then she remembered something Dev had said on the morning he left: <em>"When you don't know where to start — go to the Library on the Hill. Ask for the Codex. Corvin's Codex."</em></p>
+      <p>Inside the front page of the ancient book, in cramped handwriting:</p>
+    </div>
+    <div class="epigraph" style="border-left-color:#8b5cf6">
+      "Here are twenty-three problems that every builder eventually faces. I have named them. I have described them. I have given each its shape. A shape is powerful. Once you can name what you are fighting, you can find people who have already won. Use these patterns. Do not worship them."
+      <cite>— Corvin</cite>
+    </div>
+  </section>
+
+  <!-- CREATIONAL -->
+  <section id="creational">
+    <div class="pattern-category-header">
+      <div class="category-icon">🏭</div>
+      <div class="category-info">
+        <h3>Part I — Creational Patterns</h3>
+        <p>How objects come into being. Five patterns for controlling object creation.</p>
+      </div>
+    </div>
+
+    <!-- Singleton -->
+    <div class="pattern-card" id="singleton" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 1 · Creational</div>
+      <h3>Singleton</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The Trading Platform needed an <strong>Exchange Rate Registry</strong> — one source of truth for every currency conversion rate. Every service needed access to it. But if each service created its own Registry, seventeen copies would exist, each potentially out of sync.</p>
+      <div class="epigraph" style="border-left-color:#8b5cf6;margin:1rem 0;font-size:0.95rem">
+        <strong>Corvin's Entry — The Royal Mint:</strong> "In the kingdom of Valdrus, any merchant could establish a Mint and print coins. The result: twelve different 'gold coins' of different actual weights. The King decreed: one Mint. One ledger. One authority. Not because gold was scarce — but because trust required a single source of truth."
+      </div>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Singleton Pattern</span></div>
+        <div class="callout-body">
+          Ensures a class has only one instance and provides a global access point to it.<br><br>
+          <strong>When to use:</strong> Configuration objects, connection pools, logging services, caches — when one instance is both necessary and sufficient.<br>
+          <strong>Warning:</strong> Don't use as a way to avoid passing dependencies. Use only when true single-instance is an <em>architectural</em> requirement.
+        </div>
+      </div>
+      <pre><code>class ExchangeRateRegistry {
+  private static instance = null;
+
+  private constructor() { this.loadRatesFromDB(); }
+
+  static getInstance(): ExchangeRateRegistry {
+    if (!this.instance) this.instance = new ExchangeRateRegistry();
+    return this.instance; // Always the same object
+  }
+}
+
+// Every caller
+ExchangeRateRegistry.getInstance().getRate("GOLD", "SILVER")</code></pre>
+    </div>
+
+    <!-- Factory Method -->
+    <div class="pattern-card" id="factory" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 2 · Creational</div>
+      <h3>Factory Method</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The platform needed to create <strong>payment processors</strong> for 42 merchant types. Priya's first instinct: a massive <code>if</code> block. She wrote three lines before recognizing the smell — code that requires changes in seventeen places every time a new merchant type appears.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Factory Method Pattern</span></div>
+        <div class="callout-body">Defines an interface for creating an object, but lets subclasses decide which class to instantiate. The creator works with the result through the interface, never the concrete class. <strong>Key benefit:</strong> Adding a new type requires one new class + one factory entry — touching zero existing code.</div>
+      </div>
+      <pre><code>interface PaymentProcessor {
+  process(amount: Money, currency: Currency): Receipt;
+}
+
+class GrainPaymentProcessor implements PaymentProcessor { ... }
+class SpicePaymentProcessor implements PaymentProcessor { ... }
+class ForecastFuturesProcessor implements PaymentProcessor { ... }
+
+class PaymentProcessorFactory {
+  static create(merchantType: string): PaymentProcessor {
+    switch (merchantType) {
+      case "grain":     return new GrainPaymentProcessor();
+      case "spice":     return new SpicePaymentProcessor();
+      case "futures":   return new ForecastFuturesProcessor();
+      // Add new types HERE ONLY — nothing else changes
+    }
+  }
+}</code></pre>
+    </div>
+
+    <!-- Abstract Factory -->
+    <div class="pattern-card" id="abstract-factory" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 3 · Creational</div>
+      <h3>Abstract Factory</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Seventeen kingdoms each had their own <em>family</em> of tools — contract generator, payment verifier, dispute resolver — all compatible with each other. Mixing families (Northern contract + Eastern verifier) was catastrophic. Each family needed to come from the same source.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Abstract Factory Pattern</span></div>
+        <div class="callout-body">Provides an interface for creating <em>families</em> of related, compatible objects without specifying their concrete classes. The factory guarantees that all objects it creates work together. <strong>vs Factory Method:</strong> Factory Method creates one product. Abstract Factory creates a coordinated suite.</div>
+      </div>
+      <pre><code>interface TradingToolsFactory {
+  createContractGenerator(): ContractGenerator;
+  createPaymentVerifier():   PaymentVerifier;
+  createDisputeResolver():   DisputeResolver;
+}
+
+class NorthernTradingFactory implements TradingToolsFactory {
+  createContractGenerator() { return new ParchmentContractGenerator(); }
+  createPaymentVerifier()   { return new WaxSealVerifier(); }
+  createDisputeResolver()   { return new NorthernGuildArbitrator(); }
+  // All three are guaranteed to be compatible
+}
+
+// Client: only knows the factory interface
+const tools = TradingToolsFactoryProvider.get("Northern");
+const contract = tools.createContractGenerator().generate(trade);</code></pre>
+    </div>
+
+    <!-- Builder -->
+    <div class="pattern-card" id="builder" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 4 · Creational</div>
+      <h3>Builder</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">A Trade Agreement had 23 configuration parameters — some optional, some mutually exclusive, some requiring others first. A 23-argument constructor was a disaster Priya recognized immediately.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Builder Pattern</span></div>
+        <div class="callout-body">Separates complex object construction from its representation. Step-by-step creation with optional parameters. <code>build()</code> validates required fields and produces an immutable object. <strong>Real-world:</strong> <code>StringBuilder</code>, <code>HttpRequest.newBuilder()</code>, Lombok's <code>@Builder</code>, SQL query builders.</div>
+      </div>
+      <pre><code>const agreement = new TradeAgreementBuilder()
+  .withParties(merchant1, merchant2)      // Required
+  .withPaymentSchedule(PaymentSchedule.MONTHLY)
+  .withPenaltyClause(PenaltyRate.TEN_PCT)
+  .withJurisdiction(Kingdom.NORTHERN)
+  .withExpiryDate(Duration.ONE_YEAR)
+  // .withOptionalClause(...)             // Optional — omit if not needed
+  .build(); // Validates, returns immutable TradeAgreement</code></pre>
+    </div>
+
+    <!-- Prototype -->
+    <div class="pattern-card" id="prototype" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 5 · Creational</div>
+      <h3>Prototype</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The platform had 40 Standard Agreement Templates used hundreds of times per day. Each time: fetch from DB, deserialize, configure. The DB queries alone were adding 200ms to every trade initiation. The solution: clone the template instead of rebuilding from scratch.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Prototype Pattern</span></div>
+        <div class="callout-body">Creates new objects by cloning an existing prototype. Avoids expensive re-initialization. <strong>Warning:</strong> Deep copy vs shallow copy — be explicit. A shallow clone shares references to nested objects.</div>
+      </div>
+      <pre><code>// At startup: load all 40 templates ONCE
+const templates = new Map();
+(await db.loadTemplates()).forEach(t => templates.set(t.id, t));
+
+// At runtime: clone in microseconds — no DB call
+function getNewAgreement(templateId: string): TradeAgreement {
+  const template = templates.get(templateId);
+  return deepClone(template); // ~0.1ms vs 200ms
+}
+
+const agreement = getNewAgreement("GRAIN_SILVER_N_E");
+agreement.setParties(merchant1, merchant2); // Customize the clone</code></pre>
+    </div>
+  </section>
+
+  <!-- STRUCTURAL -->
+  <section id="structural">
+    <div class="pattern-category-header">
+      <div class="category-icon">🔧</div>
+      <div class="category-info">
+        <h3>Part II — Structural Patterns</h3>
+        <p>How objects fit together. Seven patterns for composing objects into larger structures.</p>
+      </div>
+    </div>
+
+    <div class="pattern-card" id="adapter" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 6 · Structural</div>
+      <h3>Adapter</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The Kingdom of Aldenmere had a payment protocol from 600 years ago — different format, different field names, different data types. They had no interest in updating it. The Trading Platform needed to communicate with it without touching Aldenmere's code or its own standards.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Adapter Pattern</span></div>
+        <div class="callout-body">Converts the interface of a class into another interface that clients expect. Makes incompatible classes work together without modifying either. <strong>Real-world:</strong> Java's <code>InputStreamReader</code>, Spring HandlerAdapter, third-party SDK wrappers.</div>
+      </div>
+      <pre><code>// Trading Platform expects:
+interface ModernPaymentGateway {
+  processPayment(transactionId: string, amount: Money): Receipt;
+}
+
+// Aldenmere's ancient system has:
+class AncientAldenmereSystem {
+  executeTran(tranNo: number, goldUnits: number, silverTenths: number): AncientReceipt;
+}
+
+// The Adapter — bridges the two:
+class AldenmereAdapter implements ModernPaymentGateway {
+  private ancient = new AncientAldenmereSystem();
+
+  processPayment(txId: string, amount: Money): Receipt {
+    const tranNo = parseInt(txId);
+    const gold   = amount.wholeGoldUnits();
+    const silver = amount.tenthsOfSilver();
+    const r = this.ancient.executeTran(tranNo, gold, silver);
+    return this.convertToModernReceipt(r); // Translate the response too
+  }
+}</code></pre>
+    </div>
+
+    <div class="pattern-card" id="bridge" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 7 · Structural</div>
+      <h3>Bridge</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Trade data needed to display in 3 formats (report scroll, River message, visual map) from 2 data sources (real-time, historical). Without Bridge: 6 classes. Add a new format + source: 6 more. Next year: combinatorial explosion.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Bridge Pattern</span></div>
+        <div class="callout-body">Decouples abstraction from implementation so the two can vary independently. Adding a new renderer: 1 class. Adding a new data source: 1 class. Never 2×3=6 combination classes.</div>
+      </div>
+      <pre><code>// Implementation hierarchy (renderers)
+interface TradeRenderer {
+  render(data: TradeData): Output;
+}
+class ScrollRenderer   implements TradeRenderer { ... }
+class RiverRenderer    implements TradeRenderer { ... }
+class VisualMapRenderer implements TradeRenderer { ... }
+
+// Abstraction hierarchy (data sources) — holds a renderer reference
+abstract class TradeDataSource {
+  constructor(protected renderer: TradeRenderer) {}
+  abstract getData(): TradeData;
+  display(): Output { return this.renderer.render(this.getData()); }
+}
+class RealtimeSource  extends TradeDataSource { ... }
+class HistoricalSource extends TradeDataSource { ... }
+
+// Any combination — no new classes ever
+new RealtimeSource(new ScrollRenderer()).display();
+new HistoricalSource(new VisualMapRenderer()).display();</code></pre>
+    </div>
+
+    <div class="pattern-card" id="composite" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 8 · Structural</div>
+      <h3>Composite</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Merchants formed guilds; guilds formed federations; federations formed kingdom alliances. Applying a trade regulation meant applying it to one merchant, a guild, or a federation. The calling code should be identical for all three.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Composite Pattern</span></div>
+        <div class="callout-body">Composes objects into tree structures. Clients treat individual objects and compositions uniformly. <strong>Real-world:</strong> File systems (files + folders), UI components, XML/JSON parsing.</div>
+      </div>
+      <pre><code>interface TradingEntity {
+  applyRegulation(reg: Regulation): void;
+  getTotalVolume(): Money;
+}
+
+class Merchant implements TradingEntity {
+  applyRegulation(reg) { this.regulations.push(reg); }
+  getTotalVolume() { return this.trades.sum(); }
+}
+
+class Guild implements TradingEntity {
+  members: TradingEntity[] = []; // Can hold Merchants OR other Guilds
+
+  applyRegulation(reg) {
+    this.members.forEach(m => m.applyRegulation(reg)); // Recursive
+  }
+  getTotalVolume() {
+    return this.members.map(m => m.getTotalVolume()).reduce(Money.add);
+  }
+}
+
+// One call applies to thousands of merchants at any depth:
+northernKingdomFederation.applyRegulation(newTariff);</code></pre>
+    </div>
+
+    <div class="pattern-card" id="decorator" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 9 · Structural</div>
+      <h3>Decorator</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Agreements needed Encryption, Audit Logging, Compression, Digital Signing — in any combination. Subclassing: <code>EncryptedAuditedCompressedSignedAgreement</code> — infinite combinations. The Decorator wraps the object instead.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Decorator Pattern</span></div>
+        <div class="callout-body">Attaches additional responsibilities to an object dynamically. Same interface as the original. Can combine any capabilities without class explosion. <strong>Real-world:</strong> Java I/O streams, HTTP middleware chains, Spring AOP, Express.js middleware.</div>
+      </div>
+      <pre><code>interface Agreement { execute(): Result; }
+
+class BaseAgreement implements Agreement {
+  execute() { return this.processTerms(); }
+}
+
+class EncryptionDecorator implements Agreement {
+  constructor(private wrapped: Agreement) {}
+  execute() {
+    this.encrypt();
+    const r = this.wrapped.execute(); // Delegate
+    this.decrypt(r);
+    return r;
+  }
+}
+
+class AuditDecorator implements Agreement {
+  constructor(private wrapped: Agreement) {}
+  execute() {
+    this.log("start");
+    const r = this.wrapped.execute();
+    this.log("end", r);
+    return r;
+  }
+}
+
+// Compose any combination:
+const agreement = new AuditDecorator(
+                    new EncryptionDecorator(
+                      new CompressionDecorator(
+                        new BaseAgreement())));</code></pre>
+    </div>
+
+    <div class="pattern-card" id="facade" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 10 · Structural</div>
+      <h3>Facade</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Guild onboarding involved 27 steps across 6 different services. New guild engineers called each step individually, in the wrong order. One simple <code>onboardMerchant()</code> call — hiding all 27 steps inside the Facade.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Facade Pattern</span></div>
+        <div class="callout-body">A simplified interface to a complex subsystem. The subsystem doesn't change — the Facade hides its complexity. <strong>Real-world:</strong> SLF4J (logging facade), JDBC, REST APIs as facades over business logic.</div>
+      </div>
+      <pre><code>class MerchantOnboardingFacade {
+  // Hides 6 services and 27 steps:
+  async onboardMerchant(merchant: Merchant): Promise&lt;OnboardingResult&gt; {
+    const identity  = await this.identityService.verifyInFiveSteps(merchant);
+    const contract  = await this.contractService.generateInThreeSteps(identity);
+    const payment   = await this.paymentService.configureInSevenSteps(merchant);
+    const river     = await this.riverService.subscribeInFourSteps(merchant);
+    await this.complianceService.checkInSixSteps(merchant);
+    await this.notificationService.sendWelcome(merchant);
+    return OnboardingResult.success();
+  }
+}
+
+// Guild engineer's entire experience:
+await facade.onboardMerchant(myGuild); // Done.</code></pre>
+    </div>
+
+    <div class="pattern-card" id="flyweight" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 11 · Structural</div>
+      <h3>Flyweight</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">50 million trade history records. Each contained a TradeType object, a Currency object, a Kingdom object — duplicated millions of times. Loading as distinct objects: 40GB. The server had 8GB. Flyweight: share the common state, store only unique state per record.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Flyweight Pattern</span></div>
+        <div class="callout-body">Shares common (intrinsic) state among many objects. Only unique (extrinsic) state is stored per instance. <strong>Real-world:</strong> Java String interning, integer caching (-128 to 127), character glyphs in text rendering.</div>
+      </div>
+      <pre><code>// Intrinsic state — created ONCE, shared by millions
+class TradeTypeData { // e.g., "GRAIN", "FUTURES"
+  description: string;
+  taxRate: Percentage;
+  regulatoryCode: string;
+  // No unique-per-trade data
+}
+
+class TradeTypeFactory {
+  private static cache = new Map&lt;string, TradeTypeData&gt;();
+  static get(typeName: string): TradeTypeData {
+    if (!this.cache.has(typeName))
+      this.cache.set(typeName, new TradeTypeData(typeName));
+    return this.cache.get(typeName)!; // Same object every time
+  }
+}
+
+// Extrinsic state — stored per trade record
+class TradeRecord {
+  tradeType: TradeTypeData; // Shared flyweight — NOT a copy
+  amount: Money;            // Unique to this trade
+  date: DateTime;           // Unique to this trade
+}
+// 50M records share ~20 TradeTypeData objects</code></pre>
+    </div>
+
+    <div class="pattern-card" id="proxy" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 12 · Structural</div>
+      <h3>Proxy</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The Royal Treasury required 3-second initialization (connecting to secure vaults). Most services needed it rarely — loading eagerly wasted 3s at startup. Additionally: only authorized parties should access it. The Proxy handles both: lazy loading + access control.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Proxy Pattern</span></div>
+        <div class="callout-body">
+          Same interface as the real object, with additional control. Three flavors:<br>
+          • <strong>Virtual Proxy</strong>: Lazy initialization — don't load the real object until needed<br>
+          • <strong>Protection Proxy</strong>: Access control — check authorization before delegating<br>
+          • <strong>Remote Proxy</strong>: Local facade for a remote resource<br>
+          <strong>Real-world:</strong> Spring <code>@Lazy</code>, Hibernate lazy-loaded relations, NGINX reverse proxy.
+        </div>
+      </div>
+      <pre><code>class SecureTreasuryProxy implements Treasury {
+  private realTreasury: RealTreasury | null = null; // Not loaded yet
+
+  getRecord(merchantId: string, caller: ServiceIdentity): TreasuryRecord {
+    // Protection: check authorization first
+    if (!this.authService.isAuthorized(caller, "TREASURY_READ"))
+      throw new UnauthorizedException();
+
+    // Virtual: lazy-load the expensive real treasury on first use
+    if (!this.realTreasury)
+      this.realTreasury = new RealTreasury(); // 3-second init — deferred
+
+    return this.realTreasury.getRecord(merchantId);
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- BEHAVIORAL -->
+  <section id="behavioral">
+    <div class="pattern-category-header">
+      <div class="category-icon">🗣️</div>
+      <div class="category-info">
+        <h3>Part III — Behavioral Patterns</h3>
+        <p>How objects talk to each other. Eleven patterns for interaction and responsibility.</p>
+      </div>
+    </div>
+
+    <div class="pattern-card" id="chain" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 13 · Behavioral</div>
+      <h3>Chain of Responsibility</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Every trade needed: format validation, regulatory compliance check, fraud analysis, kingdom-specific rules, and credit standing verification. Each was different code. Some trades needed all five; some needed two. The decision of which handler handled which trade should not be hardcoded.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Chain of Responsibility</span></div>
+        <div class="callout-body">A chain of handlers. Each handler either processes the request or passes it to the next. The sender doesn't know which handler will ultimately respond. <strong>Real-world:</strong> HTTP middleware (Express, Spring Filters), logging handlers, exception handlers.</div>
+      </div>
+      <pre><code>abstract class TradeValidator {
+  protected next: TradeValidator | null = null;
+
+  setNext(v: TradeValidator): TradeValidator {
+    this.next = v; return v; // Enables fluent chaining
+  }
+
+  validate(trade: Trade): ValidationResult {
+    const result = this.check(trade);
+    if (!result.passed || !this.next) return result;
+    return this.next.validate(trade); // Pass to next
+  }
+
+  protected abstract check(trade: Trade): ValidationResult;
+}
+
+// Build the chain — order matters
+const format = new FormatValidator();
+format.setNext(new RegulatoryValidator())
+      .setNext(new FraudValidator())
+      .setNext(new KingdomRulesValidator())
+      .setNext(new CreditValidator());
+
+format.validate(trade); // Flows through chain automatically</code></pre>
+    </div>
+
+    <div class="pattern-card" id="command" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 14 · Behavioral</div>
+      <h3>Command</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The Royal Trading Council needed to execute trades, queue them for later, undo incorrectly submitted trades, log all actions for audit, and replay sequences for testing. All of this required the trade <em>action</em> to be an object — something that could be stored, passed, executed, or reversed.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Command Pattern</span></div>
+        <div class="callout-body">Encapsulates a request as an object with <code>execute()</code> and <code>undo()</code>. Enables queuing, logging, undo/redo, and macro operations. <strong>Real-world:</strong> Database transactions, Git commits, task queues (Celery), UI undo/redo.</div>
+      </div>
+      <pre><code>interface TradeCommand {
+  execute(): void;
+  undo(): void;
+}
+
+class ExecuteTradeCommand implements TradeCommand {
+  constructor(private trade: Trade) {}
+  execute() { tradingEngine.process(this.trade); }
+  undo()    { tradingEngine.reverse(this.trade); }
+}
+
+class CommandHistory {
+  private stack: TradeCommand[] = [];
+
+  execute(cmd: TradeCommand): void {
+    cmd.execute();
+    this.stack.push(cmd); // Log it
+  }
+
+  undoLast(): void {
+    const cmd = this.stack.pop();
+    if (cmd) cmd.undo();
+  }
+}
+
+// Queue for later:
+commandQueue.add(new ExecuteTradeCommand(grainsForSilverTrade));
+// Undo last 3:
+history.undoLast(); history.undoLast(); history.undoLast();</code></pre>
+    </div>
+
+    <div class="pattern-card" id="iterator" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 15 · Behavioral</div>
+      <h3>Iterator</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Merchant lists were stored in hash tables, sorted trees, and linked lists — chosen for different access patterns. Code that iterated over merchants shouldn't need to know which structure was used. That was an implementation detail, not the caller's concern.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Iterator Pattern</span></div>
+        <div class="callout-body">Standard traversal interface for any collection without exposing its implementation. <strong>Real-world:</strong> Java's <code>Iterator</code>, Python's <code>__iter__</code>, database cursors, JS generators.</div>
+      </div>
+      <pre><code>interface Iterator&lt;T&gt; {
+  hasNext(): boolean;
+  next(): T;
+}
+
+// The caller never changes — regardless of underlying structure:
+function processMerchants(iter: Iterator&lt;Merchant&gt;) {
+  while (iter.hasNext()) {
+    process(iter.next());
+  }
+}
+
+// Works with any collection:
+processMerchants(new MerchantTreeIterator(sortedTree));
+processMerchants(new MerchantHashIterator(hashTable));
+processMerchants(new MerchantListIterator(linkedList));</code></pre>
+    </div>
+
+    <div class="pattern-card" id="mediator" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 16 · Behavioral</div>
+      <h3>Mediator</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Seven active services each calling multiple others: 42 possible connections, each needing maintenance. When the Fraud Service's API changed, 6 services needed updating. The Mediator replaced all 42 connections with 7 — one per service to the central coordinator.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Mediator Pattern</span></div>
+        <div class="callout-body">Central coordinator through which all objects communicate — preventing direct connections. N×(N-1)/2 connections become N. <strong>Real-world:</strong> Chat rooms, event buses, air traffic control, trading floor auctioneers.</div>
+      </div>
+      <pre><code>class TradingMediator {
+  notify(sender: Service, event: string, data: TradeData): void {
+    switch (event) {
+      case "TRADE_SUBMITTED":
+        this.creditService.check(data);    // Mediator coordinates
+        this.fraudService.analyze(data);
+        break;
+      case "FRAUD_DETECTED":
+        this.settlementService.block(data);
+        this.notificationService.alert(data);
+        break;
+      case "CREDIT_APPROVED":
+        this.settlementService.proceed(data);
+    }
+  }
+}
+
+// Services communicate ONLY with the Mediator:
+mediator.notify(this, "TRADE_SUBMITTED", tradeData);
+// Change FraudService: only update Mediator — nothing else changes</code></pre>
+    </div>
+
+    <div class="pattern-card" id="memento" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 17 · Behavioral</div>
+      <h3>Memento</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Draft Trade Agreements needed save/resume across sessions, rollback to previous versions, and state comparison — all without exposing the Agreement's internals to the storage mechanism.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Memento Pattern</span></div>
+        <div class="callout-body">Captures and externalizes an object's state for later restoration without violating encapsulation. The Caretaker stores mementos but cannot read them. <strong>Real-world:</strong> Browser history, git stash, game save states, database savepoints.</div>
+      </div>
+      <pre><code>class TradeAgreement {
+  private terms: Terms;
+  private parties: Party[];
+  private conditions: Condition[];
+
+  save(): Memento {
+    return new Memento({ terms: this.terms, parties: [...this.parties],
+                         conditions: [...this.conditions] }); // Deep copy
+  }
+
+  restore(m: Memento): void {
+    const state = m.getState();
+    this.terms = state.terms;
+    this.parties = state.parties;
+    this.conditions = state.conditions;
+  }
+}
+
+class DraftHistory { // Caretaker — stores but never reads Mementos
+  private history: Memento[] = [];
+  save(a: TradeAgreement)  { this.history.push(a.save()); }
+  undo(a: TradeAgreement)  { if (this.history.length) a.restore(this.history.pop()!); }
+}</code></pre>
+    </div>
+
+    <div class="pattern-card" id="observer" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 18 · Behavioral</div>
+      <h3>Observer</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">When a trade's status changed, 12 subsystems needed to react. Original design: Settlement directly called all 12. Every new subscriber required modifying Settlement. Adding Analytics: Settlement's code changed — which had nothing to do with settlement.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Observer Pattern</span></div>
+        <div class="callout-body">One-to-many dependency — when the subject changes, all registered observers are notified automatically. <strong>Real-world:</strong> Java EventListeners, JavaScript addEventListener, React state/effects, Kafka consumers, RxJava.</div>
+      </div>
+      <pre><code>interface TradeObserver {
+  onStatusChanged(trade: Trade, status: TradeStatus): void;
+}
+
+class TradeSettlement {
+  private observers: TradeObserver[] = [];
+
+  addObserver(o: TradeObserver)    { this.observers.push(o); }
+  removeObserver(o: TradeObserver) { this.observers.splice(this.observers.indexOf(o), 1); }
+
+  settle(trade: Trade): void {
+    this.processTrade(trade);
+    trade.status = TradeStatus.SETTLED;
+    // Notify all — Settlement doesn't know or care who they are:
+    this.observers.forEach(o => o.onStatusChanged(trade, trade.status));
+  }
+}
+
+// Add new observer without touching Settlement:
+settlement.addObserver(new NotificationService());
+settlement.addObserver(new AnalyticsService());
+settlement.addObserver(new NewComplianceService()); // Zero Settlement changes</code></pre>
+    </div>
+
+    <div class="pattern-card" id="state" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 19 · Behavioral</div>
+      <h3>State</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Trade Agreements passed through: DRAFT → SUBMITTED → UNDER_REVIEW → APPROVED → ACTIVE → EXPIRED. Each state allowed different operations. Original: every method had a massive <code>if (state == DRAFT) ... else if (state == APPROVED)...</code> matrix — grew exponentially with each new state.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">State Pattern</span></div>
+        <div class="callout-body">Each state is an object. The subject delegates behavior to its current state object. Adding a state: one new class, not dozens of scattered conditions. <strong>Real-world:</strong> Vending machines, traffic lights, order status, TCP connection lifecycle.</div>
+      </div>
+      <pre><code>interface AgreementState {
+  edit(a: Agreement): void;
+  submit(a: Agreement): void;
+  approve(a: Agreement): void;
+}
+
+class DraftState implements AgreementState {
+  edit(a)     { a.updateTerms(); }              // Allowed
+  submit(a)   { a.setState(new SubmittedState()); }
+  approve(a)  { throw new Error("Cannot approve a draft"); }
+}
+
+class SubmittedState implements AgreementState {
+  edit(a)     { throw new Error("Cannot edit once submitted"); }
+  submit(a)   { throw new Error("Already submitted"); }
+  approve(a)  { a.setState(new ApprovedState()); }
+}
+
+class Agreement {
+  private state: AgreementState = new DraftState();
+  setState(s: AgreementState) { this.state = s; }
+  edit()    { this.state.edit(this); }    // All behavior delegated to state
+  approve() { this.state.approve(this); }
+}</code></pre>
+    </div>
+
+    <div class="pattern-card" id="strategy" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 20 · Behavioral</div>
+      <h3>Strategy</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Seventeen kingdoms calculated tariffs differently: flat rate, percentage, tiered brackets, seasonal multipliers. The calculation logic belonged outside the core Trade class — it was policy, not business fact. Changing a kingdom's tariff method should touch zero Trade code.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Strategy Pattern</span></div>
+        <div class="callout-body">A family of interchangeable algorithms — each encapsulated as a class. The client chooses which algorithm to use at runtime. <strong>Real-world:</strong> Sorting algorithms, payment processor selection, compression strategies, route optimization.</div>
+      </div>
+      <pre><code>interface TariffStrategy {
+  calculate(amount: Money, kingdom: Kingdom): Money;
+}
+
+class FlatRateTariff    implements TariffStrategy { calculate(a, k) { return Money.of(50); } }
+class PercentageTariff  implements TariffStrategy { calculate(a, k) { return a.multiply(0.05); } }
+class TieredTariff      implements TariffStrategy { calculate(a, k) { return this.applyBrackets(a); } }
+class SeasonalTariff    implements TariffStrategy { calculate(a, k) { return this.applyMultiplier(a); } }
+
+class TradeTransaction {
+  private strategy: TariffStrategy;
+
+  constructor(kingdom: Kingdom) {
+    this.strategy = TariffStrategyRegistry.getFor(kingdom);
+  }
+
+  calculateTariff(amount: Money): Money {
+    return this.strategy.calculate(amount, this.kingdom);
+  }
+}
+// Northern Kingdom changes method: update TariffStrategyRegistry ONLY</code></pre>
+    </div>
+
+    <div class="pattern-card" id="template" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 21 · Behavioral</div>
+      <h3>Template Method</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">All report generation followed the same flow: fetch → validate → format → apply header/footer → output. The "format" step differed completely for each report type. The overall algorithm is fixed. The specific step varies.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Template Method Pattern</span></div>
+        <div class="callout-body">Base class defines the algorithm skeleton (final method). Subclasses fill in specific abstract steps. The overall flow can never be changed. <strong>Real-world:</strong> JUnit setUp/tearDown, Spring JdbcTemplate, HTTP request handlers.</div>
+      </div>
+      <pre><code>abstract class ReportGenerator {
+  // Template method — FINAL, defines the invariant structure
+  final generateReport(tradeId: string): Report {
+    const data   = this.fetchData(tradeId);    // Same for all
+    const valid  = this.validate(data);         // Same for all
+    const body   = this.format(data);           // OVERRIDDEN by subclasses
+    const report = this.applyHeaderFooter(body); // Same for all
+    return this.output(report);                  // Same for all
+  }
+
+  protected abstract format(data: TradeData): FormattedContent;
+
+  // Other methods may also be overridden (hooks) or stay fixed:
+  protected fetchData(id: string): TradeData { return db.fetch(id); }
+}
+
+class MonthlyReportGenerator extends ReportGenerator {
+  protected format(data) { return groupByMonth(data).toTable(); }
+}
+class AuditReportGenerator extends ReportGenerator {
+  protected format(data) { return detailEveryAction(data).withTimestamps(); }
+}</code></pre>
+    </div>
+
+    <div class="pattern-card" id="visitor" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 22 · Behavioral</div>
+      <h3>Visitor</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">The platform had 23 contract types. Tax calculation, audit reporting, and risk assessment each worked differently per type. Adding each operation required modifying every contract class. 23 types × 3 operations = 69 ad-hoc additions scattered through the codebase.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Visitor Pattern</span></div>
+        <div class="callout-body">Add new operations to elements of an object structure without modifying them. The Visitor implements the operation per type; element classes just call <code>accept(visitor)</code>. <strong>When to use:</strong> Object types are stable; many new operations are expected.</div>
+      </div>
+      <pre><code>interface ContractVisitor {
+  visitSimple(c: SimpleContract): void;
+  visitDerivative(c: DerivativeContract): void;
+  visitFutures(c: FuturesContract): void;
+}
+
+interface Contract {
+  accept(visitor: ContractVisitor): void;
+}
+
+class SimpleContract implements Contract {
+  accept(v: ContractVisitor) { v.visitSimple(this); }
+}
+
+// New operation = one new Visitor class — NO contract changes:
+class TaxCalculatorVisitor implements ContractVisitor {
+  visitSimple(c)     { this.calculateFlatTax(c); }
+  visitDerivative(c) { this.calculateComplexTax(c); }
+  visitFutures(c)    { this.calculateFuturesTax(c); }
+}
+
+class RiskAssessmentVisitor implements ContractVisitor { ... }
+
+// Apply to all contracts:
+contracts.forEach(c => c.accept(new TaxCalculatorVisitor()));</code></pre>
+    </div>
+
+    <div class="pattern-card" id="interpreter" style="border-color:rgba(139,92,246,0.2)">
+      <div class="pattern-num" style="color:#8b5cf6">Pattern 23 · Behavioral</div>
+      <h3>Interpreter</h3>
+      <p class="story-content" style="font-size:1rem;margin-bottom:1rem">Merchants defined custom trade rules in a simple language: <code>IF trade.amount > 10000 AND trade.kingdom == "Northern" THEN apply_tariff(HIGH)</code>. The platform needed to parse these rules and execute them — a domain-specific language interpreted at runtime.</p>
+      <div class="callout" style="border-left-color:#8b5cf6">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#8b5cf6">Interpreter Pattern</span></div>
+        <div class="callout-body">Defines a grammar for a language and an interpreter that evaluates it. Each grammar rule is a class with an <code>interpret()</code> method. <strong>Real-world:</strong> SQL parsing, regular expression engines, template engines, rule DSLs.</div>
+      </div>
+      <pre><code>interface Expression {
+  interpret(ctx: TradeContext): boolean;
+}
+
+class AmountGreaterThan implements Expression {
+  constructor(private threshold: Money) {}
+  interpret(ctx) { return ctx.trade.amount.isGreaterThan(this.threshold); }
+}
+
+class KingdomEquals implements Expression {
+  constructor(private kingdom: string) {}
+  interpret(ctx) { return ctx.trade.kingdom === this.kingdom; }
+}
+
+class AndExpression implements Expression {
+  constructor(private left: Expression, private right: Expression) {}
+  interpret(ctx) { return this.left.interpret(ctx) && this.right.interpret(ctx); }
+}
+
+// Rule: "amount > 10000 AND kingdom == Northern"
+const rule = new AndExpression(
+  new AmountGreaterThan(Money.of(10000)),
+  new KingdomEquals("Northern")
+);
+
+rule.interpret(tradeContext); // true or false</code></pre>
+    </div>
+  </section>
+
+  <!-- EPILOGUE -->
+  <section class="chapter" id="epilogue">
+    <div class="chapter-label" style="color:#8b5cf6">Epilogue</div>
+    <h2>The Twenty-Fourth Entry</h2>
+    <div class="story-content">
+      <p>Six months after Priya had first sat down in the Library on the Hill, the Universal Trading Platform was live. Seventeen kingdoms. Forty-two merchant types. One hundred legacy systems, all connected. It worked — and more importantly, it was <em>changeable</em>. When the Western Kingdom added a new tariff scheme: one new Strategy class. When a new report type was needed: one Template Method subclass. When an Eastern Kingdom API changed: one Adapter.</p>
+      <p>She opened the Codex to a blank page at the end — the first blank page in two hundred years — and wrote:</p>
+    </div>
+    <div class="epigraph" style="border-left-color:#8b5cf6">
+      <strong>Corvin's Entry (added by Priya):</strong><br><br>
+      "After reading twenty-three entries, the student might ask: 'Which pattern do I use?'<br><br>
+      This is the twenty-fourth pattern. Call it: <strong>Judgment</strong>.<br><br>
+      A pattern is not an answer. It is a question: 'Have I seen this shape before?' The master builder uses patterns the way a master carpenter uses joints: not to show that she knows them — but because they are exactly right for the wood."
+      <cite>— Priya, Year 15 of the New City</cite>
+    </div>
+  </section>
+
+  <!-- PATTERN SELECTOR -->
+  <section id="selector" class="reference-section" style="margin-top:3rem">
+    <h2>🎯 The Pattern Selector</h2>
+    <p class="desc">Your 90-second decision tree. When facing a design problem, start here.</p>
+    <div class="selector-box">
+<span class="branch">You're CREATING objects:</span>
+  → <span class="leaf">Need exactly one instance?</span>             <span class="arrow">→ Singleton</span>
+  → <span class="leaf">Don't know which class to instantiate?</span>  <span class="arrow">→ Factory Method</span>
+  → <span class="leaf">Need a compatible family of objects?</span>    <span class="arrow">→ Abstract Factory</span>
+  → <span class="leaf">Complex object with many optional steps?</span> <span class="arrow">→ Builder</span>
+  → <span class="leaf">Creating same expensive object repeatedly?</span><span class="arrow">→ Prototype</span>
+
+<span class="branch">You're COMPOSING objects:</span>
+  → <span class="leaf">Two incompatible interfaces must work together?</span>       <span class="arrow">→ Adapter</span>
+  → <span class="leaf">Abstraction and implementation should vary independently?</span><span class="arrow">→ Bridge</span>
+  → <span class="leaf">Part-whole hierarchies (trees)?</span>                        <span class="arrow">→ Composite</span>
+  → <span class="leaf">Add behavior without subclassing?</span>                       <span class="arrow">→ Decorator</span>
+  → <span class="leaf">Simplify a complex subsystem for common use?</span>            <span class="arrow">→ Facade</span>
+  → <span class="leaf">Millions of similar objects consuming too much memory?</span>   <span class="arrow">→ Flyweight</span>
+  → <span class="leaf">Control access or delay expensive loading?</span>               <span class="arrow">→ Proxy</span>
+
+<span class="branch">You're defining BEHAVIOR:</span>
+  → <span class="leaf">Multiple handlers, one processes the request?</span>    <span class="arrow">→ Chain of Responsibility</span>
+  → <span class="leaf">Need to queue, undo, or log operations?</span>          <span class="arrow">→ Command</span>
+  → <span class="leaf">Traverse collections without knowing structure?</span>   <span class="arrow">→ Iterator</span>
+  → <span class="leaf">Too many direct connections between N objects?</span>    <span class="arrow">→ Mediator</span>
+  → <span class="leaf">Save and restore object state?</span>                   <span class="arrow">→ Memento</span>
+  → <span class="leaf">One state change must notify many dependents?</span>     <span class="arrow">→ Observer</span>
+  → <span class="leaf">Behavior changes entirely based on state?</span>         <span class="arrow">→ State</span>
+  → <span class="leaf">Interchangeable algorithms for the same task?</span>     <span class="arrow">→ Strategy</span>
+  → <span class="leaf">Fixed algorithm structure, varying specific steps?</span>  <span class="arrow">→ Template Method</span>
+  → <span class="leaf">New operations on a stable type hierarchy?</span>       <span class="arrow">→ Visitor</span>
+  → <span class="leaf">Evaluate a language or rule grammar?</span>             <span class="arrow">→ Interpreter</span>
+    </div>
+  </section>
+
+  <!-- REFERENCE TABLE -->
+  <section id="reference" class="reference-section" style="margin-top:2rem">
+    <h2>Complete Codex — All 23 Patterns</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Pattern</th><th>Category</th><th>Problem</th><th>Shape</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Singleton</td><td>Creational</td><td>Need exactly one instance</td><td>Private constructor + static getInstance()</td></tr>
+          <tr><td>2</td><td>Factory Method</td><td>Creational</td><td>Create without specifying exact class</td><td>Interface for creation; subclass decides</td></tr>
+          <tr><td>3</td><td>Abstract Factory</td><td>Creational</td><td>Create families of compatible objects</td><td>Factory producing a suite of related products</td></tr>
+          <tr><td>4</td><td>Builder</td><td>Creational</td><td>Complex object with many optional steps</td><td>Fluent builder + build() validation</td></tr>
+          <tr><td>5</td><td>Prototype</td><td>Creational</td><td>Avoid expensive re-creation</td><td>Clone an existing instance; deep copy</td></tr>
+          <tr><td>6</td><td>Adapter</td><td>Structural</td><td>Two incompatible interfaces</td><td>Wrapper translating one interface to another</td></tr>
+          <tr><td>7</td><td>Bridge</td><td>Structural</td><td>Abstraction/implementation combinatorial explosion</td><td>Abstraction holds implementation reference; both extensible</td></tr>
+          <tr><td>8</td><td>Composite</td><td>Structural</td><td>Treat items and collections uniformly</td><td>Shared interface for leaf and container</td></tr>
+          <tr><td>9</td><td>Decorator</td><td>Structural</td><td>Add behaviors without subclass explosion</td><td>Wrapper with same interface; delegates + adds</td></tr>
+          <tr><td>10</td><td>Facade</td><td>Structural</td><td>Complex subsystem is too hard to use</td><td>One simple class coordinating many complex ones</td></tr>
+          <tr><td>11</td><td>Flyweight</td><td>Structural</td><td>Millions of similar objects too heavy</td><td>Shared intrinsic state; unique extrinsic per instance</td></tr>
+          <tr><td>12</td><td>Proxy</td><td>Structural</td><td>Control access or add lazy loading</td><td>Same interface as real; adds control before delegating</td></tr>
+          <tr><td>13</td><td>Chain of Responsibility</td><td>Behavioral</td><td>Multiple handlers; caller doesn't know which</td><td>Linked handlers; each passes or handles</td></tr>
+          <tr><td>14</td><td>Command</td><td>Behavioral</td><td>Need queue/undo/log for operations</td><td>Object with execute() + undo()</td></tr>
+          <tr><td>15</td><td>Iterator</td><td>Behavioral</td><td>Traverse collection without knowing structure</td><td>Standard hasNext()/next() over any collection</td></tr>
+          <tr><td>16</td><td>Mediator</td><td>Behavioral</td><td>N² connections between N objects</td><td>Central coordinator; all communicate through it</td></tr>
+          <tr><td>17</td><td>Memento</td><td>Behavioral</td><td>Save/restore state without exposing internals</td><td>Object creates opaque memento; caretaker stores it</td></tr>
+          <tr><td>18</td><td>Observer</td><td>Behavioral</td><td>One change must notify many</td><td>Subject maintains observer list; notifies on change</td></tr>
+          <tr><td>19</td><td>State</td><td>Behavioral</td><td>Behavior changes entirely with state</td><td>State objects handle requests; subject delegates</td></tr>
+          <tr><td>20</td><td>Strategy</td><td>Behavioral</td><td>Multiple interchangeable algorithms</td><td>Algorithm in class; client chooses at runtime</td></tr>
+          <tr><td>21</td><td>Template Method</td><td>Behavioral</td><td>Fixed algorithm, varying steps</td><td>Base class defines skeleton; subclasses fill abstract steps</td></tr>
+          <tr><td>22</td><td>Visitor</td><td>Behavioral</td><td>New ops on stable type hierarchy</td><td>Visitor implements op per type; elements accept visitor</td></tr>
+          <tr><td>23</td><td>Interpreter</td><td>Behavioral</td><td>Evaluate a language or rule grammar</td><td>Each grammar rule is a class with interpret()</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library</a>
+      <a href="book-1.html" class="book-nav-link">I · The City</a>
+      <a href="book-2.html" class="book-nav-link current">II · The Codex</a>
+      <a href="book-3.html" class="book-nav-link">III · The Foundations</a>
+      <a href="book-4.html" class="book-nav-link">IV · The Hall</a>
+      <a href="book-5.html" class="book-nav-link">V · The River</a>
+    </div>
+    <p class="footer-credit">"The pattern that fits no problem is a prison, not a solution." — Corvin</p>
+  </footer>
+
+</main>
+
+<script>
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (window.scrollY / h * 100) + '%';
+  });
+  const toggle = document.getElementById('tocToggle');
+  const sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    sidebar.classList.toggle('open');
+  });
+  const io = new IntersectionObserver((e) => {
+    e.forEach(en => {
+      if (en.isIntersecting) {
+        document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active'));
+        const a = document.querySelector(`.toc-item[href="#${en.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(s => io.observe(s));
+</script>
+</body>
+</html>

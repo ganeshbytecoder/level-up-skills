@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book V · The River Breaks — The Engineer's Library</title>
+  <meta name="description" content="46 EDA and microservices failure patterns told through Dev's last night on call — one vaccination campaign for 500,000 citizens, every way messaging can fail.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --book-color: #3b82f6; }
+    .act-header { background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin: 2.5rem 0 1.5rem; display: flex; align-items: center; gap: 1.25rem; }
+    .act-icon { font-size: 2rem; }
+    .act-num { font-family: var(--font-ui); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #3b82f6; }
+    .act-title { font-family: var(--font-story); font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 0.2rem; }
+    .failure-item { background: var(--bg-card); border: 1px solid rgba(59,130,246,0.12); border-left: 3px solid rgba(59,130,246,0.4); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 1.1rem 1.25rem; margin: 0.75rem 0; transition: all 0.3s; }
+    .failure-item:hover { border-left-color: #3b82f6; transform: translateX(4px); }
+    .failure-item .pattern-name { font-family: var(--font-story); font-size: 0.98rem; font-weight: 700; color: #93c5fd; margin-bottom: 0.35rem; }
+    .failure-item .pattern-body { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .failure-item .fix { font-family: var(--font-ui); font-size: 0.8rem; color: #bfdbfe; margin-top: 0.5rem; border-top: 1px solid rgba(59,130,246,0.1); padding-top: 0.5rem; }
+    .six-questions { background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.05)); border: 1px solid rgba(59,130,246,0.25); border-radius: var(--radius-xl); padding: 2rem; margin: 2rem 0; }
+    .six-questions h3 { font-family: var(--font-story); font-size: 1.4rem; color: #3b82f6; margin-bottom: 1.25rem; }
+    .sq-item { display: flex; gap: 1rem; align-items: flex-start; padding: 0.75rem 0; border-bottom: 1px solid rgba(59,130,246,0.1); }
+    .sq-item:last-child { border: none; }
+    .sq-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(59,130,246,0.15); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; color: #3b82f6; flex-shrink: 0; }
+    .sq-q { font-family: var(--font-ui); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .sq-why { font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem; }
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #3b82f6, rgba(59,130,246,0.1)); }
+    .timeline-item { position: relative; margin-bottom: 1.5rem; }
+    .timeline-item::before { content: ''; position: absolute; left: -2.4rem; top: 0.35rem; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; }
+    .timeline-time { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.1em; }
+    .timeline-event { font-family: var(--font-story); font-size: 1rem; color: var(--text-secondary); line-height: 1.5; margin-top: 0.2rem; }
+  </style>
+</head>
+<body>
+<div id="reading-progress"></div>
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">The River Breaks</div>
+  <div class="nav-actions">
+    <a href="book-4.html" class="nav-btn">← Book IV</a>
+    <a href="library.html" class="nav-btn">Library 🏛️</a>
+  </div>
+</nav>
+<button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">🌊 Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — Dev's Last Night</a>
+  <a href="#act1" class="toc-item">Act I — Delivery Problems</a>
+  <a href="#act1-detail" class="toc-item level2">At-Least-Once · Ordering · Idempotency</a>
+  <a href="#act2" class="toc-item">Act II — Consumer Problems</a>
+  <a href="#act2-detail" class="toc-item level2">Lag · Poison Pills · Slow Consumers</a>
+  <a href="#act3" class="toc-item">Act III — Schema Problems</a>
+  <a href="#act3-detail" class="toc-item level2">Evolution · Versioning · Breaking Changes</a>
+  <a href="#act4" class="toc-item">Act IV — Saga & Transaction Problems</a>
+  <a href="#act4-detail" class="toc-item level2">Distributed Transactions · Compensation</a>
+  <a href="#act5" class="toc-item">Act V — Observability & Operations</a>
+  <a href="#act5-detail" class="toc-item level2">Tracing · Lag Monitoring · Replay</a>
+  <a href="#act6" class="toc-item">Act VI — Infrastructure Problems</a>
+  <a href="#epilogue" class="toc-item">Epilogue — The Six Questions</a>
+  <a href="#reference" class="toc-item">All 46 Patterns Reference</a>
+</nav>
+
+<main class="book-main">
+  <header class="book-hero" style="--book-color:#3b82f6">
+    <div class="book-number" style="color:#3b82f6">Book V of V</div>
+    <h1>The River Breaks</h1>
+    <p class="subtitle">Dev's last night on call. One vaccination campaign for 500,000 citizens. Every way an event-driven system can fail — discovered in one night that changed everything.</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot" style="background:#3b82f6"></span> 46 EDA Failure Patterns</span>
+      <span class="meta-badge"><span class="dot" style="background:#3b82f6"></span> Kafka · Microservices</span>
+      <span class="meta-badge"><span class="dot" style="background:#3b82f6"></span> ~4 Hours · Final Book</span>
+    </div>
+  </header>
+
+  <div class="epigraph" style="border-left-color:#3b82f6">
+    "The River had carried every message without error for three years. It had carried taxes, trade records, and merchant disputes. It had never carried life-or-death. Now it carried vaccination appointments for 500,000 citizens. Dev understood, for the first time, what 'mission critical' truly meant."
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label" style="color:#3b82f6">Prologue</div>
+    <h2>Dev's Last Night on Call</h2>
+    <div class="story-content">
+      <p>Dev had been on call for the River Network for six years. He was leaving at the end of the month — a new position, a new city. This was his last rotation.</p>
+      <p>The vaccination campaign had been announced three weeks ago. Physician counsels across all seventeen kingdoms had agreed: a new epidemic was moving from the east. The vaccination program needed to reach 500,000 citizens within 90 days. The River was the only system capable of coordinating it — appointment booking, clinic notification, confirmation delivery, inventory management, rescheduling.</p>
+      <p>Dev had set a reminder: <em>Check the River before you sleep.</em></p>
+      <p>At 11:47 p.m., he looked at his monitoring dashboard. The consumer lag counter was at 0. Every topic was being consumed. Every service was responding. He began to close his laptop.</p>
+      <p>At 11:52 p.m., the lag counter for <code>vaccination-appointments</code> jumped to 847,000.</p>
+      <p>His phone showed a message from Priya, who was monitoring the citizen-facing confirmation service: <em>"Citizens not receiving confirmations. First appointment hour starts in 6 hours."</em></p>
+      <p>Dev put his laptop back on his desk. He would not close it again until 6:18 a.m.</p>
+      <p>What he discovered that night was a complete taxonomy of everything that can go wrong in an event-driven system. He wrote it all down. This is that document.</p>
+    </div>
+
+    <!-- NIGHT TIMELINE -->
+    <div style="margin: 2rem 0;">
+      <div style="font-family:var(--font-ui);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#3b82f6;margin-bottom:1rem;">The Night — Timeline of Discovery</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-time">11:52 PM</div>
+          <div class="timeline-event">Consumer lag on vaccination-appointments jumps to 847,000. First discovery: duplicate events arriving — at-least-once delivery without idempotency consumers.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">12:31 AM</div>
+          <div class="timeline-event">Lag clears but confirmations still wrong order. Second discovery: appointment #44321 processed before appointment #44320. Out-of-order delivery corrupting state.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">1:15 AM</div>
+          <div class="timeline-event">New consumer deployment breaks on old messages. Third discovery: schema changed without backward compatibility. Older events cannot be deserialized.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">2:40 AM</div>
+          <div class="timeline-event">Clinic Inventory Service receives appointment event but fails to decrement stock. Fourth discovery: missing SAGA compensation transaction when inventory step fails.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">3:55 AM</div>
+          <div class="timeline-event">A single malformed event in the topic causes the consumer to crash on every attempt. Fifth discovery: Poison pill message with no DLQ routing.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">5:10 AM</div>
+          <div class="timeline-event">Dev cannot trace which confirmation corresponds to which appointment booking. Sixth discovery: missing correlation ID propagation across events.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">6:18 AM</div>
+          <div class="timeline-event">All systems restored. First appointment wave begins on time. Dev sends his final on-call handover — the most thorough document the team had ever received.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACT 1 -->
+  <section class="chapter" id="act1">
+    <div class="act-header">
+      <div class="act-icon">📨</div>
+      <div>
+        <div class="act-num">Act I</div>
+        <div class="act-title">Delivery & Messaging Problems</div>
+      </div>
+    </div>
+    <div id="act1-detail"></div>
+
+    <div class="failure-item">
+      <div class="pattern-name">1. At-Least-Once Delivery — The Duplicate Event</div>
+      <div class="pattern-body">Kafka guarantees at-least-once delivery. The same vaccination appointment event was processed twice — patient booked into two slots simultaneously. Consumer crashed after processing but before committing the offset — Kafka redelivered.</div>
+      <div class="fix">✅ Fix: Every consumer must be idempotent. Use an idempotency store (Redis or DB). Before processing: check if messageId was already processed. If yes: skip and ack. If no: process and record.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">2. Out-of-Order Message Processing</div>
+      <div class="pattern-body">Appointment CANCELLED event arrived before the CONFIRMED event for the same appointment. The clinic's state machine had no confirmed appointment to cancel — it raised an error and committed the wrong state.</div>
+      <div class="fix">✅ Fix: Use partition keys to guarantee ordering for related events: all events for appointmentId → same partition. Handle out-of-order gracefully: store events, process ordered sequence.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">3. At-Most-Once Delivery — The Silent Drop</div>
+      <div class="pattern-body">A producer was configured to not wait for acknowledgment (acks=0). During a brief broker hiccup, 340 appointment events were silently dropped — never stored, never delivered.</div>
+      <div class="fix">✅ Fix: For critical data, use acks=all (producer waits for all replicas to confirm). Use Kafka's idempotent producer to prevent duplicates while ensuring delivery.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">4. Message Reordering Across Partitions</div>
+      <div class="pattern-body">Events for the same clinic were spread across multiple partitions through a bug in the partition key logic. Events for clinic #77 arrived on partitions 2 and 5 — processed by different consumers in different orders.</div>
+      <div class="fix">✅ Fix: Consistent partition key selection — all events for the same logical group MUST use the same key. Test partition key distribution before production.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">5. Event Loss Due to Log Compaction Misconfiguration</div>
+      <div class="pattern-body">A topic was configured with log compaction but with a retention period shorter than the consumer's lag. By the time the slow consumer reached an event — the log compaction had deleted it. The event was gone forever.</div>
+      <div class="fix">✅ Fix: Retention period ≥ maximum expected consumer lag + safety margin. Alert when consumer lag approaches the retention boundary. Never assume an event will be there when the consumer gets to it "eventually."</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">6. Duplicate Event from Retry Without Idempotency Key</div>
+      <div class="pattern-body">The booking service timed out and retried 3 times. The first attempt had actually succeeded. The second and third retries created duplicate bookings. No idempotency key was used on the producer side.</div>
+      <div class="fix">✅ Fix: Generate idempotencyKey on the client side before first attempt. Include it in every retry. Use Kafka's idempotent producer or check at the consumer with a deduplication store.</div>
+    </div>
+  </section>
+
+  <!-- ACT 2 -->
+  <section class="chapter" id="act2">
+    <div class="act-header">
+      <div class="act-icon">⚡</div>
+      <div>
+        <div class="act-num">Act II</div>
+        <div class="act-title">Consumer Problems</div>
+      </div>
+    </div>
+    <div id="act2-detail"></div>
+
+    <div class="failure-item">
+      <div class="pattern-name">7. Consumer Lag — The Accumulating Debt</div>
+      <div class="pattern-body">The Confirmation Service was processing 100 events/second. The producer was publishing 150 events/second. Consumer lag grew by 50 events per second. After 3 hours: 540,000 events behind. Confirmations were 90 minutes late — arriving after patient appointments had already passed.</div>
+      <div class="fix">✅ Fix: Alert on consumer lag, not just on consumer errors. Add more consumer instances (up to partition count). Profile slow processing: where is the bottleneck? Database? Downstream API? Serialize/deserialize?</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">8. Poison Pill Message — The Consumer Crash Loop</div>
+      <div class="pattern-body">One malformed appointment event (null clinicId) caused the consumer's deserialization to throw an exception. The consumer crashed. Kafka redelivered the message on restart. The consumer crashed again. Loop. No other messages were processed.</div>
+      <div class="fix">✅ Fix: Dead Letter Queue (DLQ). After N failed attempts: route to DLQ instead of crashing. Consumer continues with next message. Operations team investigates DLQ. Log and alert on every DLQ write.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">9. Slow Consumer Blocking the Entire Partition</div>
+      <div class="pattern-body">One consumer was calling an external geocoding API synchronously per event. The geocoding API was slow (800ms per call). The consumer fell behind, accumulating lag, while three other consumers in the same group processed their partitions at full speed — unable to help.</div>
+      <div class="fix">✅ Fix: Increase partition count to distribute load. Batch API calls: accumulate N events, call API once. Use async processing: publish event to internal queue, process asynchronously. Never synchronously call slow external services inside a Kafka consumer loop.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">10. Consumer Rebalancing Storm</div>
+      <div class="pattern-body">A consumer crashed and restarted repeatedly (due to the geocoding API issue). Each crash triggered a consumer group rebalance. During rebalance, NO messages from the group were processed. Lasted 2 minutes per crash.</div>
+      <div class="fix">✅ Fix: Fix the underlying crash cause (that's the primary fix). Increase session.timeout.ms and heartbeat.interval.ms to prevent spurious rebalances. Static group membership (group.instance.id) to reduce rebalance frequency.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">11. Committing Offset Before Processing Is Complete</div>
+      <div class="pattern-body">The consumer committed the offset immediately on receiving the event, then processed it asynchronously. The processing failed. The event's offset was already committed — Kafka moved on. The failed appointment was never retried. 200 citizens received no confirmation.</div>
+      <div class="fix">✅ Fix: Commit offset AFTER processing is verified complete. Use manual offset commit. Enable auto.offset.reset=earliest for recovery. Never commit offsets before business logic is durably persisted.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">12. Heartbeat Timeout Causing False Consumer Failure</div>
+      <div class="pattern-body">A consumer was doing expensive processing (database batch insert) that took longer than session.timeout.ms. Kafka believed the consumer was dead and triggered a rebalance. The consumer then came back and re-processed the same messages.</div>
+      <div class="fix">✅ Fix: Set session.timeout.ms and max.poll.interval.ms based on the actual maximum processing time of one poll batch. Reduce the batch size (max.poll.records) if processing is slow.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">13. Multiple Consumer Groups Interfering</div>
+      <div class="pattern-body">Two teams deployed consumers for the same topic under the same consumer group ID — by accident. Kafka split the partitions between both services. Each service received only half the events. Both processed incorrect, incomplete state.</div>
+      <div class="fix">✅ Fix: Use unique, descriptive consumer group IDs. Convention: {service-name}-{topic-name}-consumer. Audit active consumer groups before deploying new consumers.</div>
+    </div>
+  </section>
+
+  <!-- ACT 3 -->
+  <section class="chapter" id="act3">
+    <div class="act-header">
+      <div class="act-icon">📋</div>
+      <div>
+        <div class="act-num">Act III</div>
+        <div class="act-title">Schema & Contract Problems</div>
+      </div>
+    </div>
+    <div id="act3-detail"></div>
+
+    <div class="failure-item">
+      <div class="pattern-name">14. Breaking Schema Change — Adding Required Field</div>
+      <div class="pattern-body">The booking team added a required field (vaccinationType) to the appointment event schema. Old consumers parsing old messages failed — the field was missing. Partitions with old messages were now unprocessable.</div>
+      <div class="fix">✅ Fix: Schema evolution rules: NEVER add required fields. New fields must have defaults (optional + nullable). Old consumers ignore unknown fields. New consumers handle missing optional fields with defaults. Use Schema Registry (Confluent) to enforce compatibility rules.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">15. Changing Field Type — The Silent Data Corruption</div>
+      <div class="pattern-body">The appointmentId was changed from Integer to UUID (String) without a schema version bump. Consumers parsed the event, treating the UUID string as an integer. Data was silently corrupted — appointments were being associated with the wrong records.</div>
+      <div class="fix">✅ Fix: Never change the type of an existing field. Add a new field with the new type alongside the old one. Deprecate the old field with a migration period. Schema Registry prevents this if configured to enforce full compatibility.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">16. Missing Schema Version — No Contract Enforcement</div>
+      <div class="pattern-body">Events had no schemaVersion field. When the schema changed, there was no way to tell which version an event was. Old and new events were indistinguishable in the topic. Consumers had to handle all possibilities with complex conditional logic.</div>
+      <div class="fix">✅ Fix: Include schemaVersion in every event. Use Schema Registry with schema versioning. Consumers use the version to select the correct deserializer.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">17. Producer and Consumer Out of Sync Schema</div>
+      <div class="pattern-body">A new producer deployed with v2 schema before any consumers were updated to handle v2. 4 hours of v2 events were in the topic that no consumer could process. When consumers were updated, they processed v2 events correctly — but also tried to reprocess the already-processed v1 events because offsets were reset.</div>
+      <div class="fix">✅ Fix: Consumer-first deployment when adding fields to an existing schema. Update consumers to handle new fields (with defaults) before updating producers to send them. Schema Registry compatibility checks enforced in CI/CD.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">18. Implicit Contract — Undocumented Event Assumptions</div>
+      <div class="pattern-body">One team's consumer assumed event timestamps were always in UTC. The producer's new version sent timestamps in the local timezone of the datacenter (CET). Appointment times were offset by 1 hour. Six hundred appointments were scheduled for the wrong time.</div>
+      <div class="fix">✅ Fix: Document every field's format, unit, and timezone explicitly. Include format in the schema comment. Test with data at timezone boundaries. All timestamps: ISO 8601 UTC always.</div>
+    </div>
+  </section>
+
+  <!-- ACT 4 -->
+  <section class="chapter" id="act4">
+    <div class="act-header">
+      <div class="act-icon">🔄</div>
+      <div>
+        <div class="act-num">Act IV</div>
+        <div class="act-title">Saga & Distributed Transaction Problems</div>
+      </div>
+    </div>
+    <div id="act4-detail"></div>
+
+    <div class="story-content">
+      <p>The vaccination appointment booking was a distributed transaction: Book appointment → Decrement clinic inventory → Send citizen confirmation → Send clinic notification. All four or none.</p>
+      <p>Dev had assumed Sagas were configured. They were not — not correctly.</p>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">19. Missing Saga — Partial Completion Without Rollback</div>
+      <div class="pattern-body">Appointment booked. Inventory decremented. Confirmation sent. Clinic notification FAILED. The patient had a booking. The clinic had confirmed inventory committed. But the clinic was never notified. The patient arrived. The clinic had no record.</div>
+      <div class="fix">✅ Fix: Saga Pattern with compensating transactions. If step 4 (clinic notification) fails after retries: compensate by un-decrementing inventory, cancelling the booking, and notifying the citizen that their booking failed. Never leave the system in a partially successful state that appears successful to the user.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">20. Compensating Transaction Also Failing</div>
+      <div class="pattern-body">After clinic notification failed, the Saga triggered a compensation (cancel booking). The cancellation service was also experiencing issues. Both the forward flow and the compensation failed. The appointment existed in the system but was in an unknown state.</div>
+      <div class="fix">✅ Fix: Compensating transactions must be ultra-simple and ultra-reliable. Separate compensation events from forward-flow events. Design compensation to be retried indefinitely until success. Use a saga orchestrator (Temporal, AWS Step Functions) that handles compensation retry logic.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">21. No Saga Timeout — The Eternal Pending State</div>
+      <div class="pattern-body">A saga was waiting for an inventory reservation confirmation. The inventory service was slow. The saga had no timeout — it waited forever. After 6 hours, the inventory service responded. The clinic's time slot was now in the past. The saga confirmed a booking for a slot that had already occurred.</div>
+      <div class="fix">✅ Fix: Every saga step must have a timeout. Timeout = maximum wait → trigger compensation → abort and notify user. Never allow a saga to wait indefinitely for any single step.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">22. Choreography Without Visibility — "Who Is Responsible?"</div>
+      <div class="pattern-body">The saga was implemented as choreography: each service reacted to the previous service's event. When an appointment got stuck in a "pending" state, no one could determine which service was supposed to have acted next — or why it hadn't. Debugging required examining events across 4 topics in chronological order manually.</div>
+      <div class="fix">✅ Fix: Choreography sagas need correlation IDs propagated through every event. Use saga state tracking service that records each step's completion. For complex sagas: orchestration (central coordinator) provides clearer visibility into state.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">23. Outbox Table Not Cleaned Up</div>
+      <div class="pattern-body">The Outbox Pattern was implemented — events written atomically with DB records. The outbox relay published events and marked them as published. But the cleanup job (delete published rows) was never implemented. After 3 months, the outbox table had 40 million rows. Queries on it were taking 8 seconds.</div>
+      <div class="fix">✅ Fix: Outbox cleanup is a first-class concern. Delete or archive published rows with a background job. Run it continuously, not in large batches. Monitor outbox table size as an operational metric.</div>
+    </div>
+  </section>
+
+  <!-- ACT 5 -->
+  <section class="chapter" id="act5">
+    <div class="act-header">
+      <div class="act-icon">🔭</div>
+      <div>
+        <div class="act-num">Act V</div>
+        <div class="act-title">Observability & Operations Problems</div>
+      </div>
+    </div>
+    <div id="act5-detail"></div>
+
+    <div class="failure-item">
+      <div class="pattern-name">24. Missing Correlation ID — "Which Confirmation Belongs to Which Appointment?"</div>
+      <div class="pattern-body">Dev received a complaint: "My appointment confirmation says 10 AM but my slot is 2 PM." He needed to trace the event from booking → inventory → confirmation. Each event had different IDs with no common correlation ID. Manual cross-referencing of three topics took 45 minutes.</div>
+      <div class="fix">✅ Fix: Every event must carry the same correlationId from the originating action. The booking service generates correlationId. Every downstream event inherits it. Every log line includes it. Distributed traces are grouped by it. One ID traces the entire journey.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">25. No Consumer Lag Monitoring</div>
+      <div class="pattern-body">The consumer lag had been growing for 3 hours before Dev noticed it. The alert was configured on: "consumer is down" (binary). No alert was configured on: "consumer lag > 10,000 messages." By the time the alert fired, lag was at 847,000.</div>
+      <div class="fix">✅ Fix: Three-tier consumer lag alerting: Warning (lag > 1,000 = growing), Error (lag > 10,000 = investigate now), Critical (lag > 100,000 = incident). Alert on lag growth rate, not just absolute value.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">26. No Event Replay Capability</div>
+      <div class="pattern-body">A consumer bug caused 2 hours of incorrect processing. To fix it: replay the affected time range. But the consumer group's offsets had been committed past those messages. Resetting to the beginning would re-process 3 months of history.</div>
+      <div class="fix">✅ Fix: Keep Kafka retention long enough to replay any recent window (minimum 7 days for critical topics). Use separate consumer groups for replay so production offsets are never disturbed. Documented replay procedure with tested runbook.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">27. Logging Event Payload Without Considering PII</div>
+      <div class="pattern-body">Dev added detailed event logging to debug the appointment issue — including citizen name, date of birth, and health condition. These logs were shipped to the central logging system, accessible to all engineers. A compliance audit later identified a GDPR violation.</div>
+      <div class="fix">✅ Fix: Log event metadata, not payload content. Log: eventId, correlationId, topic, partition, offset, timestamp, processingDuration. Never log PII. Structured log format — machine-readable, not human narrative.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">28. Alert Fatigue — 400 Alerts, No Signal</div>
+      <div class="pattern-body">The vaccination system had 400 alert rules. By the time the crisis was in full swing, Dev's alert channel had 847 unread messages. The critical alert — "consumer lag critical: 847,000" — was buried on page 12 of the unfilterable stream.</div>
+      <div class="fix">✅ Fix: Alert on symptoms (user impact), not causes. Age-old rule: each alert must be actionable. Remove or silence alerts that cannot be acted on. Use severity tiers with separate channels. For on-call: 3 critical alerts maximum. Everything else: reviewed daily.</div>
+    </div>
+  </section>
+
+  <!-- ACT 6 -->
+  <section class="chapter" id="act6">
+    <div class="act-header">
+      <div class="act-icon">🏗️</div>
+      <div>
+        <div class="act-num">Act VI</div>
+        <div class="act-title">Infrastructure & Configuration Problems</div>
+      </div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">29. Too Few Partitions — Throughput Ceiling</div>
+      <div class="pattern-body">The vaccination-appointments topic had 3 partitions. Maximum parallelism: 3 consumers. At peak: 450 events/second arriving. Three consumers at maximum speed could process 300/second. The topic could not be processed fast enough regardless of how many consumers were added.</div>
+      <div class="fix">✅ Fix: Partition count determines maximum consumer parallelism. Set partitions based on peak expected throughput / single consumer throughput. Note: partitions cannot be reduced once set. Plan for peak traffic × 2 when creating topics.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">30. Kafka Broker Disk Full — Topic Writes Failing Silently</div>
+      <div class="pattern-body">A Kafka broker's disk filled overnight. New writes silently failed. Producers received no error (acks=0 misconfiguration). 6 hours of vaccination appointment events were lost before the issue was discovered.</div>
+      <div class="fix">✅ Fix: Monitor Kafka broker disk utilization. Alert at 75% (warning) and 85% (critical). Retention policy per topic based on volume. acks=all ensures producers know about write failures. Never configure acks=0 for mission-critical topics.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">31. Thundering Herd After Restart</div>
+      <div class="pattern-body">The vaccination system was restarted after the crisis. All 40 consumer instances reconnected simultaneously. Each immediately began processing its partition's backlog at maximum speed. The downstream Confirmation Service received 450× its normal write rate. It crashed.</div>
+      <div class="fix">✅ Fix: Rate-limit consumers during catch-up mode. Add artificial processing delay when lag > threshold. Restart consumers in staggered waves. Protect downstream with backpressure—consumer checks downstream health before processing batch.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">32. Consumer Deployed With Wrong Kafka Cluster Config</div>
+      <div class="pattern-body">A consumer was accidentally deployed pointing to the staging Kafka cluster instead of production. It was happily consuming and committing offsets — on staging events. Production events accumulated unprocessed. No monitoring detected the mismatch.</div>
+      <div class="fix">✅ Fix: Validate Kafka cluster endpoint against expected production domain on startup. Log bootstrap.servers on every startup. Alert on unexpected consumer appeared on staging cluster consuming "production-named" topics.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">33. Unmonitored Dead Letter Queue</div>
+      <div class="pattern-body">The DLQ was correctly configured. Messages that failed were routed there. But no one was monitoring the DLQ. For 3 weeks, 840 failed appointment events accumulated — 840 citizens who never received confirmations. None were processed. Some had already missed their appointments.</div>
+      <div class="fix">✅ Fix: DLQ monitoring is mandatory. Alert immediately on any DLQ write. Weekly DLQ report summarizing count and category of failures. DLQ messages must be reviewed and resolved — not just stored and forgotten.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">34. Back-Pressure Not Implemented — Consumer OOM</div>
+      <div class="pattern-body">The consumer received events faster than it could process them. It bufferred them in memory. The buffer kept growing. After 40 minutes, the consumer ran out of memory and was OOM-killed — losing the buffered events and triggering a rebalance.</div>
+      <div class="fix">✅ Fix: Use Kafka's built-in flow control: max.poll.records limits how many events are fetched per poll. Process the batch before polling again. Never create unbounded in-memory queues that hold events fetched from Kafka.</div>
+    </div>
+
+    <!-- Patterns 35-46 -->
+    <div class="failure-item">
+      <div class="pattern-name">35. Global Consumer Group Offset Reset Error</div>
+      <div class="pattern-body">An engineer accidentally reset consumer group offsets to the earliest position across all topics — intending to reset only one topic. Every consumer began re-processing months of events. Idempotency saves partially; the volume caused a cascade.</div>
+      <div class="fix">✅ Fix: Offset reset commands must specify exact partition and offset. Multi-confirm prompts. Runbook requiring peer review for offset resets. Test offset reset procedures on a copy of the topic.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">36. Event Containing a Reference, Not the Data</div>
+      <div class="pattern-body">Events contained only appointmentId. Consumers fetched appointment details from the API on each event. During peak load, the appointment API was slow — adding 800ms to each event's processing. Consumer lag grew.</div>
+      <div class="fix">✅ Fix: Include necessary data in the event itself (event-carried state transfer). Don't design events that require a synchronous API call to process. This is called "thin events with API calls" vs "fat events" — for high throughput, prefer fat events for critical data.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">37. Missing Idempotency at the Database Level</div>
+      <div class="pattern-body">The consumer was idempotent in memory (checked a Redis cache). But the Redis cache had a TTL of 1 hour. An event processed at 8 AM and received again at 9:30 AM (due to a weird Kafka replay) was processed again — outside the Redis TTL window.</div>
+      <div class="fix">✅ Fix: Idempotency keys in the database (not cache) for events that must never be duplicated. Database has a UNIQUE constraint on (messageId). Duplicate inserts fail with a constraint error, not silently duplicate.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">38. Asynchronous Failure Misinterpreted as Success</div>
+      <div class="pattern-body">The booking API returned HTTP 202 Accepted (event published to Kafka). The mobile client treated 202 as "booking confirmed." The booking event was later rejected by the consumer due to a business rule. The client never knew. The citizen arrived for an appointment that was never confirmed.</div>
+      <div class="fix">✅ Fix: For high-stakes operations: use polling or webhooks to deliver final status. Or: synchronous processing for the critical path, async for non-critical downstream. 202 must be communicated as "pending" to users, not "done."</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">39. Clock Skew Between Producers</div>
+      <div class="pattern-body">Two producers published events for the same appointment. Producer A's clock was 47 seconds ahead. Events were ordered by timestamp. The UPDATED event from Producer B (real-world time: later) appeared before the CREATED event from Producer A (timestamp: 47s ahead but real-world: earlier).</div>
+      <div class="fix">✅ Fix: Never rely on producer timestamps for event ordering. Use Kafka's broker-assigned timestamps (logAppendTime), which are consistent across partitions. Use sequence numbers or vector clocks for ordering sensitive workflows.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">40. Fan-Out Storm Without Rate Control</div>
+      <div class="pattern-body">A single "Mass Rescheduling" event triggered the system to fire 500,000 individual appointment update events simultaneously. The notification service received 500,000 events in 30 seconds — 20× its designed capacity. SMS gateway was throttled. Confirmations delayed by 6 hours.</div>
+      <div class="fix">✅ Fix: Rate-limited fan-out. Publish batch events, not individual events for mass operations. Consumer unpacks batch and processes at controlled rate. Use flow control to limit publishing rate to downstream capacity.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">41. No Topic Retention Policy — Events Deleted Too Early</div>
+      <div class="pattern-body">Default Kafka retention (7 days) was used. A consumer that had been down for 8 days (during a deployment freeze) reconnected. Its earliest unprocessed event was gone — deleted by retention. It had to restart from the earliest available event, which was after the deletion point.</div>
+      <div class="fix">✅ Fix: Set retention per topic based on maximum expected consumer downtime + margin. For critical topics: 30 days. Monitor: alert when consumer lag approaches the retention boundary before events are deleted.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">42. Event Payload Too Large — Broker Rejection</div>
+      <div class="pattern-body">A producer included a full vaccination record PDF (2MB) as a base64 field in the appointment event. Kafka's default message size limit (1MB) caused the event to be rejected. The producer returned an error. The event was lost. The developer didn't handle the RecordTooLargeException.</div>
+      <div class="fix">✅ Fix: Store large payloads in blob storage (S3). Include a reference URL in the event. Kafka events: small, fast, reference-based. Handle RecordTooLargeException explicitly — don't let it silently swallow events.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">43. Concurrent Saga Instances for Same Entity</div>
+      <div class="pattern-body">Two concurrent booking requests for the same clinic slot started two Saga instances. Both passed inventory check (availability: 1 slot). Both consumed the slot. The clinic was double-booked. Two citizens arrived for one slot.</div>
+      <div class="fix">✅ Fix: Saga per entity must be mutex. Distributed lock on the entity ID before starting the Saga. Or: use database optimistic locking at the inventory step — second Saga fails the inventory check and rolls back.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">44. Event-Sourced Read Model Not Updated</div>
+      <div class="pattern-body">The appointment status read model (for the mobile API's "my appointments" view) was populated from events. A consumer that updated the read model crashed for 30 minutes. Users saw stale appointment data — confirmed appointments showing as "pending."</div>
+      <div class="fix">✅ Fix: Read model consumers need the same reliability as any critical consumer: DLQ, alerting, monitored lag. Design read models to tolerate brief staleness with a "last updated" timestamp. Show "data as of 2 minutes ago" rather than wrong data.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">45. Kafka Topic Permissions Misconfigured</div>
+      <div class="pattern-body">The Clinic Notification Service lost ACL permissions to publish to the clinic-notifications topic after a security configuration update. It published without error to an internal buffer — for 2 hours, before the buffer filled and the service started returning 500 errors. No clinic received notifications for 2 hours.</div>
+      <div class="fix">✅ Fix: Test ACL permissions in CI/CD pipeline. Alert on failed publish attempts (authorization errors in producer logs). Monitor publish rate by service — drop to zero is an immediate alert.</div>
+    </div>
+
+    <div class="failure-item">
+      <div class="pattern-name">46. No Multi-Region Failover for Kafka</div>
+      <div class="pattern-body">The Kafka cluster was single-region. During a brief AWS us-east-1 issue, the entire vaccination system stopped for 40 minutes. 12,000 appointment events were lost (acks=0 on some producers). No multi-region replication had been configured.</div>
+      <div class="fix">✅ Fix: For mission-critical event backbones: use multi-region Kafka (MirrorMaker 2, Confluent Replication). Active-active or active-passive. Understand RPO (how much data can be lost) and RTO (how quickly can it recover). Vaccination system is mission-critical — equivalent to a payment system for infrastructure design.</div>
+    </div>
+  </section>
+
+  <!-- EPILOGUE / SIX QUESTIONS -->
+  <section class="chapter" id="epilogue">
+    <div class="chapter-label" style="color:#3b82f6">Epilogue</div>
+    <h2>Dev's Final Words — The Six Questions</h2>
+    <div class="story-content">
+      <p>At 6:18 AM, Dev closed his last incident ticket. The vaccination system was stable. The first appointments were beginning. He opened a new document and wrote:</p>
+    </div>
+    <div class="epigraph" style="border-left-color:#3b82f6">
+      "I will not be on call next month. The next person who sits in front of this monitoring dashboard will face every one of these problems again — not because they are bad engineers, but because event-driven systems have their own unique failure language. I want to give the next person a shortcut."
+    </div>
+
+    <div class="six-questions">
+      <h3>⚡ The Six Questions — Before Any Event-Driven Feature Ships</h3>
+      <div class="sq-item">
+        <div class="sq-num">1</div>
+        <div><div class="sq-q">What happens if this message is delivered twice?</div><div class="sq-why">Kafka guarantees at-least-once. Duplicate processing = duplicate charges, duplicate bookings, duplicate emails. Your consumer MUST be idempotent.</div></div>
+      </div>
+      <div class="sq-item">
+        <div class="sq-num">2</div>
+        <div><div class="sq-q">What happens if it arrives out of order?</div><div class="sq-why">Network partitions, rebalances, and multiple partitions can reorder events. If your state machine requires order — use partition keys + handle out-of-order gracefully.</div></div>
+      </div>
+      <div class="sq-item">
+        <div class="sq-num">3</div>
+        <div><div class="sq-q">What happens if the consumer crashes halfway through processing?</div><div class="sq-why">Offset was not committed. Message will be redelivered. Processing must be atomic — either fully complete or not at all. Never commit offset before persistence is confirmed.</div></div>
+      </div>
+      <div class="sq-item">
+        <div class="sq-num">4</div>
+        <div><div class="sq-q">What happens if the downstream is slow — not down, just slow?</div><div class="sq-why">Slow downstream = consumer lag grows. More consumers cannot help if partition count is the limit. Detect lag early. Alert before it becomes a crisis.</div></div>
+      </div>
+      <div class="sq-item">
+        <div class="sq-num">5</div>
+        <div><div class="sq-q">What happens if this event is missing entirely?</div><div class="sq-why">Producer crash before commit, disk full, wrong ACLs, retention expired. Can your system detect a missing event? Can it recover without it?</div></div>
+      </div>
+      <div class="sq-item">
+        <div class="sq-num">6</div>
+        <div><div class="sq-q">What happens if I need to replay this topic for recovery?</div><div class="sq-why">Your consumer must be idempotent (answer 1). Your retention must be long enough. Your consumer group offset reset must be documented. Your replay must not kill downstream.</div></div>
+      </div>
+    </div>
+
+    <div class="story-content">
+      <p>Dev printed this document, laminated it, and left it taped to the wall above the on-call workstation.</p>
+      <p>The next engineer to sit down read it on their first night and made one small change at the bottom: they added their own initials, the date, and the number of times it had saved them.</p>
+      <p>By year three, there were forty-two sets of initials.</p>
+      <p>The vaccination system has run without a major incident since that night.</p>
+      <p>500,000 citizens were vaccinated. On time. Without loss.</p>
+      <p>Because one engineer, on one last night on call, wrote everything down.</p>
+    </div>
+  </section>
+
+  <!-- REFERENCE -->
+  <section id="reference" class="reference-section">
+    <h2>All 46 EDA Failure Patterns — Reference</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Pattern</th><th>Category</th><th>Root Cause</th><th>Prevention</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>At-Least-Once Without Idempotency</td><td>Delivery</td><td>Kafka redelivers on consumer crash</td><td>Idempotent consumer + deduplication store</td></tr>
+          <tr><td>2</td><td>Out-of-Order Processing</td><td>Delivery</td><td>Different partitions, different speeds</td><td>Partition key = entity key; handle out-of-order</td></tr>
+          <tr><td>3</td><td>At-Most-Once (Silent Drop)</td><td>Delivery</td><td>acks=0; no confirmation from broker</td><td>acks=all for critical topics</td></tr>
+          <tr><td>4</td><td>Cross-Partition Reordering</td><td>Delivery</td><td>Related events on different partitions</td><td>Consistent partition key for related events</td></tr>
+          <tr><td>5</td><td>Log Compaction Deleting Needed Events</td><td>Delivery</td><td>Retention < lag</td><td>Retention ≥ max lag + margin</td></tr>
+          <tr><td>6</td><td>Duplicate from Retry Without Idempotency</td><td>Delivery</td><td>Retry without idempotency key</td><td>Client-side idempotency key before first attempt</td></tr>
+          <tr><td>7</td><td>Consumer Lag Accumulation</td><td>Consumer</td><td>Consumer slower than producer</td><td>Lag alerting; more consumers; profile slow path</td></tr>
+          <tr><td>8</td><td>Poison Pill Message</td><td>Consumer</td><td>Malformed event crashes consumer</td><td>DLQ after N failures; continue with next message</td></tr>
+          <tr><td>9</td><td>Slow Consumer Blocking Partition</td><td>Consumer</td><td>Synchronous external call per event</td><td>Batch API calls; increase partitions; async processing</td></tr>
+          <tr><td>10</td><td>Consumer Rebalancing Storm</td><td>Consumer</td><td>Repeated crash → rebalance loop</td><td>Fix crash; adjust timeout config; static membership</td></tr>
+          <tr><td>11</td><td>Offset Committed Before Processing</td><td>Consumer</td><td>Async processing + early commit</td><td>Manual offset commit after verified persistence</td></tr>
+          <tr><td>12</td><td>Heartbeat Timeout on Slow Processing</td><td>Consumer</td><td>Processing time > session.timeout.ms</td><td>Set max.poll.interval.ms based on actual processing time</td></tr>
+          <tr><td>13</td><td>Duplicate Consumer Group ID</td><td>Consumer</td><td>Two services sharing one group ID</td><td>Unique group IDs; audit before deploy</td></tr>
+          <tr><td>14</td><td>Breaking Required Field Addition</td><td>Schema</td><td>Old events missing new required field</td><td>Optional fields with defaults only; Schema Registry</td></tr>
+          <tr><td>15</td><td>Field Type Change</td><td>Schema</td><td>Silent data corruption on parse</td><td>Never change field type; add new field + deprecate old</td></tr>
+          <tr><td>16</td><td>Missing Schema Version</td><td>Schema</td><td>No way to distinguish old from new events</td><td>schemaVersion in every event; Schema Registry</td></tr>
+          <tr><td>17</td><td>Producer Deployed Before Consumer Updated</td><td>Schema</td><td>Consumers can't process new schema</td><td>Consumer-first deployment for schema additions</td></tr>
+          <tr><td>18</td><td>Implicit Format Assumptions</td><td>Schema</td><td>Undocumented timezone, unit, format</td><td>Document every field format; ISO 8601 UTC always</td></tr>
+          <tr><td>19</td><td>Missing Saga — Partial Completion</td><td>Saga</td><td>No compensation on step failure</td><td>Saga with compensating transactions for all steps</td></tr>
+          <tr><td>20</td><td>Compensation Also Fails</td><td>Saga</td><td>Compensation not resilient</td><td>Compensation: simple, retryable, independently deployable</td></tr>
+          <tr><td>21</td><td>Saga Without Timeout</td><td>Saga</td><td>Waits forever on one step</td><td>Timeout per step: timeout = compensate + abort</td></tr>
+          <tr><td>22</td><td>Choreography Without Visibility</td><td>Saga</td><td>No correlation tracking across events</td><td>correlationId; saga state tracker; consider orchestration</td></tr>
+          <tr><td>23</td><td>Outbox Table Not Cleaned</td><td>Saga</td><td>Table grows unboundedly</td><td>Background cleanup job; monitor outbox table size</td></tr>
+          <tr><td>24</td><td>Missing Correlation ID</td><td>Observability</td><td>No common ID across event chain</td><td>correlationId from origin; propagate through every event</td></tr>
+          <tr><td>25</td><td>No Consumer Lag Monitoring</td><td>Observability</td><td>Alert only on consumer down</td><td>3-tier lag alerting: warning, error, critical on lag count</td></tr>
+          <tr><td>26</td><td>No Event Replay Capability</td><td>Observability</td><td>Offsets committed past problem window</td><td>Long retention; documented replay procedure; separate group</td></tr>
+          <tr><td>27</td><td>Logging PII in Events</td><td>Observability</td><td>Debug logging includes payload</td><td>Log metadata only; never log PII; structured logging</td></tr>
+          <tr><td>28</td><td>Alert Fatigue</td><td>Observability</td><td>400 undifferentiated alerts</td><td>Alert on symptoms; severity tiers; max 3 critical alerts</td></tr>
+          <tr><td>29</td><td>Too Few Partitions</td><td>Infrastructure</td><td>Partition count = max parallelism limit</td><td>Partitions = peak throughput / single consumer throughput</td></tr>
+          <tr><td>30</td><td>Broker Disk Full</td><td>Infrastructure</td><td>No disk monitoring; acks=0</td><td>Monitor disk at 75%/85%; acks=all; explicit retention policy</td></tr>
+          <tr><td>31</td><td>Thundering Herd After Restart</td><td>Infrastructure</td><td>All consumers reconnect simultaneously</td><td>Rate-limit catchup; staggered restart; downstream protection</td></tr>
+          <tr><td>32</td><td>Wrong Kafka Cluster Config</td><td>Infrastructure</td><td>Consumer points to staging cluster</td><td>Validate bootstrap.servers on startup; environment checks</td></tr>
+          <tr><td>33</td><td>Unmonitored DLQ</td><td>Infrastructure</td><td>DLQ grows unnoticed</td><td>Alert on any DLQ write; weekly DLQ review process</td></tr>
+          <tr><td>34</td><td>Back-Pressure Not Implemented</td><td>Infrastructure</td><td>In-memory buffer causes OOM</td><td>max.poll.records; process before next poll; never buffer Kafka events</td></tr>
+          <tr><td>35</td><td>Global Offset Reset Error</td><td>Infrastructure</td><td>Reset all topics, not one</td><td>Specify topic+partition+offset; peer review for offset resets</td></tr>
+          <tr><td>36</td><td>Thin Events Requiring API Call</td><td>Design</td><td>Events too small — require API fetch</td><td>Include necessary data in event (fat events for critical data)</td></tr>
+          <tr><td>37</td><td>In-Cache Idempotency Only</td><td>Design</td><td>Cache TTL shorter than replay window</td><td>Database-level UNIQUE constraint on messageId</td></tr>
+          <tr><td>38</td><td>202 Misinterpreted as Success</td><td>Design</td><td>Async result not delivered to client</td><td>Polling/webhook for final status on high-stakes operations</td></tr>
+          <tr><td>39</td><td>Clock Skew Between Producers</td><td>Design</td><td>Producer timestamps not reliable for order</td><td>Use broker-assigned logAppendTime; sequence numbers</td></tr>
+          <tr><td>40</td><td>Fan-Out Storm</td><td>Design</td><td>Mass operation fires N individual events</td><td>Rate-limited fan-out; batch events; flow control</td></tr>
+          <tr><td>41</td><td>Short Retention Deleting Needed Events</td><td>Design</td><td>Retention < consumer downtime</td><td>Retention ≥ max downtime + margin; monitor retention boundary</td></tr>
+          <tr><td>42</td><td>Event Payload Too Large</td><td>Design</td><td>Base64 large files in event</td><td>Store in blob storage; reference URL in event; handle RecordTooLargeException</td></tr>
+          <tr><td>43</td><td>Concurrent Sagas for Same Entity</td><td>Saga</td><td>Two sagas process same entity concurrently</td><td>Distributed lock on entity ID; optimistic locking at inventory step</td></tr>
+          <tr><td>44</td><td>Read Model Consumer Crash</td><td>Observability</td><td>Read model stale after consumer crash</td><td>Same reliability as critical consumers; show "last updated" to users</td></tr>
+          <tr><td>45</td><td>Kafka ACL Misconfiguration</td><td>Infrastructure</td><td>Service loses publish permission</td><td>Test ACLs in CI; alert on publish failure; monitor publish rate</td></tr>
+          <tr><td>46</td><td>Single-Region Kafka</td><td>Infrastructure</td><td>Single region = single point of failure</td><td>Multi-region Kafka for mission-critical with documented RPO/RTO</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library Home</a>
+      <a href="book-1.html" class="book-nav-link">I · The City</a>
+      <a href="book-2.html" class="book-nav-link">II · The Codex</a>
+      <a href="book-3.html" class="book-nav-link">III · The Foundations</a>
+      <a href="book-4.html" class="book-nav-link">IV · The Hall</a>
+      <a href="book-5.html" class="book-nav-link current">V · The River</a>
+    </div>
+    <p class="footer-credit">"500,000 citizens vaccinated. On time. Without loss. Because one engineer, on one last night, wrote everything down." — Dev's Postmortem, Final Page</p>
+  </footer>
+</main>
+
+<script>
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - window.innerHeight; bar.style.width = (window.scrollY / h * 100) + '%'; });
+  const toggle = document.getElementById('tocToggle'), sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => { toggle.classList.toggle('open'); sidebar.classList.toggle('open'); });
+  const io = new IntersectionObserver((e) => { e.forEach(en => { if (en.isIntersecting) { document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active')); const a = document.querySelector(`.toc-item[href="#${en.target.id}"]`); if (a) a.classList.add('active'); } }); }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(s => io.observe(s));
+</script>
+</body>
+</html>

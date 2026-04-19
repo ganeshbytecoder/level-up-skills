@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book III · The Foundations Beneath the City — The Engineer's Library</title>
+  <meta name="description" content="12-Factor App, Domain-Driven Design, Hexagonal Architecture, Clean Architecture, and all architectural patterns — Ara's final six-day lesson to Priya.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root { --book-color: #14b8a6; }
+    .factor-card { background: var(--bg-card); border: 1px solid rgba(20,184,166,0.2); border-radius: var(--radius-md); padding: 1.25rem; margin: 0.75rem 0; transition: all 0.3s; }
+    .factor-card:hover { transform: translateX(4px); border-color: rgba(20,184,166,0.4); }
+    .factor-num { font-family: var(--font-ui); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--teal); margin-bottom: 0.3rem; }
+    .factor-card h4 { font-family: var(--font-story); font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.4rem; }
+    .factor-story { font-family: var(--font-story); font-style: italic; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.5; }
+    .factor-def { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .arch-diagram { background: #06060d; border: 1px solid rgba(20,184,166,0.2); border-radius: var(--radius-md); padding: 1.5rem; margin: 1.5rem 0; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.6; color: #99f6e4; overflow-x: auto; }
+    .ddd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem; margin: 1.5rem 0; }
+    .ddd-card { background: var(--bg-card); border: 1px solid rgba(20,184,166,0.15); border-radius: var(--radius-md); padding: 1.1rem; transition: all 0.3s; }
+    .ddd-card:hover { border-color: rgba(20,184,166,0.4); transform: translateY(-2px); }
+    .ddd-card h4 { font-family: var(--font-story); font-size: 1rem; font-weight: 700; color: #14b8a6; margin-bottom: 0.4rem; }
+    .ddd-card p { font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+  </style>
+</head>
+<body>
+<div id="reading-progress"></div>
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">The Foundations Beneath the City</div>
+  <div class="nav-actions">
+    <a href="book-2.html" class="nav-btn">← Book II</a>
+    <a href="book-4.html" class="nav-btn">Book IV →</a>
+  </div>
+</nav>
+<button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">🏗️ Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — The Last Lesson</a>
+  <a href="#twelve-factor" class="toc-item">Lesson I — The 12 Factors</a>
+  <a href="#ddd" class="toc-item">Lesson II — Domain-Driven Design</a>
+  <a href="#hexagonal" class="toc-item">Lesson III — Hexagonal Architecture</a>
+  <a href="#clean" class="toc-item">Lesson IV — Clean Architecture</a>
+  <a href="#strangler" class="toc-item">Lesson V — Strangler Fig</a>
+  <a href="#bff" class="toc-item">Lesson VI — Backend for Frontend</a>
+  <a href="#sidecar" class="toc-item">Lesson VII — Sidecar & Ambassador</a>
+  <a href="#data" class="toc-item">Lesson VIII — Database Per Service</a>
+  <a href="#caching" class="toc-item">Lesson IX — Caching Patterns</a>
+  <a href="#api" class="toc-item">Lesson X — API Design</a>
+  <a href="#epilogue" class="toc-item">Epilogue — The Shape Beneath</a>
+  <a href="#reference" class="toc-item">Complete Reference</a>
+</nav>
+
+<main class="book-main">
+  <header class="book-hero" style="--book-color:#14b8a6">
+    <div class="book-number" style="color:#14b8a6">Book III of V</div>
+    <h1>The Foundations Beneath the City</h1>
+    <p class="subtitle">Ara's six-day final lesson — the architectural patterns that determine not what you build, but how everything fits together and survives time</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot" style="background:#14b8a6"></span> 12-Factor App</span>
+      <span class="meta-badge"><span class="dot" style="background:#14b8a6"></span> DDD · Hexagonal · Clean</span>
+      <span class="meta-badge"><span class="dot" style="background:#14b8a6"></span> ~3 Hours</span>
+    </div>
+  </header>
+
+  <div class="epigraph" style="border-left-color:#14b8a6">
+    "Design patterns tell you how to build one room. Architectural patterns tell you how to build the whole house. And the 12 Factors tell you how to make sure the house doesn't burn down when you move it."
+    <cite>— Ara, Chief Architect, on the day she retired</cite>
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label" style="color:#14b8a6">Prologue</div>
+    <h2>The Last Lesson</h2>
+    <div class="story-content">
+      <p>Ara was seventy-three years old when she finally sat down to write.</p>
+      <p>She had spent forty years building the city — not the buildings, not the guilds, but the <em>shape</em> of how they all fit together. The rules beneath the rules. The principles that determined not just what to build, but how to think about what to build.</p>
+      <p>She had watched a hundred engineers build systems that worked technically — the code ran, the tests passed — but fell apart within a year because the <em>shape</em> was wrong. The wrong things were too tangled together. The wrong boundaries had been drawn. The domain was misunderstood. The system was designed for the machine, not for the humans who would maintain it for decades.</p>
+      <p>She called Priya. <em>"One more lesson. Not about code. About shape."</em></p>
+      <p>They sat together in Ara's study for six days.</p>
+    </div>
+  </section>
+
+  <!-- 12-FACTOR -->
+  <section class="chapter" id="twelve-factor">
+    <div class="chapter-label" style="color:#14b8a6">Lesson I</div>
+    <h2>The Twelve Laws of the Living Service</h2>
+    <p class="chapter-subtitle"><em>The 12-Factor App — the minimum any deployable service must achieve</em></p>
+    <div class="story-content">
+      <p>Ara began with the question Priya had asked so many times: <em>"Why does this system that works in staging fail in production?"</em></p>
+      <p><em>"A group of engineers who had built and operated more services than any before them sat down and asked that exact question. They discovered the answer was almost always one of twelve things. Twelve factors — twelve properties — that any service must have to be deployable, operable, and maintainable."</em></p>
+    </div>
+
+    <div class="factor-card" id="f1">
+      <div class="factor-num">Factor I</div>
+      <h4>Codebase — One Codebase, One Repository</h4>
+      <div class="factor-story">The Delivery Guild had three different codebases for three routes. When a bug appeared in the shared routing logic, it had to be fixed in three places. One was always missed.</div>
+      <div class="factor-def">One codebase tracked in version control; many deploys from it. Multiple codebases = distributed system, not one app. Each service has its own repo. Shared code extracted to libraries.</div>
+    </div>
+
+    <div class="factor-card" id="f2">
+      <div class="factor-num">Factor II</div>
+      <h4>Dependencies — Explicitly Declare, Never Assume</h4>
+      <div class="factor-story">The Payment Guild's code assumed a particular script was installed on every machine. It was — until a new server was provisioned. Within an hour: down.</div>
+      <div class="factor-def">Explicitly declare all dependencies via a manifest (pom.xml, package.json). Never rely on system-wide packages. Run in a clean environment to verify all dependencies are declared.</div>
+    </div>
+
+    <div class="factor-card" id="f3">
+      <div class="factor-num">Factor III</div>
+      <h4>Config — In the Environment, Not in the Code</h4>
+      <div class="factor-story">Database credentials were hardcoded in the Records Guild's code. The security auditor found the production password on line 47 of the main service class.</div>
+      <div class="factor-def">Everything that varies between environments (dev/staging/prod) goes in environment variables — NOT in code, NOT in committed config files. Database URLs, API keys, feature flags: all environment-injected. Never hardcode. Never commit secrets.</div>
+    </div>
+
+    <div class="factor-card" id="f4">
+      <div class="factor-num">Factor IV</div>
+      <h4>Backing Services — Treat as Attached Resources</h4>
+      <div class="factor-story">The Notification Guild's SMS provider address was hardcoded in twelve places. When the provider changed, it took two weeks to update everywhere.</div>
+      <div class="factor-def">Databases, queues, SMTP, and third-party APIs are attached resources. Interchangeable: swap a local DB for a cloud one via config only, not code changes. Reference by URL/config.</div>
+    </div>
+
+    <div class="factor-card" id="f5">
+      <div class="factor-num">Factor V</div>
+      <h4>Build, Release, Run — Three Strictly Separate Stages</h4>
+      <div class="factor-story">An engineer pushed a "quick fix" directly to the running production server. Three hours later, nobody could reproduce the issue or roll back.</div>
+      <div class="factor-def"><strong>Build</strong>: code + dependencies → artifact (JAR, container image). Code is frozen. <strong>Release</strong>: artifact + config. Every release is immutable and rollback-able. <strong>Run</strong>: execute the release. No code changes possible at runtime.</div>
+    </div>
+
+    <div class="factor-card" id="f6">
+      <div class="factor-num">Factor VI</div>
+      <h4>Processes — Stateless and Share-Nothing</h4>
+      <div class="factor-story">The Scheduling Guild stored user sessions in server memory. When it scaled to five servers, users reported being randomly "logged out" — their session was on server 1, the next request hit server 5.</div>
+      <div class="factor-def">Services are stateless. No share-nothing: all persistent state lives in backing services (DB, Redis). Any instance handles any request. This enables horizontal scaling and failover without data loss.</div>
+    </div>
+
+    <div class="factor-card" id="f7">
+      <div class="factor-num">Factor VII</div>
+      <h4>Port Binding — Export Services via Port</h4>
+      <div class="factor-story">The Medical Guild's service could only run embedded in the city's application server. Testing required running the full server — four minutes to start, every test run.</div>
+      <div class="factor-def">The service is self-contained and binds to a port itself. Not embedded in a container (Tomcat, IIS) — it IS the server. Enables running locally with a simple command. Clean, portable, testable independently.</div>
+    </div>
+
+    <div class="factor-card" id="f8">
+      <div class="factor-num">Factor VIII</div>
+      <h4>Concurrency — Scale Out via the Process Model</h4>
+      <div class="factor-story">The Order Guild handled concurrency by making one monolithic process with more threads. It ran out of memory at 800 concurrent orders. Scale-out would have run more processes, not bigger ones.</div>
+      <div class="factor-def">Scale by running more processes, not bigger ones. Different workloads can run different process types (web, worker, scheduler). Horizontal scaling is the natural answer to load.</div>
+    </div>
+
+    <div class="factor-card" id="f9">
+      <div class="factor-num">Factor IX</div>
+      <h4>Disposability — Fast Start, Graceful Stop</h4>
+      <div class="factor-story">During a deployment, old Audit Guild processes were killed immediately. Two hundred in-progress audit records were lost — the process hadn't finished writing them.</div>
+      <div class="factor-def">Processes start in seconds and stop gracefully. On SIGTERM: finish current request, close connections, stop accepting new work. Fast startup enables autoscaling. Graceful shutdown prevents data loss.</div>
+    </div>
+
+    <div class="factor-card" id="f10">
+      <div class="factor-num">Factor X</div>
+      <h4>Dev/Prod Parity — Keep Environments as Similar as Possible</h4>
+      <div class="factor-story">Development used SQLite. Production used PostgreSQL. A query that worked in development failed in production — discovered by a citizen, not a test.</div>
+      <div class="factor-def">Minimize differences between development, staging, and production. Same database type. Same OS. Same versions. Docker makes this tractable: if it runs in the container on your laptop, it runs the same in production. "Works on my machine" is an architectural failure.</div>
+    </div>
+
+    <div class="factor-card" id="f11">
+      <div class="factor-num">Factor XI</div>
+      <h4>Logs — Treat Them as Event Streams</h4>
+      <div class="factor-story">The Verification Guild wrote logs to files on each server. When debugging, engineers SSH'd to each server and tailed files manually. When servers autoscaled down, the log files were destroyed with them.</div>
+      <div class="factor-def">A service never manages its own log files. Write log events to stdout/stderr as a time-ordered stream. The environment collects, aggregates, and indexes them (ELK, CloudWatch, Datadog). Service is decoupled from log storage entirely.</div>
+    </div>
+
+    <div class="factor-card" id="f12">
+      <div class="factor-num">Factor XII</div>
+      <h4>Admin Processes — One-Off Tasks as First-Class Citizens</h4>
+      <div class="factor-story">The database migration script lived as a comment in a Slack message. Each migration required someone to remember to run it, SSH to a server, and execute it from memory.</div>
+      <div class="factor-def">Database migrations, backups, one-off scripts: first-class processes. Run in the same environment, using the same code, tracked in the same repository. Never "log in and run a command." Codify it. Version it. Run it as a process.</div>
+    </div>
+  </section>
+
+  <!-- DDD -->
+  <section class="chapter" id="ddd">
+    <div class="chapter-label" style="color:#14b8a6">Lesson II</div>
+    <h2>Knowing Your Domain First</h2>
+    <p class="chapter-subtitle"><em>Domain-Driven Design — before you design the system, understand the world it models</em></p>
+    <div class="story-content">
+      <p>On the second day, Ara said something unexpected: <em>"Before you design a system, you must understand the world it models. Most engineers skip this step. They start with the database schema. They model tables, not understanding. Then they spend the next three years fighting a system that encodes misunderstanding at its foundation."</em></p>
+    </div>
+
+    <div class="ddd-grid">
+      <div class="ddd-card">
+        <h4>💬 Ubiquitous Language</h4>
+        <p>A shared, precise vocabulary developed by engineers and domain experts together. The exact words the domain uses — not technical jargon, not business euphemism. If the domain calls it "merchant profile," the code class is <code>MerchantProfile</code>, not <code>UserAccount</code>.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>⭕ Bounded Context</h4>
+        <p>A boundary within which a particular model applies precisely. "Account" means different things to Payment, Registration, and Medical contexts — and that's correct. Each is right within its boundary. Translation happens at the edges.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>🏷️ Entity</h4>
+        <p>An object defined by its identity (a unique ID) rather than its attributes. Even if all attributes change, the same ID = the same Entity. Ravi remains the same merchant regardless of name, address, or category changes.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>💰 Value Object</h4>
+        <p>Defined entirely by its attributes. Two Value Objects with the same attributes are fully interchangeable. Money(5, "gold") equals any other Money(5, "gold"). Immutable — when a value changes, replace the object entirely.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>🌳 Aggregate & Root</h4>
+        <p>A cluster of domain objects treated as a single unit. The Aggregate Root is the only entry point from outside. All modifications go through it — it enforces all consistency invariants of the cluster.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>📢 Domain Events</h4>
+        <p>Something meaningful that happened — named in past tense from the domain's perspective: <em>TradeAgreementSigned</em>, <em>MerchantRegistered</em>. Not "update DB row." How Bounded Contexts communicate without coupling.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>💾 Repository Pattern</h4>
+        <p>An abstraction hiding all data persistence from the domain. Domain speaks domain language; Repository handles loading/saving to the database. No SQL in domain code. No database concepts in business logic.</p>
+      </div>
+      <div class="ddd-card">
+        <h4>🧱 Anti-Corruption Layer</h4>
+        <p>A translation layer between two Bounded Contexts with different models. Prevents one context's concepts from bleeding into and corrupting the other. Essential when integrating with legacy systems or external APIs.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Bounded Context in Practice</span></div>
+      <div class="callout-body">
+<pre style="background:transparent;border:none;padding:0;margin:0;font-size:0.8rem">// Payment Context
+Account { id, balance, currency, transactions[] }
+
+// Registration Context
+Account { id, username, passwordHash, lastLogin }
+
+// They share only: merchantId (the bridge between contexts)
+// Two completely different classes named "Account" — and both are correct.</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- HEXAGONAL -->
+  <section class="chapter" id="hexagonal">
+    <div class="chapter-label" style="color:#14b8a6">Lesson III</div>
+    <h2>The Shape of the Service Itself</h2>
+    <p class="chapter-subtitle"><em>Hexagonal Architecture (Ports & Adapters)</em></p>
+    <div class="story-content">
+      <p>Ara drew a hexagon on the board. <em>"The domain is at the center. Pure. It knows nothing about databases, HTTP, Kafka, or command lines. It speaks only the domain's language."</em></p>
+      <p>She drew arrows pointing inward. <em>"Outside the world wants to interact with the domain. HTTP requests, Kafka events, scheduled jobs. These enter through Ports — defined interfaces."</em></p>
+      <p>She drew arrows pointing outward. <em>"The domain needs to interact with the outside world — save data, send notifications, emit events. These are outbound Ports. The implementations — the actual HTTP handler, the actual database class — these are Adapters. They plug in and can be swapped without touching the domain."</em></p>
+    </div>
+
+    <div class="arch-diagram">
+// DOMAIN (center — knows nothing about the outside world)
+class TradeService {
+  merchantRepo: MerchantRepository     // Outbound Port (interface)
+  eventPublisher: DomainEventPublisher // Outbound Port (interface)
+
+  executeTrade(request: ExecuteTradeRequest): TradeResult {
+    const merchant = merchantRepo.findById(request.merchantId)
+    const trade = merchant.createTrade(request.terms)
+    const events = trade.execute()
+    merchantRepo.save(merchant)
+    events.forEach(e => eventPublisher.publish(e))
+    return TradeResult.success(trade.id)
+  }
+}
+
+// INBOUND ADAPTERS — connect outside world TO domain
+class TradeRestController {           // HTTP adapter
+  @POST("/trades")
+  handleRequest(httpReq) {
+    return tradeService.executeTrade(mapToRequest(httpReq))
+  }
+}
+
+class TradeKafkaConsumer {            // Kafka adapter
+  @KafkaListener("trade-commands")
+  handleMessage(event: TradeCommandEvent) {
+    tradeService.executeTrade(mapToRequest(event))
+  }
+}
+
+// OUTBOUND ADAPTERS — connect domain TO outside world
+class PostgresMerchantRepo implements MerchantRepository {
+  // SQL here — domain never touches it
+}
+class KafkaEventPublisher implements DomainEventPublisher {
+  // Kafka here — domain never touches it
+}
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Key Benefit</span></div>
+      <div class="callout-body">The domain is testable in complete isolation — inject in-memory implementations of all Ports. No database required to test business logic. The domain can also serve HTTP and Kafka from the same core — just write new Adapters without touching the domain.</div>
+    </div>
+  </section>
+
+  <!-- CLEAN ARCHITECTURE -->
+  <section class="chapter" id="clean">
+    <div class="chapter-label" style="color:#14b8a6">Lesson IV</div>
+    <h2>The Layered Architecture</h2>
+    <p class="chapter-subtitle"><em>Clean Architecture — the law of dependency direction</em></p>
+
+    <div class="arch-diagram">
+┌──────────────────────────────────────────────────────────────┐
+│  FRAMEWORKS & DRIVERS (outermost layer)                     │
+│  Web framework · Database drivers · UI · External APIs      │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │  INTERFACE ADAPTERS                                    │ │
+│  │  Controllers · Presenters · Gateways · Repositories   │ │
+│  │  ┌────────────────────────────────────────────────┐   │ │
+│  │  │  APPLICATION USE CASES                         │   │ │
+│  │  │  What the system can DO                        │   │ │
+│  │  │  ┌──────────────────────────────────────────┐  │   │ │
+│  │  │  │  DOMAIN (innermost — most stable)        │  │   │ │
+│  │  │  │  Entities · Value Objects · Rules        │  │   │ │
+│  │  │  │  No dependencies on anything outer       │  │   │ │
+│  │  │  └──────────────────────────────────────────┘  │   │ │
+│  │  └────────────────────────────────────────────────┘   │ │
+│  └────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+
+THE DEPENDENCY RULE:
+Source code dependencies can ONLY point inward.
+Nothing in an inner circle can know anything about an outer circle.
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Why It Matters</span></div>
+      <div class="callout-body">
+        Swap databases (PostgreSQL → MongoDB) by rewriting only the outermost ring's adapter. Domain and Use Cases are untouched. In practice:<br><br>
+        • <strong>Domain Entity</strong>: no framework imports, no <code>@Entity</code>, no <code>@Table</code>. Pure records.<br>
+        • <strong>Use Case</strong>: imports Domain only. No framework imports.<br>
+        • <strong>Controller</strong>: imports Use Cases only. No domain imports directly.<br>
+        • <strong>DB Adapter</strong>: imports Use Case interfaces. Knows about JPA/SQL.
+      </div>
+    </div>
+  </section>
+
+  <!-- STRANGLER FIG -->
+  <section class="chapter" id="strangler">
+    <div class="chapter-label" style="color:#14b8a6">Lesson V</div>
+    <h2>Migrating Without Breaking Everything</h2>
+    <p class="chapter-subtitle"><em>The Strangler Fig Pattern — the only safe way to replace a living system</em></p>
+    <div class="story-content">
+      <p><em>"The city's original palace — the monolith — did not disappear overnight. It took seven years to replace it with the guild system. During those seven years, both existed simultaneously. Merchants used both. Some transactions went to the palace, some to the guilds."</em></p>
+    </div>
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Strangler Fig Pattern</span></div>
+      <div class="callout-body">
+        Incrementally replace a monolith by building new functionality alongside it — routing traffic to the new system piece by piece — until the old one can be removed.<br><br>
+        <strong>Steps:</strong>
+        <ol style="padding-left:1.2rem;margin-top:0.5rem">
+          <li>Identify a seam — one capability you can extract without breaking others</li>
+          <li>Build it separately as a new service</li>
+          <li>Route at the boundary via a Facade/proxy</li>
+          <li>Verify stability, then advance to the next capability</li>
+          <li>When all capabilities migrated, delete the monolith</li>
+        </ol>
+        <br>
+        <strong>Key rule:</strong> Never "big bang rewrite." Every failed software project that tried to rewrite a working system from scratch has a lesson for you.
+      </div>
+    </div>
+    <pre><code>class TradingFacade {
+  monolith: OldTradingSystem
+  newPaymentService: PaymentService    // Already migrated
+  newMerchantService: MerchantService  // Already migrated
+
+  handleRequest(req: Request): Response {
+    if (req.path.startsWith("/payments"))
+      return newPaymentService.handle(req)    // ✅ Migrated
+    if (req.path.startsWith("/merchants"))
+      return newMerchantService.handle(req)   // ✅ Migrated
+    return monolith.handle(req)              // ⏳ Not yet migrated
+  }
+}</code></pre>
+  </section>
+
+  <!-- BFF -->
+  <section class="chapter" id="bff">
+    <div class="chapter-label" style="color:#14b8a6">Lesson VI</div>
+    <h2>One Frontend, Many Backends</h2>
+    <p class="chapter-subtitle"><em>Backend for Frontend (BFF) — shaped data for each client's exact needs</em></p>
+    <div class="story-content">
+      <p>The merchant dashboard on the web needed detailed trade analytics — forty fields, complex graphs, historical data. The merchant's mobile device needed only current balance and the last five trades. The Delivery Guild's terminal needed only routing information. Three clients. Completely different needs. One general-purpose Trading API — serving all three equally poorly.</p>
+    </div>
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Backend for Frontend (BFF)</span></div>
+      <div class="callout-body">A dedicated backend service for each type of frontend client. Each BFF aggregates calls to downstream services and shapes data exactly for its client's needs. The BFF is owned by the frontend team — they control their own data contract without waiting for a shared API.</div>
+    </div>
+    <pre><code>// Web Dashboard BFF — 40-field rich response
+class WebDashboardBFF {
+  async getdashboard(merchantId) {
+    const [trades, analytics, agreements] = await Promise.all([
+      tradeService.getDetailedHistory(merchantId, 90_DAYS),
+      analyticsService.getFullMetrics(merchantId),
+      contractService.getAll(merchantId)
+    ]);
+    return { trades, analytics, agreements, ... }; // 40 fields
+  }
+}
+
+// Mobile BFF — 8-field lean response
+class MobileBFF {
+  async getdashboard(merchantId) {
+    const [balance, trades] = await Promise.all([
+      accountService.getBalance(merchantId),
+      tradeService.getRecent(merchantId, 5)  // Only last 5
+    ]);
+    return { balance, trades }; // 8 fields, optimized for mobile
+  }
+}</code></pre>
+  </section>
+
+  <!-- SIDECAR -->
+  <section class="chapter" id="sidecar">
+    <div class="chapter-label" style="color:#14b8a6">Lesson VII</div>
+    <h2>The Sidecar and the Ambassador</h2>
+    <p class="chapter-subtitle"><em>Infrastructure Patterns — move cross-cutting concerns out of every service</em></p>
+    <div class="story-content">
+      <p>Every service needed logging, metrics, mutual TLS, and rate limiting. The naive solution: add this code to every service. Forty services, forty copies of the same logging logic, the same metrics client, the same TLS setup. The elegant solution: move it out of the service entirely.</p>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Sidecar Pattern</span></div>
+      <div class="callout-body">A helper container deployed alongside each service container. The sidecar handles cross-cutting concerns (logging, metrics, proxying, TLS) so the service doesn't have to.<br><br>
+      <strong>Service calls sidecar via localhost</strong> — it speaks plain HTTP. The sidecar handles all infrastructure complexity: mTLS, retry, metrics, rate limiting.<br><br>
+      <strong>Real-world:</strong> Istio/Envoy, Linkerd, Dapr.
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Ambassador Pattern</span></div>
+      <div class="callout-body">A sidecar that proxies <em>outbound</em> calls. The service calls "localhost/payments" — the Ambassador knows the actual address, handles retries, circuit breaking, and authentication. The service code never needs to be updated when infrastructure changes.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Service Mesh</span></div>
+      <div class="callout-body">A collection of sidecars across all services that, together, form a programmable infrastructure layer — enabling observability, traffic management, and security without touching a single line of service code.</div>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section class="chapter" id="data">
+    <div class="chapter-label" style="color:#14b8a6">Lesson VIII</div>
+    <h2>Data Architecture in Microservices</h2>
+    <p class="chapter-subtitle"><em>Database Per Service and Polyglot Persistence</em></p>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Database Per Service</span></div>
+      <div class="callout-body">Each microservice owns its own database. No other service can read from or write to it directly — only through the service's API or emitted events. Enables independent scaling, deployment, and database type selection per service. Trade-off: cross-service queries require API calls or event-driven data aggregation.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Polyglot Persistence</span></div>
+      <div class="callout-body">Choose the right database for each service's access pattern:
+        <div style="margin-top:0.75rem">
+          <div style="display:flex;gap:1rem;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px;background:var(--bg-elevated);padding:0.75rem;border-radius:var(--radius-sm)">
+              <strong style="color:#14b8a6">Payment Service</strong><br>PostgreSQL · ACID critical
+            </div>
+            <div style="flex:1;min-width:180px;background:var(--bg-elevated);padding:0.75rem;border-radius:var(--radius-sm)">
+              <strong style="color:#14b8a6">Product Catalog</strong><br>MongoDB · Flexible schema
+            </div>
+            <div style="flex:1;min-width:180px;background:var(--bg-elevated);padding:0.75rem;border-radius:var(--radius-sm)">
+              <strong style="color:#14b8a6">Session Store</strong><br>Redis · Fast key-value, TTL
+            </div>
+            <div style="flex:1;min-width:180px;background:var(--bg-elevated);padding:0.75rem;border-radius:var(--radius-sm)">
+              <strong style="color:#14b8a6">Search Service</strong><br>Elasticsearch · Full-text
+            </div>
+            <div style="flex:1;min-width:180px;background:var(--bg-elevated);padding:0.75rem;border-radius:var(--radius-sm)">
+              <strong style="color:#14b8a6">Analytics</strong><br>Cassandra · High write throughput
+            </div>
+            <div style="flex:1;min-width:180px;background:var(--bg-elevated);padding:0.75rem;border-radius:var(--radius-sm)">
+              <strong style="color:#14b8a6">Event Store</strong><br>Kafka · Immutable event log
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CACHING -->
+  <section class="chapter" id="caching">
+    <div class="chapter-label" style="color:#14b8a6">Lesson IX</div>
+    <h2>The Caching Kingdom</h2>
+    <p class="chapter-subtitle"><em>Cache-Aside, Write-Through, Write-Behind, Read-Through + Eviction Strategies</em></p>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Cache-Aside (Lazy Loading) — Most Common</span></div>
+      <div class="callout-body">
+        Check cache → if miss, load from DB → populate cache → return.
+        <pre style="margin-top:0.75rem"><code>getMerchant(id):
+  merchant = cache.get(id)
+  if merchant is null:
+    merchant = db.findById(id)
+    cache.set(id, merchant, TTL=5min)
+  return merchant</code></pre>
+        <strong>Pros:</strong> Cache only what's actually requested.<br>
+        <strong>Cons:</strong> Cache miss causes 2 round trips. Cold start = all misses.
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Write-Through — Always Fresh</span></div>
+      <div class="callout-body">Write to cache AND database simultaneously on every write. Cache is always up to date. Cost: write latency increases (two writes per write operation).</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Write-Behind (Write-Back) — Ultra-Fast Writes</span></div>
+      <div class="callout-body">Write to cache immediately; flush to DB asynchronously later. Ultra-fast writes. Risk: if cache dies before async write completes — data loss. Use only when write durability can be relaxed.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Cache Eviction Strategies</span></div>
+      <div class="callout-body">
+        <strong>LRU (Least Recently Used)</strong>: Evict the item not accessed for the longest time — good for temporal access patterns.<br>
+        <strong>LFU (Least Frequently Used)</strong>: Evict the item accessed least often — good for stable hot data.<br>
+        <strong>TTL (Time To Live)</strong>: Evict items after fixed time — good for data that must refresh periodically.<br>
+        <strong>FIFO</strong>: Evict oldest items first — simple but often wrong.<br><br>
+        Choose based on access pattern: trading rate data → TTL. Merchant profiles → LRU.
+      </div>
+    </div>
+  </section>
+
+  <!-- API DESIGN -->
+  <section class="chapter" id="api">
+    <div class="chapter-label" style="color:#14b8a6">Lesson X</div>
+    <h2>The API Design Laws</h2>
+    <p class="chapter-subtitle"><em>REST, GraphQL, gRPC, WebSocket, Webhook — each correct in its place, wrong everywhere else</em></p>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">REST</span></div>
+      <div class="callout-body">Resources in URLs, standard HTTP methods, stateless, wide client support. <strong>Use when:</strong> Public APIs, browser clients, simple CRUD, interoperability critical.<br>
+      Design rules: nouns in URLs not verbs; HTTP methods convey intent; status codes are meaningful; idempotent by design; versioning via /v1/.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">gRPC</span></div>
+      <div class="callout-body">Binary protocol over HTTP/2. Protobuf schemas. Auto-generated clients. <strong>Use when:</strong> Service-to-service where performance matters. Strongly typed contracts. Streaming needed. 5–10x smaller payload than REST.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">GraphQL</span></div>
+      <div class="callout-body">Client specifies exactly what data it needs. <strong>Use when:</strong> Aggregating data from multiple services, mobile clients with varying data needs, over-fetching or under-fetching is a real problem. Watch out for N+1 query problems — use DataLoader.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">WebSocket</span></div>
+      <div class="callout-body">Persistent full-duplex connection. <strong>Use when:</strong> Truly real-time: live price feeds, collaborative editing, live chat. Complex to manage at scale (connection state per client). Use SSE if communication is server→client only.</div>
+    </div>
+
+    <div class="callout" style="border-left-color:#14b8a6">
+      <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#14b8a6">Webhook</span></div>
+      <div class="callout-body">Client registers a URL; server calls it when an event occurs. <strong>Use when:</strong> Notifying external systems of events without polling. Payment provider callbacks, CI/CD notifications. vs polling: polling asks repeatedly; webhook is notified instantly.</div>
+    </div>
+  </section>
+
+  <!-- EPILOGUE -->
+  <section class="chapter" id="epilogue">
+    <div class="chapter-label" style="color:#14b8a6">Epilogue</div>
+    <h2>The Shape Beneath Everything</h2>
+    <div class="story-content">
+      <p>On the sixth day, Ara and Priya sat in silence for a time. Then Ara said:</p>
+      <p><em>"The biggest mistake I made in my first decade was believing that architecture was about technology. Kafka or RabbitMQ. PostgreSQL or MongoDB. REST or gRPC."</em></p>
+      <p><em>"It's not. Architecture is about boundaries. Where does one thing end and another begin? Who is responsible for what? What can change independently of what else?"</em></p>
+    </div>
+    <div class="highlight-box" style="border-color:rgba(20,184,166,0.2)">
+      <h3 style="color:#14b8a6">Before designing any system, answer these questions:</h3>
+      <div style="font-family:var(--font-story);text-align:left;font-size:1.05rem;line-height:2;color:var(--text-secondary)">
+        <em>What is this system's domain? What are its core concepts?</em><br>
+        <em>Where are the boundaries? What should be separate?</em><br>
+        <em>What depends on what — and in which direction?</em><br>
+        <em>What is the right database for this access pattern?</em><br>
+        <em>How will this be deployed? How will it be tested?</em><br>
+        <em>What changes frequently? What must be stable?</em><br>
+        <em>What is the simplest architecture that works for the current scale?</em>
+      </div>
+    </div>
+    <div class="story-content">
+      <p>Priya walked home through the city. She passed the Payment Guild — Service Domain, Hexagonal, PostgreSQL, Database-Per-Service. She passed the River — Event-driven backbone, Consumer Groups, Offsets. She passed the Watchtower — Observability, Centralized Logging. She passed the API Gateway — Facade, Ambassador, Rate Limiting.</p>
+      <p>Everything she had learned in three books was here, in the city around her. It had always been here. She had just lacked the language to see it.</p>
+      <p>She sat down at her desk and opened a new parchment. She began to design.</p>
+    </div>
+  </section>
+
+  <!-- REFERENCE -->
+  <section id="reference" class="reference-section">
+    <h2>Complete Architectural Pattern Reference</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Category</th><th>Problem Solved</th><th>Key Principle</th></tr></thead>
+        <tbody>
+          <tr><td>12-Factor App</td><td>Operations</td><td>Deployable, maintainable services</td><td>Config in env; stateless; disposable</td></tr>
+          <tr><td>Ubiquitous Language</td><td>DDD</td><td>Teams talking past each other</td><td>One precise vocabulary; code matches domain</td></tr>
+          <tr><td>Bounded Context</td><td>DDD</td><td>One word, multiple meanings</td><td>Explicit boundaries; translate at edges</td></tr>
+          <tr><td>Entity</td><td>DDD</td><td>Tracking objects over time</td><td>Identity-based equality; same ID = same object</td></tr>
+          <tr><td>Value Object</td><td>DDD</td><td>Representing measurements</td><td>Attribute-based equality; immutable</td></tr>
+          <tr><td>Aggregate & Root</td><td>DDD</td><td>Complex cluster inconsistency</td><td>One entry point; root enforces all invariants</td></tr>
+          <tr><td>Domain Events</td><td>DDD</td><td>Notifying contexts without coupling</td><td>Past-tense meaningful happenings</td></tr>
+          <tr><td>Repository</td><td>DDD</td><td>Domain mixed with persistence</td><td>Interface hiding DB; domain speaks domain language</td></tr>
+          <tr><td>Anti-Corruption Layer</td><td>DDD</td><td>External model polluting yours</td><td>Translation layer; neither model corrupts other</td></tr>
+          <tr><td>Hexagonal Architecture</td><td>Architecture</td><td>Framework tangled with business rules</td><td>Domain at center; Ports as interfaces; Adapters swap</td></tr>
+          <tr><td>Clean Architecture</td><td>Architecture</td><td>Dependencies pointing wrong direction</td><td>Dependency rule: always inward</td></tr>
+          <tr><td>Strangler Fig</td><td>Migration</td><td>Can't rewrite all at once</td><td>Build new around old; proxy; remove old piece by piece</td></tr>
+          <tr><td>Backend for Frontend</td><td>API</td><td>One API serving different clients poorly</td><td>One BFF per client; shaped for that client's needs</td></tr>
+          <tr><td>Sidecar</td><td>Infrastructure</td><td>Cross-cutting concerns duplicated everywhere</td><td>Helper container per service; handles infra concerns</td></tr>
+          <tr><td>Ambassador</td><td>Infrastructure</td><td>Outbound call logic duplicated everywhere</td><td>Sidecar handles outbound; service calls localhost only</td></tr>
+          <tr><td>Database Per Service</td><td>Data</td><td>Shared database coupling services</td><td>Each service owns its data; API or events only</td></tr>
+          <tr><td>Polyglot Persistence</td><td>Data</td><td>Wrong DB for the job</td><td>Choose DB per service by access pattern</td></tr>
+          <tr><td>Cache-Aside</td><td>Caching</td><td>DB queried for data that rarely changes</td><td>Check cache first; load and cache on miss</td></tr>
+          <tr><td>Write-Through</td><td>Caching</td><td>Cache frequently stale after writes</td><td>Write to cache and DB simultaneously</td></tr>
+          <tr><td>Write-Behind</td><td>Caching</td><td>Write latency too high</td><td>Write to cache immediately; async flush to DB</td></tr>
+          <tr><td>REST</td><td>API Design</td><td>Public resource-based operations</td><td>URLs are resources; HTTP methods convey intent</td></tr>
+          <tr><td>gRPC</td><td>API Design</td><td>High-performance typed service comms</td><td>Binary protocol; protobuf; streaming support</td></tr>
+          <tr><td>GraphQL</td><td>API Design</td><td>Over/under-fetching in different clients</td><td>Query exactly what you need</td></tr>
+          <tr><td>WebSocket</td><td>API Design</td><td>Real-time bidirectional communication</td><td>Persistent connection; server pushes</td></tr>
+          <tr><td>Webhook</td><td>API Design</td><td>Notify external systems of events</td><td>Register callback URL; server calls on event</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library</a>
+      <a href="book-1.html" class="book-nav-link">I · The City</a>
+      <a href="book-2.html" class="book-nav-link">II · The Codex</a>
+      <a href="book-3.html" class="book-nav-link current">III · The Foundations</a>
+      <a href="book-4.html" class="book-nav-link">IV · The Hall</a>
+      <a href="book-5.html" class="book-nav-link">V · The River</a>
+    </div>
+    <p class="footer-credit">"Architecture is the decisions you make before you start building, that determine how long the system survives after you leave." — Ara</p>
+  </footer>
+</main>
+
+<script>
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - window.innerHeight; bar.style.width = (window.scrollY / h * 100) + '%'; });
+  const toggle = document.getElementById('tocToggle'), sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => { toggle.classList.toggle('open'); sidebar.classList.toggle('open'); });
+  const io = new IntersectionObserver((e) => { e.forEach(en => { if (en.isIntersecting) { document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active')); const a = document.querySelector(`.toc-item[href="#${en.target.id}"]`); if (a) a.classList.add('active'); } }); }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(s => io.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Engineer's Library — Five Books to Master System Design</title>
+  <meta name="description" content="Five interconnected story-driven books covering system design vocabulary, GoF patterns, architectural patterns, failure modes, and EDA — told through an unforgettable city metaphor.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void:#05050f;--bg-deep:#08081a;--bg-card:#0d0d20;--bg-elevated:#12122a;--bg-highlight:#1a1a35;
+      --border-subtle:rgba(255,255,255,0.06);--text-primary:#f0ede8;--text-secondary:#a09890;--text-muted:#605850;
+      --gold:#f59e0b;--purple:#8b5cf6;--teal:#14b8a6;--red:#ef4444;--blue:#3b82f6;
+      --font-story:'Crimson Pro',Georgia,serif;--font-ui:'Inter',-apple-system,sans-serif;--font-mono:'Fira Code',Consolas,monospace;
+      --radius-md:12px;--radius-lg:20px;--radius-xl:32px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;font-size:16px;}
+    body{font-family:var(--font-ui);background:var(--bg-void);color:var(--text-primary);line-height:1.6;overflow-x:hidden;}
+    ::selection{background:rgba(245,158,11,0.25);color:var(--text-primary);}
+    ::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg-void);}
+    ::-webkit-scrollbar-thumb{background:var(--bg-elevated);border-radius:4px;}
+
+    /* ── Canvas Background ── */
+    #city-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+    /* ── Nav ── */
+    .nav{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(5,5,15,0.85);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 2rem;z-index:999;}
+    .nav-logo{font-family:var(--font-story);font-size:1.1rem;font-style:italic;color:var(--gold);font-weight:600;}
+    .nav-logo span{color:var(--text-secondary);font-weight:300;}
+    .nav-right{margin-left:auto;font-family:var(--font-ui);font-size:0.78rem;color:var(--text-muted);}
+
+    /* ── Main Wrapper ── */
+    .page{position:relative;z-index:1;}
+
+    /* ── Hero ── */
+    .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;padding:2rem;padding-top:80px;position:relative;}
+
+    .hero-eyebrow{font-family:var(--font-ui);font-size:0.72rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.25em;color:var(--gold);margin-bottom:1.5rem;opacity:0;
+      animation:fadeUp 0.8s ease 0.2s forwards;}
+
+    .hero h1{font-family:var(--font-story);font-size:clamp(2.8rem,6vw,5rem);font-weight:700;
+      line-height:1.1;margin-bottom:1.5rem;opacity:0;animation:fadeUp 0.8s ease 0.4s forwards;}
+
+    .hero h1 .line1{display:block;background:linear-gradient(135deg,#f0ede8 0%,var(--gold) 60%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero h1 .line2{display:block;color:var(--text-secondary);font-style:italic;font-size:0.65em;}
+
+    .hero-desc{font-family:var(--font-story);font-style:italic;font-size:1.2rem;
+      color:var(--text-secondary);max-width:600px;margin-bottom:3rem;line-height:1.7;
+      opacity:0;animation:fadeUp 0.8s ease 0.6s forwards;}
+
+    .hero-stats{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem;
+      opacity:0;animation:fadeUp 0.8s ease 0.8s forwards;}
+    .stat{text-align:center;}
+    .stat-num{display:block;font-family:var(--font-story);font-size:2.5rem;font-weight:700;
+      color:var(--gold);line-height:1;margin-bottom:0.25rem;}
+    .stat-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);}
+
+    .hero-cta{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;
+      opacity:0;animation:fadeUp 0.8s ease 1s forwards;}
+    .btn-primary{padding:0.8rem 2rem;background:linear-gradient(135deg,var(--gold),#d97706);
+      border:none;border-radius:100px;color:#000;font-family:var(--font-ui);font-weight:700;
+      font-size:0.9rem;cursor:pointer;text-decoration:none;transition:all 0.3s ease;letter-spacing:0.03em;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,158,11,0.4);}
+    .btn-ghost{padding:0.8rem 2rem;background:transparent;border:1px solid rgba(255,255,255,0.15);
+      border-radius:100px;color:var(--text-secondary);font-family:var(--font-ui);font-size:0.9rem;
+      cursor:pointer;text-decoration:none;transition:all 0.3s ease;}
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+    .scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+      display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+      opacity:0;animation:fadeUp 0.8s ease 1.5s forwards;}
+    .scroll-hint span{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--text-muted);}
+    .scroll-arrow{width:20px;height:20px;border-bottom:2px solid var(--text-muted);
+      border-right:2px solid var(--text-muted);transform:rotate(45deg);
+      animation:scrollBounce 1.5s ease-in-out infinite;}
+
+    /* ── Quote Band ── */
+    .quote-band{padding:4rem 2rem;background:linear-gradient(135deg,rgba(245,158,11,0.04),transparent);
+      border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);text-align:center;}
+    .quote-band blockquote{font-family:var(--font-story);font-style:italic;font-size:clamp(1.1rem,2.5vw,1.5rem);
+      color:var(--text-secondary);max-width:700px;margin:0 auto;line-height:1.7;}
+    .quote-band cite{display:block;margin-top:1rem;font-size:0.85rem;color:var(--text-muted);font-style:normal;font-family:var(--font-ui);}
+
+    /* ── Reading Order Section ── */
+    .section{padding:5rem 2rem;max-width:1100px;margin:0 auto;}
+    .section-header{text-align:center;margin-bottom:4rem;}
+    .section-label{font-family:var(--font-ui);font-size:0.72rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.2em;color:var(--gold);margin-bottom:0.75rem;}
+    .section-header h2{font-family:var(--font-story);font-size:clamp(1.8rem,4vw,2.8rem);
+      font-weight:700;line-height:1.2;color:var(--text-primary);}
+    .section-header p{font-family:var(--font-story);font-style:italic;color:var(--text-secondary);
+      font-size:1.05rem;max-width:550px;margin:1rem auto 0;line-height:1.6;}
+
+    /* ── Book Cards ── */
+    .books-track{display:flex;flex-direction:column;gap:2rem;max-width:820px;margin:0 auto;}
+
+    .book-card{display:flex;gap:1.5rem;background:var(--bg-card);border:1px solid var(--border-subtle);
+      border-radius:var(--radius-xl);padding:2rem;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);
+      text-decoration:none;position:relative;overflow:hidden;}
+    .book-card::before{content:'';position:absolute;inset:0;border-radius:var(--radius-xl);opacity:0;
+      background:radial-gradient(ellipse at 20% 50%,rgba(245,158,11,0.06),transparent 60%);
+      transition:opacity 0.4s ease;pointer-events:none;}
+    .book-card:hover{transform:translateY(-4px);box-shadow:0 24px 80px rgba(0,0,0,0.6);}
+    .book-card:hover::before{opacity:1;}
+
+    .book-spine{width:80px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      border-radius:var(--radius-md);padding:1rem 0.5rem;position:relative;}
+    .book-spine-num{font-family:var(--font-ui);font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:0.25rem;}
+    .book-spine-label{font-family:var(--font-ui);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.15em;
+      color:rgba(255,255,255,0.5);}
+
+    .book-body{flex:1;min-width:0;}
+    .book-tag{font-family:var(--font-ui);font-size:0.7rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.15em;margin-bottom:0.5rem;}
+    .book-title{font-family:var(--font-story);font-size:1.6rem;font-weight:700;line-height:1.2;
+      color:var(--text-primary);margin-bottom:0.4rem;}
+    .book-sub{font-family:var(--font-story);font-style:italic;font-size:0.95rem;
+      color:var(--text-secondary);margin-bottom:1rem;line-height:1.5;}
+    .book-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;}
+    .tag{padding:0.25rem 0.65rem;background:var(--bg-elevated);border:1px solid var(--border-subtle);
+      border-radius:100px;font-family:var(--font-ui);font-size:0.73rem;color:var(--text-secondary);}
+    .book-footer-line{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+    .book-count{font-family:var(--font-ui);font-size:0.8rem;color:var(--text-muted);}
+    .book-arrow{font-size:1rem;transition:transform 0.3s ease;}
+    .book-card:hover .book-arrow{transform:translateX(4px);}
+
+    /* Connector between cards */
+    .book-connector{display:flex;align-items:center;justify-content:center;gap:1rem;
+      font-family:var(--font-ui);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;
+      color:var(--text-muted);}
+    .book-connector::before,.book-connector::after{content:'';flex:1;height:1px;background:var(--border-subtle);}
+
+    /* Book colors */
+    .b1{--bc:var(--gold);}    .b1 .book-spine{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);}
+    .b1 .book-spine-num,.b1 .book-tag{color:var(--gold);}
+    .b1:hover{border-color:rgba(245,158,11,0.3);}
+
+    .b2{--bc:var(--purple);}  .b2 .book-spine{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);}
+    .b2 .book-spine-num,.b2 .book-tag{color:var(--purple);}
+    .b2:hover{border-color:rgba(139,92,246,0.3);}
+
+    .b3{--bc:var(--teal);}    .b3 .book-spine{background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.2);}
+    .b3 .book-spine-num,.b3 .book-tag{color:var(--teal);}
+    .b3:hover{border-color:rgba(20,184,166,0.3);}
+
+    .b4{--bc:var(--red);}     .b4 .book-spine{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);}
+    .b4 .book-spine-num,.b4 .book-tag{color:var(--red);}
+    .b4:hover{border-color:rgba(239,68,68,0.3);}
+
+    .b5{--bc:var(--blue);}    .b5 .book-spine{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);}
+    .b5 .book-spine-num,.b5 .book-tag{color:var(--blue);}
+    .b5:hover{border-color:rgba(59,130,246,0.3);}
+
+    /* ── Characters Section ── */
+    .characters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+    .char-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
+      padding:1.25rem;transition:all 0.3s ease;}
+    .char-card:hover{transform:translateY(-2px);border-color:rgba(245,158,11,0.2);}
+    .char-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;margin-bottom:0.75rem;}
+    .char-name{font-family:var(--font-story);font-weight:700;font-size:1.05rem;color:var(--text-primary);margin-bottom:0.25rem;}
+    .char-role{font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;}
+    .char-books{display:flex;gap:0.25rem;flex-wrap:wrap;}
+    .char-book-dot{width:8px;height:8px;border-radius:50%;}
+
+    /* ── Study Plan ── */
+    .study-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+    .study-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
+      padding:1.5rem;transition:all 0.3s ease;}
+    .study-card:hover{transform:translateY(-2px);border-color:rgba(245,158,11,0.2);}
+    .study-card h3{font-family:var(--font-story);font-size:1.1rem;font-weight:700;
+      color:var(--text-primary);margin-bottom:0.5rem;}
+    .study-card p{font-family:var(--font-ui);font-size:0.85rem;color:var(--text-secondary);line-height:1.55;}
+    .study-phase{font-family:var(--font-ui);font-size:0.68rem;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.12em;color:var(--gold);margin-bottom:0.5rem;}
+    .study-list{list-style:none;margin-top:0.75rem;}
+    .study-list li{font-family:var(--font-ui);font-size:0.82rem;color:var(--text-secondary);
+      padding:0.3rem 0;border-bottom:1px solid var(--border-subtle);display:flex;gap:0.5rem;align-items:flex-start;}
+    .study-list li:last-child{border:none;}
+    .study-list li::before{content:'→';color:var(--gold);flex-shrink:0;margin-top:0.05rem;}
+
+    /* ── FAANG Section ── */
+    .faang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
+    .faang-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+      padding:1.25rem;border-left:3px solid var(--gold);}
+    .faang-q{font-family:var(--font-ui);font-size:0.82rem;font-weight:600;color:var(--text-primary);
+      margin-bottom:0.5rem;line-height:1.4;}
+    .faang-books{font-family:var(--font-ui);font-size:0.75rem;color:var(--text-muted);}
+
+    /* ── Footer ── */
+    .site-footer{padding:4rem 2rem;text-align:center;border-top:1px solid var(--border-subtle);}
+    .footer-books{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+    .footer-book-link{padding:0.4rem 0.9rem;background:var(--bg-card);border:1px solid var(--border-subtle);
+      border-radius:100px;color:var(--text-muted);text-decoration:none;font-size:0.78rem;transition:all 0.3s ease;}
+    .footer-book-link:hover{color:var(--gold);border-color:rgba(245,158,11,0.3);}
+    .footer-quote{font-family:var(--font-story);font-style:italic;color:var(--text-muted);font-size:0.9rem;}
+
+    /* ── Animations ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes scrollBounce{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(5px);}}
+    @keyframes cityPulse{0%,100%{opacity:0.4;}50%{opacity:0.7;}}
+    @keyframes starTwinkle{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+    .reveal{opacity:0;transform:translateY(24px);transition:all 0.7s cubic-bezier(0.4,0,0.2,1);}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+
+    @media(max-width:640px){
+      .book-card{flex-direction:column;}.book-spine{width:100%;flex-direction:row;height:60px;padding:0 1rem;}
+      .hero-stats{gap:1.5rem;}.stat-num{font-size:1.8rem;}
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="city-canvas"></canvas>
+
+<nav class="nav">
+  <div class="nav-logo">The Engineer's <span>Library</span></div>
+  <div class="nav-right">5 Books · 227+ Patterns · One City</div>
+</nav>
+
+<div class="page">
+
+  <!-- ─── HERO ─────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-eyebrow">📚 The Complete Engineer's Library</div>
+    <h1>
+      <span class="line1">Five Books to Think Like</span>
+      <span class="line2">a Senior Engineer</span>
+    </h1>
+    <p class="hero-desc">
+      Not textbooks. Not lecture notes. Five deeply human stories set in a single city —
+      each one teaching a different layer of what it means to build systems that last.
+    </p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" data-target="227">0</span><span class="stat-label">Patterns & Concepts</span></div>
+      <div class="stat"><span class="stat-num" data-target="46">0</span><span class="stat-label">EDA Failure Modes</span></div>
+      <div class="stat"><span class="stat-num" data-target="23">0</span><span class="stat-label">GoF Design Patterns</span></div>
+      <div class="stat"><span class="stat-num" data-target="20">0</span><span class="stat-label">Real Outage Case Studies</span></div>
+    </div>
+    <div class="hero-cta">
+      <a href="#books" class="btn-primary">Start Reading →</a>
+      <a href="#study-plan" class="btn-ghost">View Study Plan</a>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ─── QUOTE ─────────────────────────────────────────────── -->
+  <div class="quote-band reveal">
+    <blockquote>
+      "Design patterns tell you how to build one room.
+      Architectural patterns tell you how to build the whole house.
+      And the stories tell you why every choice matters."
+      <cite>— Woven through five books, one city, one generation of engineers</cite>
+    </blockquote>
+  </div>
+
+  <!-- ─── BOOKS ─────────────────────────────────────────────── -->
+  <section class="section" id="books">
+    <div class="section-header reveal">
+      <div class="section-label">The Reading Order</div>
+      <h2>Five Books. One City. Read in This Order.</h2>
+      <p>Each book assumes you've read the ones before it. Start with the vocabulary. End with the deepest failure layer.</p>
+    </div>
+
+    <div class="books-track">
+
+      <!-- Book 1 -->
+      <a href="book-1.html" class="book-card b1 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">I</span>
+          <span class="book-spine-label">Start Here</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">📖 The Vocabulary</div>
+          <div class="book-title">The City That Never Fails</div>
+          <div class="book-sub">How Ara built a city that could withstand any storm — and every system design concept she used.</div>
+          <div class="book-tags">
+            <span class="tag">99 Terms</span><span class="tag">System Design</span>
+            <span class="tag">Distributed Systems</span><span class="tag">Scalability</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~2 hours · The foundation of everything</span>
+            <span class="book-arrow" style="color:var(--gold)">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Read this first, then</div>
+
+      <!-- Book 2 -->
+      <a href="book-2.html" class="book-card b2 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">II</span>
+          <span class="book-spine-label">Patterns</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">🏛️ Design Patterns</div>
+          <div class="book-title">The Architect's Codex</div>
+          <div class="book-sub">Priya discovers Corvin's 200-year-old Codex — 23 blueprints for every problem every engineer eventually faces.</div>
+          <div class="book-tags">
+            <span class="tag">23 GoF Patterns</span><span class="tag">Creational</span>
+            <span class="tag">Structural</span><span class="tag">Behavioral</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~3 hours · Code that can change</span>
+            <span class="book-arrow" style="color:var(--purple)">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Then</div>
+
+      <!-- Book 3 -->
+      <a href="book-3.html" class="book-card b3 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">III</span>
+          <span class="book-spine-label">Architecture</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">🏗️ Architecture</div>
+          <div class="book-title">The Foundations Beneath the City</div>
+          <div class="book-sub">Ara's final six-day lesson to Priya — 12-Factor, DDD, Hexagonal, Clean Architecture, and the shapes that govern systems.</div>
+          <div class="book-tags">
+            <span class="tag">12-Factor App</span><span class="tag">DDD</span>
+            <span class="tag">Hexagonal</span><span class="tag">Clean Architecture</span><span class="tag">Caching</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~3 hours · How to shape a system</span>
+            <span class="book-arrow" style="color:var(--teal)">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Now learn what goes wrong</div>
+
+      <!-- Book 4 -->
+      <a href="book-4.html" class="book-card b4 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">IV</span>
+          <span class="book-spine-label">Failures</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">🔥 Failure Patterns</div>
+          <div class="book-title">The Hall of Failures</div>
+          <div class="book-sub">Kira tours 12 galleries of preserved failures — 20 real-world outages from Amazon, Facebook, GitHub, Stripe, and more.</div>
+          <div class="book-tags">
+            <span class="tag">12 Failure Categories</span><span class="tag">20 Real Outages</span>
+            <span class="tag">FAANG Patterns</span><span class="tag">Postmortems</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~3 hours · What the others didn't survive</span>
+            <span class="book-arrow" style="color:var(--red)">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Finally, the deepest layer</div>
+
+      <!-- Book 5 -->
+      <a href="book-5.html" class="book-card b5 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">V</span>
+          <span class="book-spine-label">EDA</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">🌊 EDA & Microservices</div>
+          <div class="book-title">The River Breaks</div>
+          <div class="book-sub">Dev's last night on call. One vaccination campaign for 500,000 citizens. Every way a message-driven system can fail — in one night.</div>
+          <div class="book-tags">
+            <span class="tag">46 Failure Patterns</span><span class="tag">Kafka</span>
+            <span class="tag">Event-Driven</span><span class="tag">Microservices</span><span class="tag">Saga</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~4 hours · The most technically deep</span>
+            <span class="book-arrow" style="color:var(--blue)">→</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ─── CHARACTERS ─────────────────────────────────────────── -->
+  <section class="section" id="characters">
+    <div class="section-header reveal">
+      <div class="section-label">The Story Universe</div>
+      <h2>Characters Who Grow Across All Five Books</h2>
+      <p>One city. One generation. Your guides from vocabulary through mastery.</p>
+    </div>
+
+    <div class="characters-grid reveal">
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(245,158,11,0.1)">🏛️</div>
+        <div class="char-name">Ara</div>
+        <div class="char-role">Chief Architect · Builder of the City</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--gold)" title="Book 1"></div>
+          <div class="char-book-dot" style="background:var(--teal)" title="Book 3"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(139,92,246,0.1)">⚙️</div>
+        <div class="char-name">Priya</div>
+        <div class="char-role">Ravi's Daughter · Lead Architect</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--gold)" title="Book 1"></div>
+          <div class="char-book-dot" style="background:var(--blue)" title="Book 5 — age 20"></div>
+          <div class="char-book-dot" style="background:var(--purple)" title="Book 2 — age 22"></div>
+          <div class="char-book-dot" style="background:var(--teal)" title="Book 3"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(59,130,246,0.1)">🌊</div>
+        <div class="char-name">Dev</div>
+        <div class="char-role">Senior Engineer · Builder of the River</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--blue)" title="Book 5 — last night on call"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(245,158,11,0.1)">🏪</div>
+        <div class="char-name">Ravi</div>
+        <div class="char-role">Merchant · Priya's Father · The Catalyst</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--gold)" title="Book 1"></div>
+          <div class="char-book-dot" style="background:var(--blue)" title="Book 5 — mentioned"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(239,68,68,0.1)">📚</div>
+        <div class="char-name">Maren</div>
+        <div class="char-role">Archivist · Keeper of the Hall</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--red)" title="Book 4"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(239,68,68,0.1)">🔍</div>
+        <div class="char-name">Kira</div>
+        <div class="char-role">Maren's Apprentice · Young Engineer</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--red)" title="Book 4"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(139,92,246,0.1)">📜</div>
+        <div class="char-name">Corvin</div>
+        <div class="char-role">First Architect · The Codex Author (200y ago)</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--purple)" title="Book 2 — through writings"></div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="background:rgba(20,184,166,0.1)">🗼</div>
+        <div class="char-name">Seya</div>
+        <div class="char-role">Watchtower Commander · Observability</div>
+        <div class="char-books">
+          <div class="char-book-dot" style="background:var(--gold)" title="Book 1"></div>
+          <div class="char-book-dot" style="background:var(--blue)" title="Book 5"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STUDY PLAN ─────────────────────────────────────────── -->
+  <section class="section" id="study-plan" style="background:linear-gradient(180deg,transparent,rgba(245,158,11,0.02));border-top:1px solid var(--border-subtle);">
+    <div class="section-header reveal">
+      <div class="section-label">How to Use This Library</div>
+      <h2>The Active Learning System</h2>
+      <p>Reading is not mastery. Using it is mastery. Here is how to do both.</p>
+    </div>
+
+    <div class="study-grid reveal">
+      <div class="study-card">
+        <div class="study-phase">Week 1–2</div>
+        <h3>First Read — All 5 Books</h3>
+        <p>Read in order. Don't take notes. Read for the story and feeling. Let the images form in your mind.</p>
+        <ul class="study-list">
+          <li>Focus on narrative, not memorization</li>
+          <li>Highlight concepts that resonate</li>
+          <li>Read before sleep — stories consolidate overnight</li>
+        </ul>
+      </div>
+      <div class="study-card">
+        <div class="study-phase">Week 3</div>
+        <h3>Active Re-read — Books 1 & 2</h3>
+        <p>Book 1: Use the Lexicon table as a checklist. Book 2: Find 23 patterns in real code you know.</p>
+        <ul class="study-list">
+          <li>Rate each term 🟢/🟡/🔴</li>
+          <li>Write one sentence per 🟢 term</li>
+          <li>Build your Pattern Sightings document</li>
+        </ul>
+      </div>
+      <div class="study-card">
+        <div class="study-phase">Week 4</div>
+        <h3>Architecture Audit — Book 3</h3>
+        <p>Audit one real system you've built or worked on against every pattern in Book 3.</p>
+        <ul class="study-list">
+          <li>Does it follow 12-Factor? Which factor is violated?</li>
+          <li>Are Bounded Contexts explicit?</li>
+          <li>Do dependencies point inward?</li>
+          <li>Write down 3 architectural debts</li>
+        </ul>
+      </div>
+      <div class="study-card">
+        <div class="study-phase">Week 5</div>
+        <h3>Failure Flash Cards — Book 4</h3>
+        <p>Five recurring patterns from 20 outages. Make one card per pattern and use before every deploy.</p>
+        <ul class="study-list">
+          <li>Human error with no safeguard</li>
+          <li>Missing limits (rate, size, time)</li>
+          <li>Dependency failure with no fallback</li>
+          <li>Data inconsistency / race condition</li>
+          <li>Config change without staged rollout</li>
+        </ul>
+      </div>
+      <div class="study-card">
+        <div class="study-phase">Week 6</div>
+        <h3>The Six Questions — Book 5</h3>
+        <p>Print the Six Questions and use them before every event-driven feature you ship.</p>
+        <ul class="study-list">
+          <li>What if delivered twice?</li>
+          <li>What if arrives out of order?</li>
+          <li>What if consumer crashes halfway?</li>
+          <li>What if downstream is slow — not down?</li>
+          <li>What if event is missing?</li>
+          <li>What if I need to replay this topic?</li>
+        </ul>
+      </div>
+      <div class="study-card">
+        <div class="study-phase">Month 2–3</div>
+        <h3>Daily Deliberate Practice</h3>
+        <p>One pattern per day. Morning: read the entry. Day: find it in your work. Evening: one sentence.</p>
+        <ul class="study-list">
+          <li>23 days: GoF patterns</li>
+          <li>12 days: failure categories</li>
+          <li>12 days: 12-Factor practices</li>
+          <li>46 days: EDA failure patterns</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAANG PREP ──────────────────────────────────────────── -->
+  <section class="section" id="faang">
+    <div class="section-header reveal">
+      <div class="section-label">Interview Preparation</div>
+      <h2>How This Library Answers FAANG Questions</h2>
+      <p>Every question type maps to a specific book and section.</p>
+    </div>
+
+    <div class="faang-grid reveal">
+      <div class="faang-card">
+        <div class="faang-q">"Design a payment system for 1M merchants"</div>
+        <div class="faang-books">→ Book I (vocabulary) + Book III (architecture) + Book V (EDA failures)</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"How would you handle duplicate events in Kafka?"</div>
+        <div class="faang-books">→ Book V, Act I — At-Least-Once Delivery + Idempotency</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"Design a caching strategy for a high-read system"</div>
+        <div class="faang-books">→ Book III, Lesson IX — Cache-Aside, Write-Through, Write-Behind</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"Tell me about a production failure you've handled"</div>
+        <div class="faang-books">→ Book IV — 20 outage case studies as interview-ready postmortems</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"When would you use Observer vs Mediator pattern?"</div>
+        <div class="faang-books">→ Book II, Patterns 16 & 18 — Mediator vs Observer with city analogies</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"How do microservices handle distributed transactions?"</div>
+        <div class="faang-books">→ Book V, Act II + Book I (Chapter on Saga Pattern)</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"Explain DDD and Bounded Contexts"</div>
+        <div class="faang-books">→ Book III, Lesson II — Full DDD coverage with 7 concepts</div>
+      </div>
+      <div class="faang-card">
+        <div class="faang-q">"What is the Strangler Fig pattern and when do you use it?"</div>
+        <div class="faang-books">→ Book III, Lesson V — Strangler Fig with the Palace migration story</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <div class="footer-books">
+      <a href="book-1.html" class="footer-book-link" style="border-color:rgba(245,158,11,0.2);color:var(--gold)">I · The City</a>
+      <a href="book-2.html" class="footer-book-link" style="border-color:rgba(139,92,246,0.2);color:var(--purple)">II · The Codex</a>
+      <a href="book-3.html" class="footer-book-link" style="border-color:rgba(20,184,166,0.2);color:var(--teal)">III · The Foundations</a>
+      <a href="book-4.html" class="footer-book-link" style="border-color:rgba(239,68,68,0.2);color:var(--red)">IV · The Hall</a>
+      <a href="book-5.html" class="footer-book-link" style="border-color:rgba(59,130,246,0.2);color:var(--blue)">V · The River</a>
+    </div>
+    <p class="footer-quote">
+      "Ravi never learned the technical name for what saved his daughter's life. He only knew: someone had spent years building a city not for the easy days, but for the worst night he could imagine. And when that night came — it held."
+    </p>
+  </footer>
+
+</div><!-- .page -->
+
+<script>
+// ── Particle City Canvas ─────────────────────────────────────────
+const canvas = document.getElementById('city-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function createParticles() {
+  particles = [];
+  const count = Math.floor(W * H / 8000);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.5 + 0.3,
+      color: Math.random() > 0.85 ? '#f59e0b' : '#ffffff',
+      alpha: Math.random() * 0.5 + 0.1,
+      speed: Math.random() * 0.15 + 0.05,
+      twinkle: Math.random() * Math.PI * 2,
+      twinkleSpeed: (Math.random() - 0.5) * 0.02
+    });
+  }
+}
+
+// City silhouette buildings
+function drawCity() {
+  const buildings = [
+    {x:0,w:80,h:120},{x:70,w:50,h:160},{x:110,w:90,h:200},{x:190,w:60,h:130},
+    {x:240,w:100,h:250},{x:330,w:70,h:180},{x:390,w:55,h:140},{x:435,w:110,h:220},
+    {x:535,w:65,h:170},{x:590,w:85,h:190},{x:665,w:50,h:130},{x:705,w:95,h:240},
+    {x:790,w:60,h:160},{x:840,w:80,h:200},{x:910,w:70,h:150},{x:970,w:100,h:180},
+    {x:1060,w:55,h:140},{x:1105,w:80,h:210},{x:1175,w:65,h:160},{x:1230,w:90,h:230},
+    {x:1310,w:75,h:170},{x:1375,w:100,h:250},{x:1465,w:60,h:140},{x:1515,w:85,h:190},
+  ];
+
+  ctx.save();
+  const gradient = ctx.createLinearGradient(0, H - 280, 0, H);
+  gradient.addColorStop(0, 'rgba(13,13,32,0)');
+  gradient.addColorStop(1, 'rgba(8,8,26,0.95)');
+
+  buildings.forEach(b => {
+    const scale = W / 1600;
+    const bx = b.x * scale;
+    const bw = b.w * scale;
+    const bh = b.h * (H / 800);
+    const by = H - bh;
+
+    // Building body
+    ctx.fillStyle = 'rgba(15,15,40,0.85)';
+    ctx.fillRect(bx, by, bw, bh);
+
+    // Windows
+    const cols = Math.floor(bw / 14);
+    const rows = Math.floor(bh / 18);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (Math.random() < 0.004) {
+          const wx = bx + c * 14 + 4;
+          const wy = by + r * 18 + 4;
+          ctx.fillStyle = Math.random() > 0.3 ?
+            'rgba(245,158,11,0.6)' : 'rgba(100,120,255,0.4)';
+          ctx.fillRect(wx, wy, 6, 8);
+        }
+      }
+    }
+  });
+  ctx.restore();
+}
+
+// Ambient glow at horizon
+function drawGlow() {
+  const grad = ctx.createRadialGradient(W/2, H, 0, W/2, H, H * 0.6);
+  grad.addColorStop(0, 'rgba(245,158,11,0.04)');
+  grad.addColorStop(0.5, 'rgba(139,92,246,0.02)');
+  grad.addColorStop(1, 'transparent');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+}
+
+let frame = 0;
+const cityWindows = [];
+
+function initWindows() {
+  for (let i = 0; i < 200; i++) {
+    cityWindows.push({
+      x: Math.random() * W,
+      y: H * 0.4 + Math.random() * H * 0.5,
+      alpha: Math.random(),
+      speed: Math.random() * 0.005
+    });
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  drawGlow();
+
+  // Stars
+  particles.forEach(p => {
+    p.twinkle += p.twinkleSpeed;
+    const a = p.alpha * (0.6 + 0.4 * Math.sin(p.twinkle));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y * 0.7, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color === '#f59e0b' ?
+      `rgba(245,158,11,${a})` : `rgba(255,255,255,${a * 0.7})`;
+    ctx.fill();
+  });
+
+  drawCity();
+
+  frame++;
+  requestAnimationFrame(animate);
+}
+
+resize();
+createParticles();
+initWindows();
+animate();
+window.addEventListener('resize', () => { resize(); createParticles(); });
+
+// ── Counter Animation ─────────────────────────────────────────
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const duration = 2000;
+  const start = performance.now();
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(ease * target);
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = target + (target >= 100 ? '+' : '');
+  }
+  requestAnimationFrame(update);
+}
+
+// ── Intersection Observer ─────────────────────────────────────
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Counter trigger
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('[data-target]').forEach(animateCounter);
+      counterObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+const statsEl = document.querySelector('.hero-stats');
+if (statsEl) counterObs.observe(statsEl);
+</script>
+</body>
+</html>
