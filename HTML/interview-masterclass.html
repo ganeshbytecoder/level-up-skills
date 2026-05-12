@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAANG Interview Masterclass Q&A</title>
+<meta name="description" content="The definitive interview prep tool for FAANG-level engineering interviews. System Design, Databases, Architecture, and Failures.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #020208;
+  --deep: #06060f;
+  --surface: #0c0c1e;
+  --card: #10102a;
+  --elevated: #161632;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.15);
+  
+  --text-1: #f4f1ec;
+  --text-2: #9e9aaa;
+  --text-3: #5e5a6a;
+  
+  --gold: #f59e0b;
+  --gold-glow: rgba(245,158,11,0.15);
+  --purple: #8b5cf6;
+  --purple-glow: rgba(139,92,246,0.15);
+  --teal: #14b8a6;
+  --teal-glow: rgba(20,184,166,0.15);
+  --red: #ef4444;
+  --green: #10b981;
+  --blue: #3b82f6;
+  
+  --ff-sans: 'Inter', system-ui, sans-serif;
+  --ff-display: 'Sora', 'Inter', sans-serif;
+  --ff-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 15px; }
+body { 
+  font-family: var(--ff-sans); background: var(--void); color: var(--text-1); 
+  line-height: 1.65; overflow-x: hidden; -webkit-font-smoothing: antialiased; 
+}
+::selection { background: rgba(245,158,11,0.25); color: var(--text-1); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--elevated); border-radius: 3px; }
+
+#bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.6; }
+
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; height: 60px;
+  background: rgba(2,2,8,0.85); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 1.5rem; gap: 1rem; z-index: 1000;
+}
+.nav-home {
+  display: flex; align-items: center; gap: .5rem; text-decoration: none;
+  color: var(--gold); font-size: .8rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; opacity: .85; transition: opacity .2s; white-space: nowrap;
+}
+.nav-home:hover { opacity: 1; }
+.nav-title { flex: 1; text-align: center; font-family: var(--ff-display); font-size: .9rem; font-weight: 600; color: var(--text-2); }
+.study-mode-toggle {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 0.4rem 1rem; border-radius: 100px; cursor: pointer;
+  color: var(--text-1); font-size: 0.8rem; font-weight: 600;
+  transition: all 0.3s;
+}
+.study-mode-toggle:hover { border-color: var(--gold); background: var(--gold-glow); }
+.study-mode-toggle.active { background: var(--gold); color: #000; border-color: var(--gold); }
+
+.page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 100px 1.5rem 6rem; }
+
+.hero { text-align: center; padding: 2rem 0 4rem; }
+.hero-eyebrow {
+  display: inline-block; padding: 0.3rem 1rem; background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.2); border-radius: 100px;
+  color: var(--gold); font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.15em; margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s ease 0.1s both;
+}
+.hero-title {
+  font-family: var(--ff-display); font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800;
+  line-height: 1.2; margin-bottom: 1rem; animation: fadeUp 0.6s ease 0.2s both;
+}
+.hero-title .highlight { background: linear-gradient(135deg, #fff 0%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-desc {
+  font-size: 1.05rem; color: var(--text-2); max-width: 600px; margin: 0 auto;
+  line-height: 1.7; animation: fadeUp 0.6s ease 0.3s both;
+}
+
+.tabs {
+  display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 3rem; animation: fadeUp 0.6s ease 0.4s both;
+}
+.tab {
+  padding: 0.6rem 1.2rem; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 100px; color: var(--text-2); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.3s; outline: none;
+}
+.tab:hover { border-color: var(--border-hover); color: var(--text-1); }
+.tab.active { background: var(--elevated); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 20px var(--gold-glow); }
+
+.qa-list { display: flex; flex-direction: column; gap: 1rem; }
+.qa-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-md); overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeUp 0.6s ease 0.5s both; transform-origin: top;
+}
+.qa-item:hover { border-color: var(--border-hover); }
+.qa-item.expanded { border-color: var(--gold); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+
+.qa-header { padding: 1.25rem 1.5rem; display: flex; gap: 1rem; align-items: flex-start; cursor: pointer; user-select: none; }
+.qa-icon { font-size: 1.4rem; line-height: 1; margin-top: 0.1rem; }
+.qa-question { flex: 1; font-family: var(--ff-display); font-size: 1.05rem; font-weight: 600; color: var(--text-1); line-height: 1.5; }
+.qa-difficulty {
+  font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 0.2rem 0.5rem; border-radius: 4px; margin-top: 0.2rem;
+}
+.diff-hard { background: rgba(239,68,68,0.15); color: var(--red); }
+.diff-med { background: rgba(245,158,11,0.15); color: var(--gold); }
+
+.qa-toggle {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-2); transition: all 0.3s; flex-shrink: 0;
+}
+.qa-item.expanded .qa-toggle { transform: rotate(180deg); background: var(--gold); color: #000; border-color: var(--gold); }
+
+.qa-answer-wrap { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.qa-answer { padding: 0 1.5rem 1.5rem; font-size: 0.95rem; color: var(--text-2); line-height: 1.7; border-top: 1px solid transparent; }
+.qa-item.expanded .qa-answer { border-top-color: var(--border); padding-top: 1.5rem; }
+.qa-answer p { margin-bottom: 1rem; }
+.qa-answer p:last-child { margin-bottom: 0; }
+.qa-answer strong { color: var(--text-1); font-weight: 600; }
+.qa-answer code { font-family: var(--ff-mono); font-size: 0.85em; background: var(--elevated); padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--teal); border: 1px solid var(--border); }
+.qa-answer ul { list-style: none; margin-bottom: 1rem; padding-left: 0.5rem; }
+.qa-answer li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+.qa-answer li::before { content: '→'; position: absolute; left: 0; top: 0; color: var(--gold); font-weight: 700; }
+
+body.study-mode .qa-answer { filter: blur(8px); opacity: 0.5; transition: all 0.3s; cursor: pointer; user-select: none; }
+body.study-mode .qa-answer:hover { filter: blur(4px); opacity: 0.8; }
+body.study-mode .qa-item.revealed .qa-answer { filter: blur(0); opacity: 1; cursor: text; user-select: auto; }
+.study-hint { display: none; font-size: 0.8rem; color: var(--gold); font-weight: 600; text-align: center; margin-top: 1rem; font-style: italic; }
+body.study-mode .study-hint { display: block; }
+body.study-mode .qa-item.revealed .study-hint { display: none; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@media(max-width: 640px) {
+  .hero-title { font-size: 2rem; }
+  .qa-header { flex-wrap: wrap; }
+  .qa-question { min-width: 100%; order: 3; margin-top: 0.5rem; }
+  .nav-title { display: none; }
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<nav class="nav">
+  <a href="library.html" class="nav-home">⬅ Library</a>
+  <div class="nav-title">FAANG Interview Masterclass</div>
+  <button class="study-mode-toggle" id="studyModeBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    Study Mode
+  </button>
+</nav>
+
+<div class="page">
+  <header class="hero">
+    <div class="hero-eyebrow">The Ultimate Playbook</div>
+    <h1 class="hero-title">Interview <span class="highlight">Masterclass</span> Q&A</h1>
+    <p class="hero-desc">
+      30+ deep technical questions testing the absolute boundaries of your knowledge in system design, databases, infrastructure, and failures.
+    </p>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-filter="all">All Questions</button>
+    <button class="tab" data-filter="systems">Architecture</button>
+    <button class="tab" data-filter="db">Databases</button>
+    <button class="tab" data-filter="eda">Distributed Systems</button>
+    <button class="tab" data-filter="infra">Platform & Infra</button>
+    <button class="tab" data-filter="failures">Failures</button>
+    <button class="tab" data-filter="data">Big Data</button>
+    <button class="tab" data-filter="estimations">Capacity Planning</button>
+  </div>
+
+  <div class="qa-list" id="qaList">
+    <!-- SYSTEMS -->
+    <div class="qa-item" data-category="systems">
+      <div class="qa-header"><div class="qa-icon">🏛️</div><div class="qa-question">Explain Consistent Hashing and how it resolves the rehashing problem when scaling a cluster.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Problem:</strong> Standard hashing (<code>hash(key) % N</code>) fails when <code>N</code> (number of servers) changes. If you add 1 server to a 4-server cluster, 80% of all keys will suddenly route to a different server, causing a massive cache miss spike (a thundering herd) that can crash the database.</p>
+        <p><strong>Consistent Hashing:</strong> Maps both data keys and servers to a conceptual "Hash Ring" (e.g., a circle of 0 to 2^32-1). To find where a key goes, you hash the key, place it on the ring, and walk clockwise to the first server you encounter.</p>
+        <p><strong>The Fix:</strong> When a new server is added, it splits the key-space of <em>only one</em> existing server (the one immediately clockwise to it). Only the keys mapped to that specific segment are re-routed. The rest of the cluster (N-1 servers) is completely unaffected.</p>
+        <p><strong>Virtual Nodes (vnodes):</strong> To prevent unequal load distribution (where one server gets a huge slice of the ring), each physical server is mapped to multiple "virtual nodes" scattered randomly around the ring, ensuring perfectly uniform load distribution.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="systems">
+      <div class="qa-header"><div class="qa-icon">🏛️</div><div class="qa-question">Compare API Gateway vs Service Mesh. When do you need one over the other?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>API Gateway:</strong> Manages <strong>North-South</strong> traffic (Client to Data Center). It acts as the single entry point for external clients. Its primary duties are Authentication, Rate Limiting, IP Allowlisting, Request Routing, and Protocol Translation (REST to gRPC).</p>
+        <p><strong>Service Mesh:</strong> Manages <strong>East-West</strong> traffic (Service to Service inside the Data Center). It is deployed via a "sidecar proxy" (like Envoy) alongside every microservice container. Its primary duties are mTLS encryption between services, advanced load balancing, retries, circuit breaking, and distributed tracing.</p>
+        <p><strong>When to use:</strong> You almost always need an API Gateway if you have external clients. You only need a Service Mesh when you have hundreds of microservices and the operational overhead of managing mutual TLS, retries, and network policies in the application code becomes impossible.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="systems">
+      <div class="qa-header"><div class="qa-icon">🏛️</div><div class="qa-question">Design a pagination strategy for a table with 100 Million rows. Why does OFFSET/LIMIT fail?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Problem with OFFSET:</strong> A query like <code>SELECT * FROM users ORDER BY created_at LIMIT 50 OFFSET 1000000</code> forces the database to read, sort, and discard 1,000,000 rows just to return the 50 rows you want. This becomes exponentially slower the deeper you paginate.</p>
+        <p><strong>The Fix - Cursor Pagination (Keyset Pagination):</strong> Instead of counting rows, you use the last seen value as an anchor.</p>
+        <p><code>SELECT * FROM users WHERE created_at < '2024-01-01T12:00:00' ORDER BY created_at DESC LIMIT 50</code></p>
+        <p><strong>Why it works:</strong> The database hits the B-Tree index at exactly that timestamp and sequentially reads the next 50 rows. Time complexity drops from O(N) to O(1) index lookup + 50 reads. It is blazing fast regardless of depth.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="systems">
+      <div class="qa-header"><div class="qa-icon">🏛️</div><div class="qa-question">Compare Cache-Aside, Write-Through, and Write-Behind caching strategies.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Cache-Aside (Lazy Loading):</strong> App checks cache. If miss, app reads from DB, updates cache, returns data. Great for read-heavy workloads. Cache only holds requested data. Drawback: Cache misses penalize latency.</p>
+        <p><strong>Write-Through:</strong> App writes data to cache, and the cache synchronously writes to the DB. Guarantee: Cache and DB are always perfectly in sync. Drawback: High write latency (waits for two network hops).</p>
+        <p><strong>Write-Behind (Write-Back):</strong> App writes to cache, returns success instantly. Cache asynchronously flushes data to DB later. Unbeatable write throughput. Drawback: If the cache crashes before flushing, data is permanently lost.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="systems">
+      <div class="qa-header"><div class="qa-icon">🏗️</div><div class="qa-question">Design an idempotent Payment API. How do you guarantee a user is not charged twice if their client retries a timeout?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Core Pattern:</strong> We must use an <strong>Idempotency Key</strong> (typically a UUID) generated by the <em>client</em>, not the server.</p>
+        <p><strong>The Flow:</strong></p>
+        <ul>
+          <li>Client generates <code>Idempotency-Key: abc-123</code> and sends the POST request.</li>
+          <li>Server attempts to insert the Idempotency Key into an <code>idempotency_keys</code> table with a UNIQUE constraint.</li>
+          <li><strong>If insert succeeds:</strong> This is a new request. Process the payment, update the idempotency record with the final response/status, and return 200 OK.</li>
+          <li><strong>If insert fails (key exists):</strong> This is a retry. The server looks up the existing record. If the payment is still <em>processing</em>, return a 409 Conflict. If it <em>completed</em>, return the cached HTTP response of the original transaction.</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <!-- DATABASES -->
+    <div class="qa-item" data-category="db">
+      <div class="qa-header"><div class="qa-icon">🐘</div><div class="qa-question">Explain XID wraparound in PostgreSQL and why it is a critical failure mode. How do you mitigate it?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Mechanism:</strong> PostgreSQL uses Multi-Version Concurrency Control (MVCC). Every row version is tagged with a 32-bit transaction ID (XID). Because 32 bits max out at ~4 billion, the XID space acts as a circular buffer. Postgres considers any row with an XID in the "past" 2 billion as visible, and the "future" 2 billion as invisible.</p>
+        <p><strong>The Failure:</strong> If a database processes 2 billion transactions without cleaning up old XIDs, the XIDs "wrap around." Suddenly, old, valid rows appear to be in the "future" and become completely invisible. To prevent data loss, Postgres shuts down and refuses connections if it approaches wraparound.</p>
+        <p><strong>The Mitigation:</strong> The <code>autovacuum</code> daemon periodically scans tables and marks old rows as "frozen" (a special XID always considered in the past). You must monitor the <code>age(datfrozenxid)</code> metric and ensure long-running transactions aren't blocking autovacuum.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="db">
+      <div class="qa-header"><div class="qa-icon">🗄️</div><div class="qa-question">Compare B-Tree vs LSM Tree internals. Why do modern NoSQL databases prefer LSM Trees?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>B-Tree (Postgres/MySQL):</strong> Designed for in-place updates on disk. Fast for reads. However, random writes cause "page splits" and fragmentation. Every write requires moving the disk head, making it severely bottlenecked by random I/O.</p>
+        <p><strong>LSM Tree (Cassandra/RocksDB):</strong> Optimized for write-heavy workloads. Writes are buffered in memory (Memtable) and then flushed to disk as immutable, sequentially written files (SSTables). Sequential disk I/O is 100x faster than random I/O, allowing massive write throughput.</p>
+        <p><strong>Trade-off:</strong> LSM trees have incredible write speed but suffer from "Read Amplification" (must check multiple SSTables for a read) and require continuous background "Compaction" to merge files and clean up tombstones.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="db">
+      <div class="qa-header"><div class="qa-icon">🐬</div><div class="qa-question">Explain Clustered vs Secondary Indexes in MySQL (InnoDB). What is a covering index?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Clustered Index:</strong> In InnoDB, the Primary Key IS the table. The actual row data is stored in the leaf nodes of the Primary Key B+ tree, physically ordered on disk.</p>
+        <p><strong>Secondary Index:</strong> A secondary index does NOT store the row data. It stores the indexed column(s) and a "pointer" to the row. In InnoDB, that pointer is the Primary Key value.</p>
+        <p><strong>The Issue (Bookmark Lookup):</strong> If you query <code>SELECT * FROM users WHERE email='x'</code> using a secondary index on email, MySQL searches the email index to find the Primary Key, then does a SECOND search in the Clustered Index to get the rest of the row.</p>
+        <p><strong>Covering Index:</strong> An index that contains all the columns needed for a query (e.g., <code>CREATE INDEX idx_email_name ON users(email, name)</code> for <code>SELECT name FROM users WHERE email='x'</code>). The DB never needs to touch the clustered index, making the query vastly faster.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="db">
+      <div class="qa-header"><div class="qa-icon">💎</div><div class="qa-question">Explain the impact of Tombstones in Cassandra. Why does frequent DELETE + INSERT lead to ReadTimeouts?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Architecture:</strong> Cassandra uses an LSM Tree. Data is written to immutable SSTables. Therefore, a <code>DELETE</code> does not remove data; it writes a special marker called a <strong>Tombstone</strong> with a deletion timestamp.</p>
+        <p><strong>The Impact:</strong> During a read, Cassandra reads the live data <em>and</em> the tombstones, filters them in memory, and returns the result. If you frequently update/delete rows, you generate millions of tombstones. Reading a partition forces Cassandra to scan all millions of tombstones into JVM memory, causing GC pauses and <code>ReadTimeoutException</code>.</p>
+        <p><strong>The Fix:</strong> Tombstones are permanently removed during Compaction after <code>gc_grace_seconds</code>. Avoid data models requiring frequent deletes; use append-only time-series designs instead.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="db">
+      <div class="qa-header"><div class="qa-icon">🍃</div><div class="qa-question">How do you choose a MongoDB shard key? What happens if you choose a monotonic key like a timestamp?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Rule:</strong> A shard key must have high cardinality, low frequency, and ideally not be strictly monotonic.</p>
+        <p><strong>The Monotonic Disaster:</strong> If you shard by <code>created_at</code> timestamp or an Auto-Incrementing ID, all new inserts will always map to the "latest" chunk. This means 100% of your write traffic hits exactly ONE shard, while the other shards sit idle. This is called a write hotspot.</p>
+        <p><strong>The Fix:</strong> Use a hashed shard key (e.g., <code>{ "user_id": "hashed" }</code>) to distribute writes perfectly evenly across all shards, or a compound key to group related data together while still maintaining distribution.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <!-- EDA & DISTRIBUTED SYSTEMS -->
+    <div class="qa-item" data-category="eda">
+      <div class="qa-header"><div class="qa-icon">🌊</div><div class="qa-question">How do you handle severe consumer lag in Kafka during an unexpected massive traffic spike?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Immediate Mitigations (The "Bleeding" Phase):</strong></p>
+        <ul>
+          <li><strong>Scale out Consumers:</strong> If you have unused partitions, spin up more consumer instances. (You cannot have more active consumers than partitions in a consumer group).</li>
+          <li><strong>Batch Processing:</strong> Modify consumer code to process messages in batches, significantly reducing DB roundtrips.</li>
+        </ul>
+        <p><strong>Structural Fixes (The "Healing" Phase):</strong></p>
+        <ul>
+          <li><strong>Dead Letter Queues (DLQ) / Retry Topics:</strong> If lag is caused by slow external API calls, immediately move failing messages to a DLQ/Retry topic so the main consumer can continue processing healthy messages.</li>
+          <li><strong>Backpressure:</strong> If the downstream DB is the bottleneck, scaling consumers will just DDOS your own DB. Rate-limit the consumers and let Kafka act as the buffer it was designed to be.</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="eda">
+      <div class="qa-header"><div class="qa-icon">🌊</div><div class="qa-question">Compare Choreography vs Orchestration in the Saga pattern for Distributed Transactions.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Problem:</strong> A user places an order. You must deduct inventory, charge card, and create shipping label across 3 microservices. 2PC (Two Phase Commit) blocks too long. A Saga breaks it into local transactions.</p>
+        <p><strong>Choreography (Event-Driven):</strong> No central controller. Service A finishes and publishes an event. Service B listens, does its work, publishes an event. If Service C fails, it publishes a failure event, and A & B listen to it to execute "compensating transactions" (rollbacks).</p>
+        <ul><li><strong>Pros:</strong> No single point of failure, highly decoupled.</li><li><strong>Cons:</strong> "Spaghetti architecture" — hard to track the state of a transaction across 15 topics.</li></ul>
+        <p><strong>Orchestration (Command-Driven):</strong> A central "Orchestrator" service explicitly commands A, then B, then C via direct calls or targeted commands. It maintains a state machine (e.g., AWS Step Functions or temporal.io). If C fails, the Orchestrator commands B and A to rollback.</p>
+        <ul><li><strong>Pros:</strong> Easy to monitor, debug, and trace transaction state.</li><li><strong>Cons:</strong> Orchestrator becomes a god-service and point of failure.</li></ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="eda">
+      <div class="qa-header"><div class="qa-icon">🌊</div><div class="qa-question">What is the Outbox Pattern? Why is publishing an event right after a database transaction dangerous?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Danger (Dual Write Problem):</strong></p>
+        <code>BEGIN TX; <br> insert_order_to_db(); <br> publish_to_kafka(); <br> COMMIT TX;</code>
+        <p>If Kafka is down, the DB rolls back. Fine. But if the DB commit fails <em>after</em> Kafka publishes, the system is permanently inconsistent (Kafka has an event for an order that doesn't exist).</p>
+        <p><strong>The Outbox Pattern:</strong></p>
+        <ul>
+          <li>Create a table called <code>outbox_events</code> in the SAME database.</li>
+          <li>In a single ACID transaction, write the order to the <code>orders</code> table AND write the event payload to the <code>outbox_events</code> table. It either both succeeds or both fails.</li>
+          <li>A separate asynchronous process (e.g., Debezium CDC reading the binlog, or a cron job) continuously polls the <code>outbox_events</code> table and safely pushes them to Kafka with at-least-once guarantees.</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="eda">
+      <div class="qa-header"><div class="qa-icon">🌊</div><div class="qa-question">Explain Exactly-Once vs At-Least-Once delivery in messaging. How is "Exactly-Once" practically achieved?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>At-Least-Once:</strong> The message broker guarantees delivery, but retries (network timeouts) may cause the consumer to receive the same message multiple times.</p>
+        <p><strong>Exactly-Once:</strong> Mathematically impossible across a network due to the Two Generals' Problem. However, it is functionally simulated through <strong>Idempotency</strong>.</p>
+        <p><strong>The Implementation:</strong> You design the consumer to be Idempotent. The consumer receives the message, extracts a unique ID, and processes it. If it receives the exact same message again, it identifies the duplicate ID and safely discards it or returns the cached result. To the end user, it appears as "Exactly-Once" processing.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <!-- FAILURES & RELIABILITY -->
+    <div class="qa-item" data-category="failures">
+      <div class="qa-header"><div class="qa-icon">🔥</div><div class="qa-question">What is a "Thundering Herd" problem? How does caching exacerbate it, and how do you prevent it?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>The Problem:</strong> A "Thundering Herd" occurs when a highly requested cache key suddenly expires (or is evicted). Instantly, thousands of concurrent requests miss the cache simultaneously. They all bypass the cache and hit the underlying database at the exact same millisecond to compute the same value, causing the database to spike to 100% CPU and crash.</p>
+        <p><strong>Prevention Strategies:</strong></p>
+        <ul>
+          <li><strong>Mutex/Locks:</strong> On cache miss, the first thread acquires a distributed lock (e.g., Redis SETNX). Other threads requesting the same key wait/poll until the first thread populates the cache.</li>
+          <li><strong>Probabilistic Early Expiration (XFetch):</strong> Instead of letting a key expire, a worker randomly decides to recompute the cache <em>before</em> it expires. The closer the key is to expiration, the higher the probability.</li>
+          <li><strong>Background Refresh:</strong> The cache never expires for reads. A separate background worker constantly updates hot keys directly from the DB.</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="failures">
+      <div class="qa-header"><div class="qa-icon">🔥</div><div class="qa-question">Explain the three states of the Circuit Breaker pattern. Why is it essential for microservices?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p>If Service A calls Service B, and Service B is experiencing massive latency, A's threads will all block waiting for B. Eventually, A runs out of threads and crashes too. This is a cascading failure.</p>
+        <p><strong>Circuit Breaker States:</strong></p>
+        <ul>
+          <li><strong>Closed:</strong> Normal operation. Requests flow freely. If failures/timeouts cross a threshold (e.g., 50% fail over 10s), the circuit trips to Open.</li>
+          <li><strong>Open:</strong> All requests fail instantly (fast-fail) returning an error or fallback response. This gives Service B time to recover instead of hammering it while it's down.</li>
+          <li><strong>Half-Open:</strong> After a timeout, the breaker lets a <em>few</em> test requests through. If they succeed, it closes. If they fail, it trips back to Open.</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="failures">
+      <div class="qa-header"><div class="qa-icon">🔥</div><div class="qa-question">What is a Retry Storm? How do Exponential Backoff and Jitter prevent it?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Retry Storm:</strong> Service A goes down for 5 seconds. Thousands of clients instantly retry at the exact same 1-second interval. When Service A recovers, it is immediately hit by a synchronized wave of thousands of retries, crashing it again.</p>
+        <p><strong>Exponential Backoff:</strong> Increases the delay between retries exponentially (e.g., 1s, 2s, 4s, 8s). This reduces the total load on the recovering system.</p>
+        <p><strong>Jitter (Randomness):</strong> Even with backoff, if 1000 clients failed at time T=0, they will all retry at exactly T=1, T=3, T=7. Jitter adds random noise (e.g., <code>delay = base_delay * random(0.5, 1.5)</code>) so the retries smear across a time window, breaking the synchronization and smoothing the load.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="failures">
+      <div class="qa-header"><div class="qa-icon">🔥</div><div class="qa-question">Explain the Bulkhead pattern and how it isolates failures in a monolith.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p>Inspired by ship design where flooding in one compartment is contained by bulkheads, preventing the whole ship from sinking.</p>
+        <p>In software, if a Monolith shares a single connection pool or thread pool for all API endpoints, a slow response on the <code>/generate_pdf</code> endpoint will consume all available threads, causing the critical <code>/login</code> endpoint to fail due to thread starvation.</p>
+        <p><strong>The Fix:</strong> Allocate strictly separated resource pools (bulkheads). <code>/generate_pdf</code> gets max 10 threads. <code>/login</code> gets 50 threads. If PDF generation hangs, it maxes out its 10 threads and starts rejecting requests, but the remaining 50 threads keep the rest of the application perfectly healthy.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <!-- INFRASTRUCTURE -->
+    <div class="qa-item" data-category="infra">
+      <div class="qa-header"><div class="qa-icon">⚙️</div><div class="qa-question">Compare Blue/Green Deployments vs Canary Releases. When should you use which?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Blue/Green:</strong> You maintain two identical production environments. Blue is currently live. You deploy the new version to Green, test it privately. When ready, you flip the load balancer router to point 100% of traffic to Green. Rollback is instant (flip router back to Blue). Requires 2x the hardware/compute.</p>
+        <p><strong>Canary Release:</strong> You deploy the new version to a small subset of servers (e.g., 5%). The load balancer routes 5% of real user traffic to the "canary". You monitor error rates and metrics. If healthy, you gradually ramp traffic to 100%. If errors spike, you roll back the 5%.</p>
+        <p><strong>When to use:</strong> Blue/Green is great for monolithic apps or schema-less DBs where instant cutover is needed. Canary is preferred for microservices at scale (FAANG), minimizing blast radius of a bad release without needing 2x infrastructure.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="infra">
+      <div class="qa-header"><div class="qa-icon">⚙️</div><div class="qa-question">Explain Layer 4 (Network) vs Layer 7 (Application) Load Balancing.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Layer 4 (Transport Level):</strong> Operates at the TCP/UDP level. It looks only at IP addresses and Ports. It forwards packets blindly without inspecting the content. It is incredibly fast, consumes almost zero CPU, and can handle millions of connections. (e.g., AWS Network Load Balancer).</p>
+        <p><strong>Layer 7 (Application Level):</strong> Operates at the HTTP/HTTPS level. It decrypts the TLS connection, reads the HTTP headers, URL path, and cookies. It can route traffic based on the URL (e.g., <code>/api/v1/</code> goes to service A, <code>/images/</code> goes to service B). It is much more CPU intensive but allows smart routing, rate limiting, and WAF rules. (e.g., AWS Application Load Balancer, Nginx).</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="infra">
+      <div class="qa-header"><div class="qa-icon">⚙️</div><div class="qa-question">What is a CDN (Content Delivery Network) and how does it handle dynamic vs static content?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p>A CDN (like Cloudflare or Fastly) is a globally distributed network of proxy servers ("Edge Locations") positioned close to end-users to reduce latency.</p>
+        <p><strong>Static Content:</strong> Images, CSS, JS are cached at the Edge. User requests hit the Edge, and the Edge serves the file directly without touching your origin server. Drops latency from 150ms to 15ms and offloads 90% of traffic.</p>
+        <p><strong>Dynamic Content:</strong> CDNs cannot cache highly personalized dynamic API data (like a bank balance). However, they accelerate dynamic traffic via <em>Connection Pooling</em> and <em>BGP Anycast Routing</em>, maintaining persistent, optimized TCP/TLS connections from the Edge back to the Origin, bypassing public internet congestion.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <!-- BIG DATA -->
+    <div class="qa-item" data-category="data">
+      <div class="qa-header"><div class="qa-icon">📊</div><div class="qa-question">Explain the difference between OLTP and OLAP databases. Why can't Postgres do both well at scale?</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>OLTP (Online Transaction Processing):</strong> Designed for highly concurrent, fast, small read/write operations (e.g., e-commerce checkouts). Row-oriented storage. Example: PostgreSQL, MySQL.</p>
+        <p><strong>OLAP (Online Analytical Processing):</strong> Designed for complex queries analyzing massive datasets (e.g., "Sum of all sales grouped by region for the last 5 years"). Column-oriented storage. Example: Snowflake, ClickHouse, BigQuery.</p>
+        <p><strong>Why Columnar matters:</strong> If you run <code>SELECT SUM(revenue) FROM sales</code> on a Row-oriented DB, it must read entire rows (customer_id, date, status, etc.) from disk into memory just to extract the revenue. A Column-oriented DB stores all <code>revenue</code> values contiguously on disk. It reads ONLY the revenue column in a single I/O sweep and compresses it massively (run-length encoding), making it 100x to 1000x faster for analytics.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    
+    <div class="qa-item" data-category="data">
+      <div class="qa-header"><div class="qa-icon">📊</div><div class="qa-question">Compare Apache Kafka vs RabbitMQ. When do you choose a Message Queue vs an Event Streaming platform?</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>RabbitMQ (Smart Broker, Dumb Consumer):</strong> A traditional message queue. Messages are pushed to consumers. Once processed and ACKed, the message is <strong>deleted</strong> from the queue. Perfect for transient task routing, complex routing rules, and point-to-point worker queues (e.g., sending emails).</p>
+        <p><strong>Kafka (Dumb Broker, Smart Consumer):</strong> An event streaming platform. It acts as an immutable, distributed append-only log. Messages are NOT deleted when read; they are retained on disk for days or years. Consumers track their own "offset" (where they are in the log).</p>
+        <p><strong>Why Kafka?</strong> Because data is retained, multiple independent systems (Analytics, Billing, Search Indexer) can read the exact same events at their own pace. You can also "rewind" the log to reprocess data after deploying a bug fix, which is impossible in RabbitMQ once data is ACKed.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <!-- CAPACITY PLANNING & ESTIMATIONS -->
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate Instagram storage requirements for photos per day.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>500 Million Daily Active Users (DAU).</li>
+          <li>Average user posts 1 photo per day.</li>
+          <li>Average photo size: 2 MB (raw) compressed to 200 KB for viewing. We store multiple resolutions, so total stored size per photo = ~500 KB.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>New photos/day: 500M * 1 = 500M photos/day.</li>
+          <li>Storage/day: 500M * 500 KB = 250 Billion KB = 250,000 GB = 250 TB/day.</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> 250 TB per day means ~90 PB per year. You cannot store this in a relational DB. The metadata goes into an RDBMS/NoSQL, but the actual images must go into an Object Store (like AWS S3) using Blob Storage, likely tiered to Cold Storage (Glacier) for older photos.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate Netflix CDN bandwidth usage during peak hours.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>200 Million Total Subscribers. 10% are watching concurrently during peak hours = 20M Concurrent Streams.</li>
+          <li>Average stream bitrate: 1080p is ~5 Mbps, 4K is ~25 Mbps. Assume an average of 10 Mbps per stream.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Total Peak Bandwidth: 20M users * 10 Mbps = 200 Million Mbps = 200,000 Gbps = <strong>200 Tbps (Terabits per second)</strong>.</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> 200 Tbps is so massive it would crush standard internet backbones. Netflix solves this using Open Connect (their proprietary CDN). They ship physical hardware appliances to ISPs worldwide. When you watch Netflix, you aren't streaming from AWS; you are streaming from a box sitting inside your local ISP's data center, completely bypassing the global internet backbone.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate memory required for a Redis cache powering a Social Media Feed.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>100 Million DAU. We cache the home feed for the top 20% most active users = 20M cached feeds.</li>
+          <li>Each feed caches the last 100 Post IDs (just the IDs, not the post content).</li>
+          <li>Post ID size: 8 bytes (64-bit integer).</li>
+          <li>Redis overhead: Lists/Sorted Sets have ~20 bytes of metadata overhead per entry. Let's assume 30 bytes per entry total.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Size of one cached feed: 100 posts * 30 bytes = 3,000 bytes (3 KB).</li>
+          <li>Total Cache Size: 20M feeds * 3 KB = 60,000 MB = <strong>60 GB</strong>.</li>
+        </ul>
+        <p><strong>The Reality:</strong> 60 GB easily fits into the RAM of a single modern server. However, you need High Availability and to survive a node failure. You would run a Redis Cluster with 3 Master nodes (20 GB each) and 3 Replica nodes, requiring ~120 GB total provisioned RAM.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate the timeline Fan-Out throughput for Twitter/X.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>10,000 Tweets per second (TPS) globally.</li>
+          <li>Average user has 200 followers.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Push Fan-Out (Write-Path): When 1 tweet is created, it must be inserted into 200 followers' home timelines.</li>
+          <li>Fan-Out Write QPS: 10,000 tweets/sec * 200 followers = <strong>2,000,000 Timeline Writes per second.</strong></li>
+        </ul>
+        <p><strong>The Bottleneck (The Justin Bieber Problem):</strong> If a celebrity with 100M followers tweets, a push fan-out would require 100,000,000 writes in a single second, crashing the system. To mitigate, Twitter uses a Hybrid Fan-Out: normal users use "Push" (Write-Path), but celebrities use "Pull" (Read-Path). The celebrity tweet is not pushed to timelines; instead, when a user loads their feed, the system pulls the celebrity tweet and merges it in memory.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate Kafka throughput & distributed log storage for Uber location updates.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>1 Million active drivers globally.</li>
+          <li>App sends location update every 5 seconds = 0.2 updates/sec per driver.</li>
+          <li>Location payload: Driver_ID (8B), Lat (8B), Long (8B), Timestamp (8B), Metadata (18B) = 50 Bytes total.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>QPS: 1M drivers * 0.2 updates/sec = 200,000 QPS hitting Kafka.</li>
+          <li>Bandwidth: 200k * 50 B = 10 MB/sec incoming.</li>
+          <li>Storage: 10 MB/sec * 86,400 sec/day = ~864 GB per day.</li>
+        </ul>
+        <p><strong>The Reality:</strong> 200k QPS and 10 MB/s is trivial for Kafka. A single Kafka broker can easily handle 100+ MB/s. However, because this is an event stream, you will likely have 5 different consumer groups reading it (Pricing, ETAs, Heatmaps, Fraud, Logging), making the <em>read bandwidth</em> 50 MB/s. Still well within normal limits for a modest 3-node Kafka cluster.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate infrastructure cost for a Global Push Notification Service.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>Sending 10 Billion push notifications per day (via APNS/FCM).</li>
+          <li>Average notification size: 1 KB.</li>
+          <li>To achieve this, we need an outbound API Gateway/Worker fleet.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>QPS: 10B / 86400 = ~115,000 QPS.</li>
+          <li>Bandwidth Out: 115k * 1 KB = 115 MB/s = ~10 TB per day.</li>
+          <li>Compute sizing: A standard worker node (e.g., c5.xlarge) processing I/O heavy API calls might safely handle 2,000 RPS.</li>
+          <li>Servers needed: 115,000 / 2,000 = ~60 servers.</li>
+        </ul>
+        <p><strong>Cost Estimation (Rough Cloud Math):</strong></p>
+        <ul>
+          <li>Bandwidth Cost: AWS charges ~$0.05/GB out. 10,000 GB * $0.05 = $500/day.</li>
+          <li>Compute Cost: 60 servers * ~$4/day = $240/day.</li>
+          <li><strong>Total:</strong> ~$740/day or ~$22,000/month just for the worker fleet and egress. Notice how Bandwidth is twice as expensive as Compute in the cloud!</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate QPS and DB scaling for a global E-commerce Payment System.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>Amazon-scale: 50 Million transactions per day.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Average TPS (Transactions Per Second): 50M / 86400 = ~580 TPS.</li>
+          <li>Peak TPS: Assume 5x spike during Black Friday = 2,900 TPS.</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> 2,900 TPS doesn't sound high compared to Twitter's 2,000,000 QPS. BUT payment transactions require strict ACID compliance, serializable isolation levels, and multi-region synchronous replication to prevent double spending. You cannot use eventual consistency or loose NoSQL.</p>
+        <p><strong>The Solution:</strong> A traditional Postgres cluster maxes out around 5,000 write TPS due to disk locks. To handle peak, you must shard the relational database (e.g., sharding by user_id) or use a distributed NewSQL DB like CockroachDB/Spanner that offers global ACID transactions via consensus protocols (Raft/Paxos).</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate cost & scaling for an AI Chatbot (LLM Inference).</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>1 Million Daily Users. Each user sends 10 prompts per day.</li>
+          <li>Average prompt: 500 tokens. Average generation: 1,000 tokens.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Requests per day: 10 Million.</li>
+          <li>Tokens generated: 10M * 1,000 = 10 Billion tokens/day.</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> LLM Inference is completely bottlenecked by GPU VRAM memory bandwidth (memory-bound), not compute. A single Nvidia A100 (80GB) processing a 70B parameter model might generate ~100 tokens/second at max batching.</p>
+        <p><strong>Hardware Sizing:</strong></p>
+        <ul>
+          <li>10 Billion tokens / 86400 sec = 115,000 tokens/sec needed globally.</li>
+          <li>115,000 / 100 = 1,150 A100 GPUs constantly running 100% utilized.</li>
+          <li>At ~$2/hr per A100 on the cloud, this costs $55,000 PER DAY in pure compute. This highlights why caching, prompt routing to smaller models (MoE), and semantic caching (Vector DBs) are critical for AI unit economics.</li>
+        </ul>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate Vector Database sizing for semantic search.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>We are indexing 100 Million documents.</li>
+          <li>We use a standard embedding model (e.g., OpenAI text-embedding-ada-002) which outputs vectors with 1,536 dimensions.</li>
+          <li>Each dimension is a 32-bit float (4 bytes).</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Size of one vector: 1,536 * 4 bytes = ~6 KB.</li>
+          <li>Raw vector storage: 100M * 6 KB = 600 GB.</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> Unlike relational DBs that can read from disk, Vector DBs (like Pinecone, Milvus, Qdrant) use HNSW (Hierarchical Navigable Small World) graphs for fast Approximate Nearest Neighbor (ANN) search. HNSW graphs <em>must</em> fit entirely in RAM to be fast. Furthermore, the graph structure itself adds about 1.5x to 2x memory overhead.</p>
+        <p><strong>Actual Requirement:</strong> 600 GB (raw) * 2 (overhead) = 1.2 TB of RAM required. This would require at least a cluster of 5 high-memory servers (e.g., 256GB RAM each).</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate WhatsApp message throughput and connection counts.</div><div class="qa-difficulty diff-hard">HARD</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>2 Billion Daily Active Users.</li>
+          <li>Average user sends 50 messages per day = 100 Billion messages/day.</li>
+          <li>At peak hours, 20% of users are online concurrently = 400 Million concurrent TCP/Websocket connections.</li>
+        </ul>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>Message QPS: 100B / 86400 = ~1.15 Million Messages/sec globally.</li>
+          <li>Connection capacity: A standard Linux server has 65,535 ephemeral ports, but can handle millions of <em>incoming</em> connections if tuned properly (increasing file descriptors `ulimit`).</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> Managing 400M open, idle Websocket connections requires massive memory. Each Websocket connection overhead in standard languages (Java/Node) might be 1-5 MB. 400M * 2MB = 800 TB of RAM across the fleet!</p>
+        <p><strong>The Fix:</strong> WhatsApp famously uses Erlang (and now Elixir is similar) where a lightweight process takes only ~300 bytes. This allows a single server to comfortably hold 2+ Million concurrent connections, reducing their server footprint drastically.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+    <div class="qa-item" data-category="estimations">
+      <div class="qa-header"><div class="qa-icon">🧮</div><div class="qa-question">Estimate API Gateway QPS and sizing for a massive microservices architecture.</div><div class="qa-difficulty diff-med">MED</div><div class="qa-toggle">↓</div></div>
+      <div class="qa-answer-wrap"><div class="qa-answer">
+        <p><strong>Assumptions:</strong></p>
+        <ul>
+          <li>Total App traffic: 50,000 QPS hitting the Gateway.</li>
+          <li>Gateway performs SSL termination, JWT validation, and Rate Limiting via Redis.</li>
+        </ul>
+        <p><strong>The Bottleneck:</strong> The Gateway is a CPU-bound reverse proxy. Nginx or Envoy doing SSL termination and JWT cryptographic signature checks (RSA/ECDSA) burns significant CPU.</p>
+        <p><strong>The Math:</strong></p>
+        <ul>
+          <li>A standard 4-core worker node might handle ~5,000 SSL terminations per second.</li>
+          <li>50,000 QPS / 5,000 = 10 nodes.</li>
+        </ul>
+        <p><strong>The Hidden Trap (Rate Limiting):</strong> If the Gateway checks Redis for rate-limiting on every request, it adds 1 network hop. 50k QPS to the Gateway = 50k QPS to Redis. You must ensure Redis is sized properly or use local in-memory token buckets synchronized asynchronously to avoid bottlenecking the Gateway.</p>
+        <div class="study-hint">Click to reveal answer</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const items = document.querySelectorAll('.qa-item');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    const filter = tab.getAttribute('data-filter');
+    items.forEach(item => {
+      if (filter === 'all' || item.getAttribute('data-category') === filter) {
+        item.style.display = 'block';
+        setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'translateY(0)'; }, 10);
+      } else {
+        item.style.opacity = '0'; item.style.transform = 'translateY(10px)';
+        setTimeout(() => { item.style.display = 'none'; }, 300);
+      }
+    });
+  });
+});
+
+document.querySelectorAll('.qa-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const item = header.parentElement;
+    const isExpanded = item.classList.contains('expanded');
+    const wrap = item.querySelector('.qa-answer-wrap');
+    
+    items.forEach(otherItem => {
+      if (otherItem !== item) {
+        otherItem.classList.remove('expanded');
+        otherItem.querySelector('.qa-answer-wrap').style.maxHeight = null;
+      }
+    });
+
+    if (isExpanded) {
+      item.classList.remove('expanded');
+      wrap.style.maxHeight = null;
+    } else {
+      item.classList.add('expanded');
+      wrap.style.maxHeight = wrap.scrollHeight + "px";
+    }
+  });
+});
+
+const studyBtn = document.getElementById('studyModeBtn');
+const body = document.body;
+
+studyBtn.addEventListener('click', () => {
+  studyBtn.classList.toggle('active');
+  body.classList.toggle('study-mode');
+  
+  document.querySelectorAll('.qa-item').forEach(item => {
+    item.classList.remove('revealed');
+  });
+});
+
+document.querySelectorAll('.qa-answer').forEach(ans => {
+  ans.addEventListener('click', (e) => {
+    if (body.classList.contains('study-mode')) {
+      e.stopPropagation();
+      const item = ans.closest('.qa-item');
+      item.classList.add('revealed');
+    }
+  });
+});
+
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let w, h, particles = [];
+
+function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+
+function initParticles() {
+  particles = [];
+  const count = Math.floor(w * h / 15000);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * w, y: Math.random() * h,
+      r: Math.random() * 1.5 + 0.5, alpha: Math.random() * 0.5 + 0.1,
+      speedY: Math.random() * 0.3 + 0.1
+    });
+  }
+}
+initParticles();
+
+function draw() {
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(255,255,255,0.02)'; ctx.lineWidth = 1;
+  const gridSize = 40;
+  for(let x = 0; x < w; x += gridSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for(let y = 0; y < h; y += gridSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+  ctx.fillStyle = '#f59e0b';
+  particles.forEach(p => {
+    ctx.globalAlpha = p.alpha;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    p.y -= p.speedY;
+    if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+
+</body>
+</html>
