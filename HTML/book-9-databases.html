@@ -1,0 +1,2313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book IX · Databases — The Complete FAANG Guide</title>
+<meta name="description" content="PostgreSQL · MySQL · Cassandra · Redis · MongoDB · Elasticsearch · DynamoDB · Neo4j · CockroachDB — every database, every critical scenario, FAANG senior level.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void:#020208;--deep:#06060f;--surface:#0c0c1e;--card:#10102a;
+  --elevated:#161632;--raised:#1e1e44;
+  --border:rgba(255,255,255,0.06);
+  --border-glow:rgba(16,185,129,0.28);
+  --text-1:#f4f1ec;--text-2:#9e9aaa;--text-3:#5e5a6a;
+  --green:#10b981;--green-dim:rgba(16,185,129,0.12);--green-glow:rgba(16,185,129,0.07);
+  --emerald:#059669;--lime:#84cc16;
+  --orange:#f97316;--amber:#f59e0b;--red:#ef4444;
+  --blue:#3b82f6;--cyan:#06b6d4;--purple:#8b5cf6;--teal:#14b8a6;
+  --ff-sans:'Inter',system-ui,sans-serif;
+  --ff-display:'Sora','Inter',sans-serif;
+  --ff-mono:'JetBrains Mono','Fira Code',monospace;
+  --r-sm:8px;--r-md:14px;--r-lg:22px;--r-xl:32px;
+  --shadow-md:0 8px 32px rgba(0,0,0,0.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:15px;}
+body{font-family:var(--ff-sans);background:var(--void);color:var(--text-1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+::selection{background:rgba(16,185,129,0.28);color:var(--text-1);}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--elevated);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 15% -10%,rgba(16,185,129,0.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 40% at 85% 110%,rgba(6,182,212,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+#progress{position:fixed;top:0;left:0;height:2px;width:0;
+  background:linear-gradient(90deg,var(--green),var(--teal),var(--green));
+  background-size:200% auto;animation:shimmer 2s linear infinite;z-index:2000;transition:width .1s linear;}
+@keyframes shimmer{to{background-position:200% center;}}
+
+.nav{position:fixed;top:2px;left:0;right:0;height:58px;
+  background:rgba(2,2,8,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;
+  padding:0 1.5rem;gap:1rem;z-index:1000;}
+.nav-home{display:flex;align-items:center;gap:.5rem;text-decoration:none;
+  color:var(--green);font-size:.8rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;opacity:.85;transition:opacity .2s;white-space:nowrap;}
+.nav-home:hover{opacity:1;}
+.nav-title{flex:1;text-align:center;font-family:var(--ff-display);font-size:.9rem;font-weight:600;color:var(--text-2);}
+.nav-badge{padding:.3rem .75rem;background:var(--green-dim);border:1px solid var(--border-glow);
+  border-radius:100px;font-size:.72rem;font-weight:700;color:var(--green);letter-spacing:.05em;white-space:nowrap;}
+
+.toc-wrap{position:fixed;top:60px;left:0;width:232px;height:calc(100vh - 60px);
+  overflow-y:auto;z-index:900;transform:translateX(-100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  background:rgba(6,6,15,.96);backdrop-filter:blur(20px);
+  border-right:1px solid var(--border);padding:1.25rem 0 2rem;}
+.toc-wrap.open{transform:translateX(0);}
+.toc-toggle{position:fixed;top:70px;left:.75rem;width:38px;height:38px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  cursor:pointer;z-index:950;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.toc-toggle:hover{border-color:var(--border-glow);background:var(--elevated);}
+.toc-toggle i{display:block;width:16px;height:2px;background:var(--text-2);border-radius:2px;transition:all .3s;}
+.toc-toggle.open i:nth-child(1){transform:rotate(45deg) translate(5px,5px);}
+.toc-toggle.open i:nth-child(2){opacity:0;}
+.toc-toggle.open i:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}
+.toc-label{padding:0 1.25rem .75rem;font-size:.65rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.15em;color:var(--text-3);border-bottom:1px solid var(--border);margin-bottom:.5rem;}
+.toc-a{display:block;padding:.4rem 1.25rem;font-size:.78rem;color:var(--text-2);
+  text-decoration:none;border-left:2px solid transparent;transition:all .2s;line-height:1.4;}
+.toc-a:hover,.toc-a.active{color:var(--green);border-left-color:var(--green);background:var(--green-glow);}
+.toc-section{margin-top:.5rem;}
+.toc-section-label{padding:.3rem 1.25rem;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:var(--text-3);}
+
+main{max-width:940px;margin:0 auto;padding:78px 1.5rem 6rem;position:relative;z-index:1;}
+
+.hero{text-align:center;padding:4rem 1rem 3rem;position:relative;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(16,185,129,0.08) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem 1rem;
+  background:var(--green-dim);border:1px solid var(--border-glow);border-radius:100px;
+  font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;
+  color:var(--green);margin-bottom:1.75rem;animation:fadeUp .6s ease .1s both;}
+h1.hero-title{font-family:var(--ff-display);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;
+  line-height:1.1;margin-bottom:1.25rem;animation:fadeUp .6s ease .25s both;}
+h1.hero-title .gradient{background:linear-gradient(135deg,#fff 0%,var(--green) 45%,var(--teal) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h1.hero-title .sub{display:block;font-size:.48em;color:var(--text-2);font-weight:400;margin-top:.4rem;font-family:var(--ff-sans);}
+.hero-desc{font-size:1.05rem;color:var(--text-2);max-width:660px;margin:0 auto 2.5rem;line-height:1.75;animation:fadeUp .6s ease .4s both;}
+.hero-stats{display:flex;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .55s both;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;max-width:720px;margin:0 auto 2rem;}
+.stat{flex:1;min-width:100px;padding:1.25rem 1rem;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border:none;}
+.stat-n{font-family:var(--ff-display);font-size:2rem;font-weight:900;color:var(--green);line-height:1;margin-bottom:.25rem;}
+.stat-l{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);}
+.hero-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .7s both;}
+.btn-primary{padding:.75rem 1.75rem;background:linear-gradient(135deg,var(--green) 0%,var(--emerald) 100%);
+  border:none;border-radius:100px;color:#fff;font-family:var(--ff-sans);font-weight:700;font-size:.88rem;
+  cursor:pointer;text-decoration:none;transition:all .3s;box-shadow:0 4px 24px rgba(16,185,129,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(16,185,129,.45);}
+.btn-ghost{padding:.75rem 1.75rem;background:transparent;border:1px solid var(--border);
+  border-radius:100px;color:var(--text-2);font-size:.88rem;cursor:pointer;text-decoration:none;transition:all .3s;}
+.btn-ghost:hover{border-color:var(--border-glow);color:var(--green);}
+
+/* DB Type Badge */
+.db-type-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:2.5rem;}
+.db-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;
+  background:var(--card);border:1px solid var(--border);border-radius:100px;
+  font-size:.78rem;font-weight:600;color:var(--text-2);transition:all .2s;text-decoration:none;}
+.db-badge:hover{border-color:var(--border-glow);color:var(--green);}
+.db-badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+.group-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;margin-top:3.5rem;transition:border-color .3s;}
+.group-card:hover{border-color:rgba(16,185,129,.15);}
+.group-header{display:flex;gap:1.25rem;align-items:flex-start;padding:1.75rem 2rem;
+  background:linear-gradient(135deg,var(--elevated) 0%,var(--card) 100%);
+  border-bottom:1px solid var(--border);}
+.group-emoji{width:56px;height:56px;background:var(--green-dim);border:1px solid var(--border-glow);
+  border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+.group-meta{flex:1;}
+.group-num{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:var(--green);margin-bottom:.3rem;}
+.group-title{font-family:var(--ff-display);font-size:1.2rem;font-weight:800;color:var(--text-1);margin-bottom:.3rem;line-height:1.3;}
+.group-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.gtag{padding:.2rem .6rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:.7rem;color:var(--text-2);}
+.group-body{padding:1.75rem 2rem;}
+
+.problems{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.75rem;}
+.problem{display:flex;gap:.5rem;align-items:center;padding:.55rem .9rem;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);
+  font-size:.8rem;color:var(--text-2);transition:all .2s;cursor:default;}
+.problem:hover{border-color:rgba(16,185,129,.2);color:var(--text-1);}
+.problem.priority{border-color:rgba(16,185,129,.18);}
+.problem.priority::before{content:'⭐';font-size:.7rem;}
+.diff{padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:800;letter-spacing:.05em;margin-left:auto;}
+.diff-h{background:rgba(239,68,68,.12);color:#ef4444;}
+.diff-m{background:rgba(245,158,11,.12);color:#f59e0b;}
+.diff-e{background:rgba(34,197,94,.12);color:#22c55e;}
+
+.flow-panel{background:#020208;border:1px solid rgba(16,185,129,.15);border-radius:var(--r-lg);overflow:hidden;margin:1.25rem 0;}
+.flow-panel-header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;
+  background:rgba(16,185,129,.05);border-bottom:1px solid rgba(16,185,129,.1);}
+.flow-panel-dots{display:flex;gap:6px;}
+.flow-panel-dot{width:8px;height:8px;border-radius:50%;}
+.dot-red{background:#ef4444;}.dot-blue{background:#3b82f6;}.dot-green{background:#22c55e;}
+.flow-panel-title{font-family:var(--ff-mono);font-size:.75rem;font-weight:600;color:var(--green);letter-spacing:.05em;}
+.flow-panel-body{padding:1.5rem 1.75rem;font-family:var(--ff-mono);font-size:.79rem;line-height:1.8;color:#c9d1d9;overflow-x:auto;white-space:pre;}
+.f-title{color:#6ee7b7;font-weight:700;}
+.f-key{color:#f59e0b;}.f-ok{color:#86efac;}.f-warn{color:#fca5a5;}
+.f-dim{color:#6b7280;}.f-blue{color:#93c5fd;}.f-cyan{color:#67e8f9;}.f-purple{color:#c4b5fd;}
+
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin:1.5rem 0;}
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.25rem;transition:all .25s;position:relative;overflow:hidden;}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--green),transparent);opacity:0;transition:opacity .25s;}
+.concept-card:hover{border-color:rgba(16,185,129,.2);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.concept-card:hover::before{opacity:1;}
+.concept-icon{font-size:1.4rem;margin-bottom:.6rem;}
+.concept-title{font-size:.88rem;font-weight:700;color:var(--text-1);margin-bottom:.4rem;font-family:var(--ff-display);}
+.concept-body{font-size:.79rem;color:var(--text-2);line-height:1.6;}
+.concept-body strong{color:var(--text-1);}
+.concept-body code{font-family:var(--ff-mono);font-size:.75rem;background:rgba(16,185,129,.08);padding:.1rem .3rem;border-radius:4px;color:var(--green);}
+
+.iq-section{margin:1.5rem 0;}
+.iq-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;
+  color:var(--text-3);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
+.iq-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.iq{display:flex;gap:.75rem;padding:.9rem 1rem;background:var(--surface);
+  border:1px solid var(--border);border-left:3px solid var(--green);
+  border-radius:0 var(--r-md) var(--r-md) 0;margin-bottom:.6rem;transition:all .2s;}
+.iq:hover{background:var(--elevated);border-left-color:var(--teal);}
+.iq-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--green);opacity:.6;flex-shrink:0;padding-top:.1rem;}
+.iq-text{font-size:.86rem;color:var(--text-2);line-height:1.55;font-style:italic;}
+
+/* Comparison Table */
+.cmp-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.8rem;}
+.cmp-table th{background:var(--elevated);color:var(--green);font-weight:700;
+  padding:.7rem 1rem;text-align:left;font-family:var(--ff-mono);font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);}
+.cmp-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-2);vertical-align:top;line-height:1.5;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:hover td{background:rgba(16,185,129,.03);}
+.cmp-table td:first-child{color:var(--text-1);font-weight:600;font-family:var(--ff-mono);font-size:.77rem;white-space:nowrap;}
+.ok{color:#6ee7b7;}.warn{color:#fca5a5;}.mid{color:#fcd34d;}
+
+.arch-box{background:#020208;border:1px solid rgba(16,185,129,.12);border-radius:var(--r-lg);
+  padding:1.5rem 1.75rem;margin:1.5rem 0;overflow-x:auto;}
+.arch-box pre{font-family:var(--ff-mono);font-size:.78rem;line-height:1.75;color:#c9d1d9;margin:0;white-space:pre;}
+
+.cheat{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;margin:2rem 0;}
+.cheat-row{display:flex;gap:1rem;align-items:flex-start;padding:.85rem 1.5rem;
+  border-bottom:1px solid var(--border);transition:background .2s;}
+.cheat-row:last-child{border:none;}
+.cheat-row:hover{background:var(--elevated);}
+.cheat-key{font-family:var(--ff-mono);font-size:.8rem;font-weight:700;color:var(--green);min-width:155px;padding-top:.05rem;}
+.cheat-val{font-size:.82rem;color:var(--text-2);line-height:1.6;}
+.cheat-val strong{color:var(--text-1);}
+
+.tier{border-radius:var(--r-lg);padding:1.5rem;margin:1rem 0;}
+.tier-1{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);}
+.tier-2{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.18);}
+.tier-3{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.14);}
+.tier-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem;}
+.tier-1 .tier-badge{color:#ef4444;}.tier-2 .tier-badge{color:var(--green);}.tier-3 .tier-badge{color:#f59e0b;}
+.tier-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.5rem;}
+.tier-item{display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;color:var(--text-2);}
+.tier-item::before{content:'→';color:var(--green);flex-shrink:0;font-weight:700;margin-top:.05rem;}
+.tier-item strong{color:var(--text-1);}
+
+.section{margin-top:4.5rem;}
+.section-divider{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.section-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:var(--green);white-space:nowrap;}
+.section-title{font-family:var(--ff-display);font-size:clamp(1.5rem,3vw,1.9rem);font-weight:800;color:var(--text-1);margin-bottom:.5rem;}
+.section-sub{font-size:.9rem;color:var(--text-2);line-height:1.6;max-width:640px;}
+
+.footer{margin-top:5rem;padding:3rem 0;border-top:1px solid var(--border);text-align:center;}
+.footer-links{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem;}
+.footer-link{padding:.4rem .8rem;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text-2);text-decoration:none;font-size:.78rem;transition:all .2s;}
+.footer-link:hover{color:var(--green);border-color:var(--border-glow);}
+.footer-link.current{color:var(--green);border-color:var(--border-glow);font-weight:700;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.4,0,.2,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media(max-width:640px){
+  main{padding:72px 1rem 4rem;}
+  .hero{padding:2.5rem 0 2rem;}
+  .group-body,.group-header{padding:1.25rem;}
+  .concept-grid,.tier-items{grid-template-columns:1fr;}
+  .flow-panel-body{font-size:.72rem;padding:1rem;}
+  .cmp-table{font-size:.72rem;}
+  .nav-badge{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav class="nav">
+  <a href="library.html" class="nav-home">⬅ Library</a>
+  <div class="nav-title">Databases — The Complete FAANG Guide</div>
+  <div class="nav-badge">Book IX · Every Database, One Page</div>
+</nav>
+
+<button class="toc-toggle" id="tocBtn" aria-label="Table of Contents"><i></i><i></i><i></i></button>
+<nav class="toc-wrap" id="toc">
+  <div class="toc-label">Table of Contents</div>
+  <div class="toc-section">
+    <div class="toc-section-label">Relational</div>
+    <a href="#g1" class="toc-a">🐘 I · PostgreSQL Deep Dive</a>
+    <a href="#g2" class="toc-a">🐬 II · MySQL / InnoDB</a>
+    <a href="#g14" class="toc-a">🪶 XIV · SQLite & RocksDB</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">NoSQL</div>
+    <a href="#g3" class="toc-a">🍃 III · MongoDB</a>
+    <a href="#g4" class="toc-a">💎 IV · Cassandra / Wide-Column</a>
+    <a href="#g5" class="toc-a">⚡ V · Redis</a>
+    <a href="#g6" class="toc-a">🔍 VI · Elasticsearch</a>
+    <a href="#g7" class="toc-a">🌩️ VII · DynamoDB</a>
+    <a href="#g15" class="toc-a">🐉 XV · Dragonfly & Memcached</a>
+    <a href="#g16" class="toc-a">🐝 XVI · ScyllaDB, HBase & Cloud DW</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Specialised</div>
+    <a href="#g8" class="toc-a">⏱️ VIII · Time-Series DBs</a>
+    <a href="#g9" class="toc-a">🕸️ IX · Graph Databases</a>
+    <a href="#g10" class="toc-a">🌍 X · NewSQL / Distributed SQL</a>
+    <a href="#g13" class="toc-a">📦 XIII · ClickHouse & DuckDB</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Internals & Design</div>
+    <a href="#g11" class="toc-a">🔧 XI · DB Internals</a>
+    <a href="#g12" class="toc-a">💥 XII · Critical Scenarios</a>
+    <a href="#g17" class="toc-a">🏆 XVII · Senior FAANG Mastery</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Reference</div>
+    <a href="#s-comparison" class="toc-a">📊 DB Comparison Matrix</a>
+    <a href="#s-cheat" class="toc-a">📋 SQL Cheatsheet</a>
+    <a href="#s-priority" class="toc-a">🎯 Study Priority</a>
+  </div>
+</nav>
+
+<main>
+
+<header class="hero" id="top">
+  <div class="hero-eyebrow">📚 The Engineer's Library · Book IX · Database Edition</div>
+  <h1 class="hero-title">
+    <span class="gradient">Databases</span>
+    <span class="sub">PostgreSQL · MySQL · Cassandra · Redis · MongoDB · ClickHouse · DuckDB · RocksDB · SQLite · Elasticsearch · DynamoDB · Neo4j · CockroachDB · ScyllaDB · Dragonfly · Snowflake · BigQuery</span>
+  </h1>
+  <p class="hero-desc">
+    Every database a senior FAANG engineer must know — internals, trade-offs, critical failure scenarios, and the exact interview questions that separate candidates who read the docs from those who've debugged production at 3 AM.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n" data-target="17">0</div><div class="stat-l">Groups</div></div>
+    <div class="stat"><div class="stat-n" data-target="20">0</div><div class="stat-l">DB Engines</div></div>
+    <div class="stat"><div class="stat-n" data-target="90">0</div><div class="stat-l">Scenarios</div></div>
+    <div class="stat"><div class="stat-n" data-target="70">0</div><div class="stat-l">Interview Qs</div></div>
+    <div class="stat"><div class="stat-n" data-target="1">0</div><div class="stat-l">Page</div></div>
+  </div>
+  <div class="hero-actions">
+    <a href="#g1" class="btn-primary">Start with PostgreSQL →</a>
+    <a href="#s-comparison" class="btn-ghost">Jump to Comparison Matrix</a>
+  </div>
+</header>
+
+<!-- ══════════════════════
+  QUICK NAV
+══════════════════════ -->
+<div class="db-type-row" style="margin-top:2rem">
+  <a href="#g1" class="db-badge"><span class="db-badge-dot" style="background:#336791"></span>PostgreSQL</a>
+  <a href="#g2" class="db-badge"><span class="db-badge-dot" style="background:#f29111"></span>MySQL</a>
+  <a href="#g3" class="db-badge"><span class="db-badge-dot" style="background:#4db33d"></span>MongoDB</a>
+  <a href="#g4" class="db-badge"><span class="db-badge-dot" style="background:#1287b1"></span>Cassandra</a>
+  <a href="#g5" class="db-badge"><span class="db-badge-dot" style="background:#dc382c"></span>Redis</a>
+  <a href="#g6" class="db-badge"><span class="db-badge-dot" style="background:#f9a825"></span>Elasticsearch</a>
+  <a href="#g7" class="db-badge"><span class="db-badge-dot" style="background:#232f3e"></span>DynamoDB</a>
+  <a href="#g8" class="db-badge"><span class="db-badge-dot" style="background:#0095d5"></span>TimescaleDB</a>
+  <a href="#g9" class="db-badge"><span class="db-badge-dot" style="background:#018bff"></span>Neo4j</a>
+  <a href="#g10" class="db-badge"><span class="db-badge-dot" style="background:#6933ff"></span>CockroachDB</a>
+  <a href="#g13" class="db-badge"><span class="db-badge-dot" style="background:#FFCC02"></span>ClickHouse</a>
+  <a href="#g13" class="db-badge"><span class="db-badge-dot" style="background:#e8a84d"></span>DuckDB</a>
+  <a href="#g14" class="db-badge"><span class="db-badge-dot" style="background:#7c5cbf"></span>RocksDB</a>
+  <a href="#g14" class="db-badge"><span class="db-badge-dot" style="background:#0f80cc"></span>SQLite</a>
+  <a href="#g15" class="db-badge"><span class="db-badge-dot" style="background:#c6452e"></span>Dragonfly</a>
+  <a href="#g16" class="db-badge"><span class="db-badge-dot" style="background:#29b5e8"></span>Snowflake</a>
+  <a href="#g16" class="db-badge"><span class="db-badge-dot" style="background:#4285f4"></span>BigQuery</a>
+  <a href="#g16" class="db-badge"><span class="db-badge-dot" style="background:#b2002f"></span>ScyllaDB</a>
+  <a href="#g11" class="db-badge"><span class="db-badge-dot" style="background:#10b981"></span>Internals</a>
+  <a href="#g12" class="db-badge"><span class="db-badge-dot" style="background:#ef4444"></span>💥 Failures</a>
+  <a href="#g17" class="db-badge"><span class="db-badge-dot" style="background:#f59e0b"></span>🏆 Staff Level</a>
+</div>
+
+<!-- ══════════════════════
+  G1: POSTGRESQL
+══════════════════════ -->
+<div class="group-card reveal" id="g1">
+  <div class="group-header">
+    <div class="group-emoji">🐘</div>
+    <div class="group-meta">
+      <div class="group-num">Group I · The Gold Standard Relational Database</div>
+      <div class="group-title">PostgreSQL — MVCC, Indexes, Query Planner & Replication</div>
+      <div class="group-tags">
+        <span class="gtag">MVCC</span><span class="gtag">B-tree</span><span class="gtag">GIN</span><span class="gtag">BRIN</span>
+        <span class="gtag">WAL</span><span class="gtag">VACUUM</span><span class="gtag">Partitioning</span><span class="gtag">Streaming Replication</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">MVCC: how Postgres handles concurrent reads & writes without locks <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Index types: B-tree, GIN, GiST, BRIN, Hash — when to use each <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">EXPLAIN ANALYZE: reading the query plan, finding sequential scans <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Table partitioning: range, list, hash — partition pruning <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Streaming replication: WAL shipping, synchronous vs asynchronous <span class="diff diff-h">HARD</span></div>
+      <div class="problem">VACUUM and autovacuum: bloat, dead tuples, XID wraparound <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Connection pooling: PgBouncer — transaction vs session mode <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Isolation levels: Read Committed vs Repeatable Read vs Serializable <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">POSTGRESQL INTERNALS — MVCC, WAL, VACUUM & INDEX TYPES</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">MVCC — MULTI-VERSION CONCURRENCY CONTROL:</span>
+  Core idea: every row has hidden system columns:
+    xmin: Transaction ID (XID) that CREATED this row version
+    xmax: Transaction ID that DELETED/UPDATED this row version (0 = still live)
+  
+  Scenario: T1 started at XID=100. T2 updates a row at XID=105.
+    Before update: row_v1 { name:'Alice', xmin:50, xmax:0 }     <span class="f-dim">← visible to T1 (xmin=50 &lt; 100)</span>
+    After update:  row_v1 { name:'Alice', xmin:50, xmax:105 }    <span class="f-dim">← T1 still sees this (xmax=105 &gt; 100)</span>
+                   row_v2 { name:'Bob',   xmin:105, xmax:0  }    <span class="f-dim">← T1 can't see (xmin=105 &gt; 100)</span>
+  
+  T1 sees: 'Alice' (old version). T2 sees: 'Bob' (new version).
+  NO LOCKS on reads. Readers never block writers. Writers never block readers.
+  
+  But: dead row versions (xmax set) accumulate over time → BLOAT → need VACUUM.
+
+<span class="f-title">WAL — WRITE-AHEAD LOG (Durability + Replication):</span>
+  Every change written to WAL FIRST before touching data pages.
+  Crash recovery: replay WAL from last checkpoint → consistent state. Zero data loss.
+  Streaming replication: standby continuously reads WAL from primary → applies → stays in sync.
+  
+  WAL flow: INSERT → WAL record written → wal_writer flushes to disk (fsync)
+             → heap page updated (buffered) → checkpoint periodically syncs heap to disk
+  
+  Synchronous replication (synchronous_commit=on):
+    Primary: wait for standby to confirm WAL written → then return success to client
+    RPO=0 (zero data loss). RTO: standby promoted in &lt;30s. Latency: +RTT to standby.
+  Asynchronous (synchronous_commit=off):
+    Primary: return success immediately. Standby lags up to wal_receiver_status_interval.
+    Risk: crash + failover = up to ~500ms of data loss.
+
+<span class="f-title">INDEX TYPES — CHOOSE THE RIGHT TOOL:</span>
+  B-Tree (default):  Range queries, equality, ORDER BY, LIKE 'prefix%'
+    CREATE INDEX ON orders(created_at);          <span class="f-dim">← range: WHERE created_at &gt; '2024-01-01'</span>
+    CREATE INDEX ON orders(user_id, status);     <span class="f-dim">← composite: WHERE user_id=? AND status=?</span>
+    Rule: leftmost column of composite MUST appear in WHERE for index to be used.
+
+  GIN (Generalized Inverted Index): Array membership, JSONB @, full-text search
+    CREATE INDEX ON products USING GIN(tags);    <span class="f-dim">← WHERE tags @&gt; '{electronics}'</span>
+    CREATE INDEX ON articles USING GIN(to_tsvector('english', body));  <span class="f-dim">← full-text</span>
+
+  GiST: Geometric types, PostGIS (geography), nearest-neighbour queries
+    CREATE INDEX ON locations USING GIST(coordinates);  <span class="f-dim">← WHERE ST_DWithin(coord, point, 1000)</span>
+
+  BRIN (Block Range Index): Very large append-only tables with natural order
+    CREATE INDEX ON events USING BRIN(event_time);  <span class="f-dim">← 1000× smaller than B-tree</span>
+    Works when data is physically ordered (e.g., timestamps of INSERT order matches value order)
+    NOT useful for random access. Scans block ranges, much coarser than B-tree.
+
+  Partial Index (major performance win):
+    CREATE INDEX ON orders(user_id) WHERE status = 'PENDING';  <span class="f-dim">← only pending orders indexed</span>
+    10M orders, only 50K pending → index is 200× smaller. Queries on pending: blazing fast.
+
+  Expression Index:
+    CREATE INDEX ON users(LOWER(email));           <span class="f-dim">← case-insensitive email lookup</span>
+    WHERE LOWER(email) = LOWER($1) → uses index.
+    WHERE email = $1 → does NOT use this index (different expression).
+
+<span class="f-title">VACUUM — PREVENTING XID WRAPAROUND (The silent killer):</span>
+  XIDs are 32-bit integers: 4 billion max. When XID=4B → wraps to 0.
+  Postgres: any row with XID &gt; current_xid + 2B = "in the future" → invisible!
+  VACUUM prevents this by FREEZING old rows (marking as "visible to all future transactions").
+  autovacuum_freeze_max_age = 200M (transactions). Must VACUUM within 200M XID.
+  
+  Warning signs: SELECT * FROM pg_stat_user_tables WHERE n_dead_tup &gt; 1000000;
+  Emergency: pg_database.datfrozenxid approaching current_xid by &lt;50M = URGENT.
+  PostgreSQL will refuse new connections and initiate emergency autovacuum to prevent wraparound.
+
+<span class="f-title">TABLE PARTITIONING (Postgres 10+ declarative):</span>
+  CREATE TABLE orders (id BIGINT, created_at DATE, amount NUMERIC)
+  PARTITION BY RANGE (created_at);
+  
+  CREATE TABLE orders_2024_q1 PARTITION OF orders FOR VALUES FROM ('2024-01-01') TO ('2024-04-01');
+  CREATE TABLE orders_2024_q2 PARTITION OF orders FOR VALUES FROM ('2024-04-01') TO ('2024-07-01');
+  
+  Query: SELECT * FROM orders WHERE created_at = '2024-04-15'
+  Planner: partition pruning → only scans orders_2024_q2. Other partitions skipped.
+  
+  Benefits: partition detach/drop = instant (vs DELETE which vacuums). Indexes per partition.
+  Pitfall: queries WITHOUT partition key = FULL scan all partitions. Always include partition key.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔒</div><div class="concept-title">Isolation Levels</div><div class="concept-body"><strong>Read Committed (default):</strong> each statement sees latest committed data. Non-repeatable reads possible. <strong>Repeatable Read:</strong> snapshot at tx start. No phantom reads in Postgres (unlike SQL standard). <strong>Serializable (SSI):</strong> true serialization via predicate locks. Highest safety, some abort+retry overhead. Use for financial transfers.</div></div>
+      <div class="concept-card"><div class="concept-icon">🏊</div><div class="concept-title">PgBouncer — Connection Pooling</div><div class="concept-body">PostgreSQL: each connection = OS process (~5MB RAM). 1000 connections = 5GB RAM just for processes. PgBouncer pools: <strong>Transaction mode</strong> (best): connection returned to pool after each transaction. Supports 10K clients on 100 DB connections. <strong>Session mode</strong>: connection held until client disconnects. Only 2-3× multiplexing benefit.</div></div>
+      <div class="concept-card"><div class="concept-icon">📊</div><div class="concept-title">EXPLAIN ANALYZE</div><div class="concept-body"><code>EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)</code>. Key metrics: <strong>Seq Scan</strong> = missing index. <strong>actual rows ≫ estimated rows</strong> = stale statistics (run ANALYZE). <strong>Nested Loop on large tables</strong> = should be Hash Join. <strong>Buffers: shared hit</strong> = from cache (fast). <strong>Buffers: shared read</strong> = disk I/O (slow).</div></div>
+      <div class="concept-card"><div class="concept-icon">🔑</div><div class="concept-title">Deadlocks</div><div class="concept-body">T1 locks row A, wants row B. T2 locks row B, wants row A. Cycle = deadlock. Postgres detects after <code>deadlock_timeout</code> (1s default) → aborts one transaction (ERROR 40P01). Prevention: always acquire locks in consistent order (e.g., always by id ASC). Use <code>SELECT ... FOR UPDATE NOWAIT</code> to fail fast instead of waiting.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — PostgreSQL</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Explain MVCC. If two transactions update the same row simultaneously, how does Postgres ensure both don't corrupt the data, without using table-level locks?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">You have a query: <code>SELECT * FROM orders WHERE LOWER(email) = 'user@x.com'</code>. There's a B-tree index on <code>email</code>. The query is doing a sequential scan. Why? How do you fix it?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">What is XID wraparound and why is it one of the most dangerous PostgreSQL failure modes? What does autovacuum do to prevent it?</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">Your app opens 5,000 PostgreSQL connections. The DB crashes due to OOM. How do you fix this without changing the application code?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G2: MYSQL / INNODB
+══════════════════════ -->
+<div class="group-card reveal" id="g2">
+  <div class="group-header">
+    <div class="group-emoji">🐬</div>
+    <div class="group-meta">
+      <div class="group-num">Group II · The World's Most Deployed Database</div>
+      <div class="group-title">MySQL / InnoDB — Buffer Pool, Clustered Indexes & Replication</div>
+      <div class="group-tags">
+        <span class="gtag">InnoDB</span><span class="gtag">Clustered Index</span><span class="gtag">Buffer Pool</span>
+        <span class="gtag">Gap Lock</span><span class="gtag">Binlog</span><span class="gtag">GTID</span><span class="gtag">Group Replication</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Clustered index: why row ordering by PK matters critically <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Buffer pool: how InnoDB caches pages and eviction strategy <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Gap locks and next-key locks: preventing phantom reads <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">MySQL replication: binlog formats, GTID, semi-sync <span class="diff diff-h">HARD</span></div>
+      <div class="problem">InnoDB double-write buffer: why it exists and what it prevents <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Covering index: eliminate table lookback entirely <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">INNODB ARCHITECTURE — Clustered Index, Buffer Pool & Gap Locks</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">CLUSTERED INDEX — InnoDB's Most Important Design Decision:</span>
+  InnoDB: data rows stored PHYSICALLY sorted by PRIMARY KEY in a B+ tree.
+  The primary key IS the table. Secondary indexes store PK values as "row pointers."
+  
+  GOOD PK:   INT AUTO_INCREMENT or BIGINT. Inserts always append to end. No page splits.
+  BAD PK:    UUID (random). Inserts anywhere in tree → page splits → fragmentation → 30-50% wasted space.
+             50M UUID-keyed rows: table often 2× larger than AUTO_INCREMENT equivalent.
+  
+  Secondary index lookup:
+    SELECT * FROM orders WHERE status = 'PENDING'  (secondary index on status)
+    1. Scan status index → get list of primary keys
+    2. For EACH PK: go back to clustered index to fetch full row (bookmark lookup)
+    If 1M rows match: 1M random lookups in clustered index = SLOW. (Index inefficient if high selectivity)
+  
+  Covering index (eliminate step 2):
+    CREATE INDEX idx_status_covering ON orders(status, user_id, amount);
+    SELECT user_id, amount FROM orders WHERE status = 'PENDING'
+    ALL required columns in index → no clustered index lookup. "Using index" in EXPLAIN.
+
+<span class="f-title">BUFFER POOL — InnoDB's Main Cache:</span>
+  innodb_buffer_pool_size (default: 128MB — always too small for production)
+  Rule: set to 70-80% of total RAM.  16GB RAM → 12GB buffer pool.
+  
+  What's cached: data pages (16KB blocks), index pages, change buffer, undo logs.
+  Eviction: LRU algorithm (modified: young list + old list for scan resistance).
+  New page enters "old sublist" (3/8 of buffer pool). Accessed again → promoted to "young sublist".
+  Large table scan: pages stay in old sublist → don't evict hot working set. Smart.
+  
+  Buffer pool hit rate: SHOW STATUS LIKE 'Innodb_buffer_pool_read_requests' / 'Innodb_buffer_pool_reads'
+  Target: &gt; 99% hit rate. If lower → increase buffer pool or add read replicas.
+
+<span class="f-title">GAP LOCKS — Why MySQL Prevents Phantom Reads:</span>
+  Scenario (REPEATABLE READ isolation):
+    T1: SELECT * FROM orders WHERE amount BETWEEN 100 AND 200 FOR UPDATE
+    T2: INSERT INTO orders (amount=150) → BLOCKS
+  
+  T1 locks the GAP between 100 and 200, not just existing rows.
+  Prevents T2 from inserting a row that would appear in T1's range on re-read.
+  Next-key lock = record lock + gap lock before it.
+  
+  Deadlock cause: T1 holds gap lock on (100,200). T2 holds gap lock on (150,300). Both want each other's gaps.
+  Fix: use READ COMMITTED isolation (no gap locks, but allows phantom reads).
+  Or: shorter transactions. Or: ORDER BY id in all transactions.
+
+<span class="f-title">MYSQL REPLICATION — GTID MODE:</span>
+  Binlog: record of all changes. 3 formats:
+    STATEMENT: logs SQL query. Compact. Risk: non-deterministic functions (NOW(), UUID()) give different results on replica.
+    ROW: logs actual row values changed. Larger but safe. Default in MySQL 8.
+    MIXED: statement when safe, row when not.
+  
+  GTID (Global Transaction Identifier): server_uuid:transaction_id (e.g., "abc-123:5")
+  Replica: tracks which GTIDs applied. On failover: new primary knows EXACTLY which transactions replica is missing.
+  No more: binlog file + position tracking (error-prone, complex failover).
+  
+  Semi-synchronous replication:
+    Primary: wait for at least 1 replica to confirm binlog received before ack to client.
+    Not "applied" — just received. Not truly synchronous.
+    Prevents data loss on primary crash. Replica can be promoted with guaranteed receipt of all transactions.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — MySQL</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Why is using UUID as a primary key in MySQL a performance disaster? What physically happens in the B+ tree that makes writes slow?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is a covering index? A query does a secondary index lookup that's still slow because it's hitting the clustered index for every row. How do you fix it?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Your MySQL replica is 30 minutes behind the primary under high write load. What are the causes and how do you fix replica lag?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G3: MONGODB
+══════════════════════ -->
+<div class="group-card reveal" id="g3">
+  <div class="group-header">
+    <div class="group-emoji">🍃</div>
+    <div class="group-meta">
+      <div class="group-num">Group III · The Document Store</div>
+      <div class="group-title">MongoDB — Document Model, Sharding & Aggregation</div>
+      <div class="group-tags">
+        <span class="gtag">WiredTiger</span><span class="gtag">Replica Set</span><span class="gtag">Sharding</span>
+        <span class="gtag">Aggregation Pipeline</span><span class="gtag">Indexes</span><span class="gtag">Transactions</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Sharding: choosing a shard key — the most consequential decision <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Replica set: election, oplog, read preference modes <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Aggregation pipeline: $lookup, $unwind, $group performance <span class="diff diff-h">HARD</span></div>
+      <div class="problem">When to embed vs reference documents <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">MongoDB multi-document ACID transactions (4.0+) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">SHARD KEY DESIGN + AGGREGATION PIPELINE OPTIMIZATION</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SHARD KEY — THE MOST IMPORTANT MONGODB DECISION (immutable after set):</span>
+
+  BAD: _id (ObjectID) — random distribution. All writes spread perfectly but no locality.
+    Query WHERE userId=123 → scatter-gather to ALL shards → expensive.
+  
+  BAD monotonic (_id timestamp, auto-increment) — all writes go to ONE shard (last chunk).
+    "Hotspot" shard: all writes, all new data. Others idle.
+  
+  GOOD: {userId: 1} — all documents for a user on same shard. Single-shard queries. Good cardinality.
+    But: "celebrity problem" — famous user has 100M docs → 1 shard overloaded.
+  
+  BEST: Compound hashed shard key — {userId: "hashed", date: 1}
+    Hashed userId: distributes writes evenly (no hotspot).
+    date component: within a userId, documents sorted by date (range queries efficient within shard).
+  
+  Shard key rules:
+    High cardinality (many unique values). Low frequency (no super-frequent values). Non-monotonic.
+    Include fields in your most common WHERE clauses → targeted queries (vs scatter-gather).
+
+<span class="f-title">AGGREGATION PIPELINE PERFORMANCE:</span>
+  db.orders.aggregate([
+    { $match: { status: "COMPLETED", created_at: { $gte: ISODate("2024-01-01") } } }, <span class="f-ok">← FIRST. Uses index. Reduces docs.</span>
+    { $lookup: { from: "users", localField: "userId", foreignField: "_id", as: "user" } },
+    { $unwind: "$user" },
+    { $group: { _id: "$user.country", total: { $sum: "$amount" } } },
+    { $sort: { total: -1 } },
+    { $limit: 10 }
+  ])
+  
+  Optimization rules:
+  1. $match FIRST — filter early, process fewer docs through pipeline. Uses indexes.
+  2. $project after $match — reduce document size before expensive stages.
+  3. $lookup = MongoDB's JOIN. Expensive. Ensure foreign field is indexed.
+     Unsharded: single-shard lookup. Sharded: $lookup broadcasts to all shards → slow.
+  4. allowDiskUse: true — if $group or $sort exceed 100MB memory limit → spill to disk.
+
+<span class="f-title">EMBED vs REFERENCE:</span>
+  EMBED: user document contains array of addresses
+    { _id:1, name:"Alice", addresses:[{city:"NYC",...},{city:"LA",...}] }
+    ✓ Single read gets everything. ✓ Atomic update within one document.
+    ✗ Document grows without bound. ✗ 16MB document size limit. ✗ Cannot query across embeddings.
+    Use when: ONE-TO-FEW relationship. Data always accessed together. No shared access.
+  
+  REFERENCE: order document has userId field
+    { _id: order123, userId: user456, amount: 99 }  → lookup users collection separately
+    ✓ Unlimited size. ✓ Independent updates. ✓ Normalized.
+    ✗ Requires $lookup (JOIN) on read. ✗ No atomic cross-collection updates without transactions.
+    Use when: ONE-TO-MANY or MANY-TO-MANY. Data accessed independently. Large sub-arrays.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — MongoDB</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you choose a MongoDB shard key? What are monotonic shard key hotspots and how do you avoid them? What happens if you choose the wrong shard key?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">When do you embed documents vs use references? Design the data model for a blog platform where each post can have thousands of comments.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G4: CASSANDRA
+══════════════════════ -->
+<div class="group-card reveal" id="g4">
+  <div class="group-header">
+    <div class="group-emoji">💎</div>
+    <div class="group-meta">
+      <div class="group-num">Group IV · Masterless, Multi-Region, Write-Heavy Scale</div>
+      <div class="group-title">Apache Cassandra — Ring, LSM Tree & Tunable Consistency</div>
+      <div class="group-tags">
+        <span class="gtag">Consistent Hashing</span><span class="gtag">LSM Tree</span><span class="gtag">CQL</span>
+        <span class="gtag">Partition Key</span><span class="gtag">Tombstones</span><span class="gtag">Compaction</span><span class="gtag">QUORUM</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Data modelling: query-first design mandatory <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Partition key vs clustering key — physical ordering on disk <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Consistency levels: ONE, QUORUM, ALL — trade-offs <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">LSM Tree: writes to memtable → SSTables → compaction <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Tombstones: the silent performance killer <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Cassandra anti-patterns: ALLOW FILTERING, secondary indexes, wide rows <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CASSANDRA INTERNALS — Write Path, LSM Tree, Tombstones & Anti-Patterns</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WRITE PATH (why Cassandra writes so fast):</span>
+  Client → Coordinator node → determine responsible nodes (consistent hashing ring)
+  Coordinator sends write to N replica nodes simultaneously (based on replication factor)
+  
+  Each node write path:
+    1. Commit log (WAL): append-only. Fsync. Crash recovery guarantee.
+    2. Memtable: in-memory sorted structure. Fast write.
+    3. Return ack to coordinator (when enough replicas ack based on consistency level)
+  
+  Background: when memtable reaches threshold → flush to SSTable (disk, immutable)
+  SSTables never modified. Updates = new SSTable entry with higher timestamp.
+  
+  Reads: check memtable + bloom filter + SSTable cache + potentially multiple SSTables.
+  Read amplification: N SSTables → read N, merge (latest timestamp wins).
+
+<span class="f-title">LSM TREE COMPACTION:</span>
+  Problem: 10 SSTables for same partition key → reads check all 10. Slow.
+  Compaction: merge multiple SSTables into one. Remove obsolete versions. Remove tombstones.
+  Strategies:
+    STCS (Size-Tiered): merge similar-sized SSTables. Low write amplification. High space amplification. Default.
+    LCS (Leveled): maintained in levels. L1: 1 SSTable, L2: 10, L3: 100 SSTables. Low space amplification.
+      Read: at most 1 SSTable per level = fast reads. High write amplification.
+    TWCS (Time-Window): for time-series. Compact within time window only. Cold windows untouched.
+
+<span class="f-title">DATA MODELLING — QUERY-FIRST DESIGN (opposite of RDBMS):</span>
+  RDBMS: normalize first, query with JOINs.
+  Cassandra: design tables for specific queries. No JOINs. No ALLOW FILTERING.
+  
+  Use case: "Get all messages for a conversation, sorted by time"
+  Table design:
+    CREATE TABLE messages (
+      conversation_id UUID,    <span class="f-dim">← PARTITION KEY: determines node</span>
+      sent_at TIMESTAMP,       <span class="f-dim">← CLUSTERING KEY: sort order within partition</span>
+      message_id UUID,
+      sender_id UUID,
+      content TEXT,
+      PRIMARY KEY (conversation_id, sent_at, message_id)
+    ) WITH CLUSTERING ORDER BY (sent_at DESC);
+  
+  Query: SELECT * FROM messages WHERE conversation_id = ? AND sent_at &gt; ? LIMIT 20
+  ✓ Hits exactly the right partition. Reads are sorted and bounded. O(1) partition lookup.
+  
+  ANTI-PATTERNS:
+    ALLOW FILTERING: scans ALL partitions (full table scan like Cassandra version of SELECT *). Always wrong in prod.
+    Secondary index: scatter-gather query to ALL nodes. Avoid. Create separate table instead.
+    Unbounded partition growth: messages partitioned ONLY by conversation_id. 1 chat = billions of rows = 1 HUGE partition.
+    Fix: bucket by time: PRIMARY KEY ((conversation_id, bucket_week), sent_at)
+
+<span class="f-title">TOMBSTONES — The Production Killer:</span>
+  Cassandra DELETE = write a tombstone (timestamp marker). Actual data NOT deleted immediately.
+  Tombstone = SSTable entry with no data, just a deletion timestamp.
+  
+  Read: Cassandra reads ALL data + tombstones, filters tombstones, returns live data.
+  1M tombstones in a partition → read must process 1M tombstones → ReadTimeout.
+  
+  gc_grace_seconds (default: 10 days): tombstone kept for 10 days to prevent "zombie" resurrection on replica sync.
+  After gc_grace: compaction removes tombstones permanently.
+  
+  Problem pattern: DELETE + re-INSERT at same key rapidly → accumulate tombstones.
+  Gaming leaderboards with frequent score updates = tombstone bomb.
+  
+  Fix: design updates as INSERTS to new clustering keys (append-only). Use TTL instead of DELETE.
+  Monitoring: nodetool tpstats → check TombstoneReadAborted counter.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Cassandra</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does Cassandra achieve masterless architecture? What happens when you write with QUORUM consistency on a replication factor of 3 and one node is down?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What are tombstones in Cassandra and why can they bring a production cluster to its knees? What is gc_grace_seconds and what disaster occurs if you set it too low?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Design a Cassandra schema for a messaging app where you need to fetch messages per conversation, paginated by time. Why can't you just add a secondary index on sent_at?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G5: REDIS
+══════════════════════ -->
+<div class="group-card reveal" id="g5">
+  <div class="group-header">
+    <div class="group-emoji">⚡</div>
+    <div class="group-meta">
+      <div class="group-num">Group V · The Swiss Army Knife of Databases</div>
+      <div class="group-title">Redis — Data Structures, Persistence, Cluster & Patterns</div>
+      <div class="group-tags">
+        <span class="gtag">ZSET</span><span class="gtag">HyperLogLog</span><span class="gtag">Streams</span>
+        <span class="gtag">Pub/Sub</span><span class="gtag">Lua Scripts</span><span class="gtag">AOF/RDB</span><span class="gtag">Cluster</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Data structure selection: when to use String, Hash, List, Set, ZSET <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Distributed lock with Redlock — controversy and correct usage <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Persistence: RDB vs AOF trade-offs and hybrid mode <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Redis Cluster: hash slots, cluster bus, split-brain <span class="diff diff-h">HARD</span></div>
+      <div class="problem">HyperLogLog: approximate count distinct <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Redis Streams: consumer groups, event log pattern <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Memory eviction policies: LRU, LFU, volatile-ttl <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">REDIS DATA STRUCTURES + CLUSTER INTERNALS + PERSISTENCE</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">DATA STRUCTURE DECISION GUIDE:</span>
+  String:  Simple values, counters, session tokens, JSON blobs, rate limit counters
+    INCR user:1000:pageviews → atomic increment. O(1).
+    SET session:abc123 {userId:1} EX 3600 → session with TTL.
+  
+  Hash:    Object with multiple fields. User profile, product details.
+    HSET user:1000 name "Alice" email "alice@x.com" score 9500
+    HMGET user:1000 name score → fetch only needed fields (bandwidth saving)
+    Better than JSON string: update one field without re-serializing whole object.
+  
+  List:    Queue (LPUSH/RPOP), stack (LPUSH/LPOP), recent items
+    LPUSH notification:user:1000 "New message" → add to front
+    LRANGE notification:user:1000 0 19 → get 20 most recent. O(N) on elements.
+  
+  Set:     Unique membership, tags, social graph ("followers of user X")
+    SADD online_users user:1000 → mark online
+    SISMEMBER online_users user:1000 → O(1) presence check
+    SUNION, SINTER, SDIFF → set operations. "Followers you might also follow."
+  
+  Sorted Set (ZSET): Leaderboards, rate limiting with sliding windows, priority queues
+    ZADD leaderboard 9500 "user:1000" → score=9500
+    ZREVRANK leaderboard "user:1000" → O(log N) rank lookup
+    ZRANGEBYSCORE rate:user:1000 (now-60s) now → sliding window rate limiting
+  
+  HyperLogLog: Approximate DISTINCT count. 12KB fixed memory. Error rate: 0.81%.
+    PFADD daily_visitors:2024-04-19 user:1000 user:1001 ...
+    PFCOUNT daily_visitors:2024-04-19 → "~1,234,567 unique users"
+    Perfect for: daily active users, unique impressions (exact count NOT needed).
+  
+  Streams: Persistent log. Append-only. Consumer groups. Like mini-Kafka.
+    XADD events:orders * userId 1000 action "checkout" amount 99
+    XREADGROUP GROUP analytics consumer1 COUNT 10 STREAMS events:orders &gt;
+    XACK events:orders analytics messageId → acknowledge processed
+
+<span class="f-title">REDIS PERSISTENCE — AOF vs RDB:</span>
+  RDB (Redis Database): Point-in-time snapshot. BGSAVE → fork() child writes snapshot to disk.
+    ✓ Small file, fast restore. ✗ Last snapshot may be 5 min old. Risk: data loss on crash.
+    Use: backup, DR recovery. Acceptable data loss.
+  
+  AOF (Append-Only File): log every write command. appendfsync:
+    always:  fsync after every write. Zero data loss. 2-3× slower.
+    everysec: fsync every 1 second. Max 1 second data loss. Best balance.
+    no:       OS decides when to flush. Fast. Up to 30s data loss.
+  
+  Hybrid (recommended): RDB for fast restart + AOF for durability. Best of both.
+  AOF rewrite: compacts logs (removes redundant operations). Background process.
+
+<span class="f-title">REDIS CLUSTER — 16384 HASH SLOTS:</span>
+  Cluster splits keyspace into 16384 slots. Each master owns a slot range.
+  Key routing: HASH_SLOT = CRC16(key) % 16384
+    Key "user:1000" → slot 3272 → assigned to Master 2 → client connects to Master 2 directly.
+  
+  3 masters (M1, M2, M3), each with a replica:
+    M1: slots 0-5460, M2: slots 5461-10922, M3: slots 10923-16383
+  
+  Hash tags {}: MGET user:{1000}:profile user:{1000}:orders
+    Both keys route to same slot (slot of "1000"). Multi-key ops work.
+    Without {}: might be on different nodes → CROSSSLOT error.
+  
+  Failover: M1 dies → its replica promoted via Raft-like election (CLUSTER_NODE_TIMEOUT: 15s default)
+  Split-brain: cluster requires majority of masters reachable. &lt;n/2+1 masters = stop accepting writes.
+
+<span class="f-title">EVICTION POLICIES (maxmemory reached):</span>
+  noeviction (default): reject new writes. Bad for cache use case.
+  allkeys-lru: evict least recently used key from ALL keys. Best general-purpose cache.
+  volatile-lru: evict LRU from keys WITH TTL set. Preserve TTL-less keys.
+  allkeys-lfu: evict least frequently used. Better for skewed access patterns.
+  volatile-ttl: evict key with smallest TTL. Evict about-to-expire keys first.
+  Recommendation: allkeys-lru for pure cache. volatile-lru if some keys must never be evicted.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Redis</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How would you implement a sliding window rate limiter in Redis that allows 100 requests per user per minute, without using a sorted set or two separate keys?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is the difference between Redis RDB and AOF persistence modes? Which do you choose for a session cache where losing a few seconds of data is acceptable?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Redis cluster uses hash slots. You run MGET user:1000:profile user:1001:profile — what error do you get? How do you fix it?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G6: ELASTICSEARCH
+══════════════════════ -->
+<div class="group-card reveal" id="g6">
+  <div class="group-header">
+    <div class="group-emoji">🔍</div>
+    <div class="group-meta">
+      <div class="group-num">Group VI · The Search Engine Inside Every FAANG Product</div>
+      <div class="group-title">Elasticsearch — Inverted Index, Shards & Relevance</div>
+      <div class="group-tags">
+        <span class="gtag">Inverted Index</span><span class="gtag">Lucene</span><span class="gtag">Shards</span>
+        <span class="gtag">BM25</span><span class="gtag">Mappings</span><span class="gtag">Hot/Warm</span><span class="gtag">Aggregations</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Inverted index: how full-text search actually works <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Shard sizing: too many shards = overhead, too few = bottleneck <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Mapping: dynamic mapping dangers, keyword vs text <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Query DSL: match, bool, filter, should — relevance vs filtering <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">ILM (Index Lifecycle Management): hot/warm/cold/delete <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Split-brain prevention: minimum_master_nodes configuration <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">INVERTED INDEX + SHARD SIZING + QUERY DSL</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">INVERTED INDEX (How "search for 'apple'" finds documents in 5ms):</span>
+  Documents indexed:
+    Doc 1: "Apple makes great iPhones"
+    Doc 2: "Apple iPhone battery lasts all day"
+    Doc 3: "Samsung Galaxy vs iPhone"
+  
+  Inverted index built at index time (tokenize → normalize → store):
+    apple    → [Doc1, Doc2]         lasts → [Doc2]
+    makes    → [Doc1]               all   → [Doc2]
+    great    → [Doc1]               day   → [Doc2]
+    iphone   → [Doc1, Doc2, Doc3]   samsung → [Doc3]
+    battery  → [Doc2]               galaxy  → [Doc3]
+  
+  Query: "apple iphone battery"
+    apple → [Doc1, Doc2] ∩ iphone → [Doc1, Doc2, Doc3] ∩ battery → [Doc2]
+    BM25 scoring: Doc2 gets highest score (all 3 terms, term frequency, document length)
+    Result: [Doc2, Doc1, Doc3] sorted by relevance score.
+  
+  Lucene segment: each segment is a mini-inverted index. Immutable once written.
+  Merge: background merging of segments. Deleted docs: marked in .del file, filtered at query time.
+
+<span class="f-title">SHARD SIZING — The Most Common ES Mistake:</span>
+  Each shard = one Lucene index. Has overhead: JVM heap, file handles, housekeeping.
+  Rule of thumb: shard size 10-50GB. Never &lt;1GB, never &gt;50GB.
+  
+  Bad: 1TB index with 1000 shards of 1GB each. 1000 threads coordinating search = slow.
+  Bad: 1TB index with 1 shard of 1TB. Can't distribute across nodes. Can't parallelize.
+  Good: 1TB index with 20 shards of 50GB each. Distribute 4 shards per 5 nodes.
+  
+  Calculate: (data_size_GB / target_shard_size_GB) = shard_count
+  Add replicas for HA: 1 replica = double node count needed.
+  Shards are immutable after index creation. Plan carefully.
+  
+  Too many small shards: each node has too many shards → GC pressure → heap exhausted.
+  Monitor: GET /_cat/indices?v → check shard count vs docs count vs store.size
+
+<span class="f-title">QUERY DSL — FILTER vs QUERY context (critical performance difference):</span>
+  FILTER context: binary yes/no. Is status = 'active'? Cached. Zero relevance scoring.
+  QUERY context: relevance scored. BM25 calculated. Not cached.
+  
+  WRONG (slow): { "match": { "status": "active" } }  <span class="f-warn">← relevance scored for binary field = waste</span>
+  CORRECT (fast):
+  {
+    "bool": {
+      "filter": [                                   <span class="f-ok">← cached, no scoring overhead</span>
+        { "term": { "status": "active" } },
+        { "range": { "price": { "gte": 10, "lte": 100 } } }
+      ],
+      "must": [                                     <span class="f-ok">← relevance scored for text fields</span>
+        { "match": { "description": "wireless headphones" } }
+      ],
+      "should": [                                   <span class="f-ok">← boosts score but not required</span>
+        { "match": { "brand": "Sony" } }
+      ]
+    }
+  }
+  
+  "keyword" vs "text" mapping:
+    text:    tokenised + analysed. Used for full-text search. No aggregations possible.
+    keyword: entire value as-is. Used for: filters, aggregations, sorting, exact match.
+    Common: "status" field should be keyword. "description" should be text.
+    Dynamic mapping danger: ES auto-creates a "text" + "keyword" sub-field. Doubles storage.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Elasticsearch</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does an inverted index work? When a user searches for "wireless headphones," how does Elasticsearch find and rank relevant documents in milliseconds across billions of documents?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is the difference between filter context and query context in Elasticsearch? Why should you use filter context for status=active rather than match?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Your Elasticsearch cluster keeps throwing "circuit breaker" errors and the JVM heap is at 95%. What is the cause and how do you fix it?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G7: DYNAMODB
+══════════════════════ -->
+<div class="group-card reveal" id="g7">
+  <div class="group-header">
+    <div class="group-emoji">🌩️</div>
+    <div class="group-meta">
+      <div class="group-num">Group VII · Amazon's Proprietary Infinite-Scale DB</div>
+      <div class="group-title">DynamoDB — Single-Table Design & Hot Partitions</div>
+      <div class="group-tags">
+        <span class="gtag">Single-Table</span><span class="gtag">Partition Key</span><span class="gtag">GSI</span>
+        <span class="gtag">DynamoDB Streams</span><span class="gtag">Hot Partition</span><span class="gtag">Adaptive Capacity</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Single-table design: storing multiple entity types in one table <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Hot partition problem: celebrity items throttling everything <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">GSI (Global Secondary Index): access patterns + write amplification <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">DynamoDB Streams + Lambda: event-driven replication <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Conditional writes: optimistic locking with version numbers <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">DYNAMODB SINGLE-TABLE DESIGN + HOT PARTITION SOLUTIONS</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SINGLE-TABLE DESIGN — One Table, Multiple Entity Types:</span>
+  Multi-table (relational thinking):  users table, orders table, products table. JOIN on query.
+  DynamoDB: no JOINs. Single-table: ALL entities in one table, differentiated by PK pattern.
+  
+  PK=USER#1000, SK=METADATA → user attributes (name, email, created_at)
+  PK=USER#1000, SK=ORDER#2024-04-19#xyz → order for this user
+  PK=USER#1000, SK=ADDRESS#home → shipping address
+  PK=ORDER#xyz, SK=ORDERITEM#product123 → order line item
+  
+  Access pattern: "Get user + all their orders in one query"
+    Query PK=USER#1000, SK BEGINS_WITH "ORDER#" → returns user metadata row (if SK=METADATA also queried)
+    Or: two parallel queries (user + orders). DynamoDB: SDK batching makes this fast.
+  
+  GSI: project (PK, SK) → (email, PK) for "lookup user by email":
+    GSI-PK=email, GSI-SK=not needed → find user PK → then fetch user by PK.
+
+<span class="f-title">HOT PARTITION PROBLEM:</span>
+  DynamoDB partition capacity: 3000 RCU/s + 1000 WCU/s PER partition.
+  Celebrity item: product#popular_iphone → 50,000 reads/sec.
+  50,000 / 3000 = ~17× over single partition limit → ProvisionedThroughputExceededException.
+  
+  Adaptive Capacity: DynamoDB automatically gives "hot" partitions more capacity from "cold" ones.
+    Helps for organic spikes. NOT for sustained hot partitions exceeding TOTAL table capacity.
+  
+  Solutions:
+  1. DAX (DynamoDB Accelerator): in-memory cache. Hot reads served from cache. DB not hit.
+  2. Write sharding: add random suffix to PK: celebrity_item_1, celebrity_item_2...celebrity_item_10
+     Write to random shard. Read ALL 10 shards, sum/pick latest. Reduces per-partition load 10×.
+  3. Caching layer (ElastiCache/Redis): popular items cached. DynamoDB only for cache misses.
+  4. Read replicas: DynamoDB Global Tables — multi-region replicas reduce read load on primary.
+
+<span class="f-title">CONDITIONAL WRITES (Optimistic Locking):</span>
+  Problem: two Lambdas read version=5, both try to update → one should win, one fail.
+  
+  Lambda 1: UpdateItem PK=order#xyz, version=6 IF attribute_exists AND version=5
+  Lambda 2: UpdateItem PK=order#xyz, version=6 IF attribute_exists AND version=5
+  
+  One succeeds. One gets ConditionalCheckFailedException → retry with fresh read.
+  Implemented via: ConditionExpression = "version = :expected" on every write.
+  Use for: inventory deduction, counter updates, optimistic locking in stateless services.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — DynamoDB</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Explain single-table design in DynamoDB. How do you store users, orders, and addresses in a single table and still query efficiently without JOINs?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A product goes viral and receives 100,000 reads/second. DynamoDB starts throttling. What is the hot partition problem and what are your 3 mitigation strategies?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G8: TIME-SERIES
+══════════════════════ -->
+<div class="group-card reveal" id="g8">
+  <div class="group-header">
+    <div class="group-emoji">⏱️</div>
+    <div class="group-meta">
+      <div class="group-num">Group VIII · Metrics, IoT & Financial Tick Data</div>
+      <div class="group-title">Time-Series Databases — InfluxDB, TimescaleDB & Prometheus</div>
+      <div class="group-tags">
+        <span class="gtag">InfluxDB</span><span class="gtag">TimescaleDB</span><span class="gtag">Prometheus</span>
+        <span class="gtag">Hypertable</span><span class="gtag">Retention Policy</span><span class="gtag">Downsampling</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Why time-series DBs? What fails with regular RDBMS for metrics <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">TimescaleDB hypertables: automatic time-based partitioning <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">InfluxDB: measurements, tags, fields, line protocol <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Downsampling: store raw 1s data → aggregate to 1min → 1hr → 1day <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Prometheus TSDB: local storage, remote write, federation <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">WHY TIME-SERIES DBs + TIMESCALEDB HYPERTABLES + DOWNSAMPLING</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WHY NOT POSTGRESQL FOR METRICS?</span>
+  Scenario: 10,000 sensors, each reporting CPU every 1 second.
+  Inserts: 10,000/sec. 864M rows/day. PostgreSQL:
+    - B-tree index on (sensor_id, timestamp): insert overhead for each new point.
+    - VACUUM: dead tuple cleanup for each update (updates are NOT done — appends only, but VACUUM still needed).
+    - Disk: uncompressed float64 values.
+    - Query "last 24hrs for sensor 123": efficient with index but no special compression.
+  
+  Time-Series DB advantages:
+    - Columnar storage per time window: timestamps sorted → delta encoding → 10-100× compression.
+    - Automatic partitioning by time: old data partitions untouched (no index fragmentation).
+    - Native downsampling/retention: auto-delete data older than 30 days, auto-aggregate to 1min resolution.
+    - Functions: time_bucket(), last(), first(), interpolate() built-in aggregate functions.
+
+<span class="f-title">TIMESCALEDB HYPERTABLES (PostgreSQL extension):</span>
+  CREATE TABLE metrics (time TIMESTAMPTZ NOT NULL, sensor_id INT, cpu FLOAT, memory FLOAT);
+  SELECT create_hypertable('metrics', 'time', chunk_time_interval => INTERVAL '1 day');
+  
+  Result: TimescaleDB automatically creates chunks (sub-tables):
+    _timescaledb_internal._hyper_1_2024_04_18 (all data for April 18)
+    _timescaledb_internal._hyper_1_2024_04_19 (all data for April 19)
+  
+  Query: SELECT avg(cpu) FROM metrics WHERE time &gt; now() - INTERVAL '24h' AND sensor_id = 123
+    Only the relevant chunks scanned. Old chunks skipped (partition pruning).
+    Compression: SELECT compress_chunk(show_chunks('metrics', older_than => INTERVAL '1 day'));
+    Per day per sensor: 86400 values compressed to ~100 bytes (delta-of-delta + Gorilla encoding).
+  
+  Retention: SELECT add_retention_policy('metrics', INTERVAL '90 days');
+    Automatically drops chunks older than 90 days. No DELETE rows. DROP TABLE chunk = instant.
+
+<span class="f-title">DOWNSAMPLING STRATEGY (mandatory at scale):</span>
+  Raw:     1-second resolution. Keep 7 days. 10K sensors × 86400 × 7 = 6B rows.
+  1-min:   Keep 30 days. Aggregate from raw. 6B → 4.3M rows (1000× smaller).
+  1-hour:  Keep 1 year. 4.3M → 87K rows.
+  1-day:   Keep forever. 87K → 3650 rows.
+  
+  Continuous Aggregate (TimescaleDB):
+    CREATE MATERIALIZED VIEW metrics_1min
+    WITH (timescaledb.continuous) AS
+    SELECT time_bucket('1 minute', time) AS bucket, sensor_id, avg(cpu) AS avg_cpu
+    FROM metrics GROUP BY bucket, sensor_id;
+    -- Auto-refreshes as new data arrives. Always queryable.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G9: GRAPH DBS
+══════════════════════ -->
+<div class="group-card reveal" id="g9">
+  <div class="group-header">
+    <div class="group-emoji">🕸️</div>
+    <div class="group-meta">
+      <div class="group-num">Group IX · Relationships as First-Class Citizens</div>
+      <div class="group-title">Graph Databases — Neo4j, Property Graph & Cypher</div>
+      <div class="group-tags">
+        <span class="gtag">Neo4j</span><span class="gtag">Property Graph</span><span class="gtag">Cypher</span>
+        <span class="gtag">Nodes</span><span class="gtag">Relationships</span><span class="gtag">Pathfinding</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">When to use a graph DB vs RDBMS (social graph, fraud, recommendations) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Cypher: MATCH, WHERE, CREATE, MERGE patterns <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Native graph storage: index-free adjacency vs relational JOINs <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">GRAPH DB vs RDBMS — The Index-Free Adjacency Advantage</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WHY GRAPH DBs WIN FOR DEEP RELATIONSHIP QUERIES:</span>
+  RDBMS: "Find friends of friends of friends of Alice" (depth 4):
+    SELECT DISTINCT u4.name FROM users u1
+    JOIN friendships f1 ON u1.id = f1.user1
+    JOIN users u2 ON f1.user2 = u2.id
+    JOIN friendships f2 ON u2.id = f2.user1
+    JOIN users u3 ON f2.user2 = u3.id
+    JOIN friendships f3 ON u3.id = f3.user1
+    JOIN users u4 ON f3.user2 = u4.id
+    WHERE u1.name = 'Alice'
+    -- 4 JOINs × full table scans. With 1B users = query timeout.
+  
+  Neo4j (index-free adjacency):
+    MATCH (alice:Person {name:'Alice'})-[:FRIEND*1..4]->(person)
+    RETURN DISTINCT person.name
+    -- Each node stores DIRECT POINTER to its relationship records. No JOIN tables.
+    -- Traversal: Alice → pointer to friendship records → hop to next node → O(1) per hop.
+    -- 4-hop traversal: milliseconds regardless of total graph size.
+
+<span class="f-title">WHEN TO CHOOSE GRAPH DB:</span>
+  ✓ Social networks: friend recommendations (2nd-degree connections)
+  ✓ Fraud detection: "find transactions sharing device fingerprints within 1 hop"
+  ✓ Knowledge graphs: entity relationships (Google Knowledge Graph)
+  ✓ Recommendation engines: "users who watched X also watched Y within 2 hops"
+  ✓ Access control: role hierarchies, permission propagation
+  
+  NOT worth it when: data is tabular, relationships are simple (FK lookup), analytical queries.
+
+<span class="f-title">CYPHER PATTERNS:</span>
+  // Find mutual friends between Alice and Bob
+  MATCH (alice:Person {name:'Alice'})-[:FRIEND]->(mutual:Person)&lt;-[:FRIEND]-(bob:Person {name:'Bob'})
+  RETURN mutual.name
+  
+  // Fraud: accounts sharing same device in last 24h
+  MATCH (a:Account)-[:LOGIN]-&gt;(d:Device)&lt;-[:LOGIN]-(b:Account)
+  WHERE a &lt;&gt; b AND d.last_seen &gt; datetime() - duration({hours:24})
+  RETURN a.id, b.id, d.id AS shared_device
+  
+  // MERGE: create node only if not exists (idempotent)
+  MERGE (u:User {email: $email})
+  ON CREATE SET u.created = datetime(), u.name = $name
+  ON MATCH SET u.last_login = datetime()</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Graph Databases</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">LinkedIn needs to find mutual connections between two users up to 3 degrees of separation. Why does a relational database struggle with this but Neo4j handles it in milliseconds?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G10: NEWSQL
+══════════════════════ -->
+<div class="group-card reveal" id="g10">
+  <div class="group-header">
+    <div class="group-emoji">🌍</div>
+    <div class="group-meta">
+      <div class="group-num">Group X · SQL Semantics at NoSQL Scale</div>
+      <div class="group-title">NewSQL — CockroachDB, Google Spanner & Distributed Transactions</div>
+      <div class="group-tags">
+        <span class="gtag">CockroachDB</span><span class="gtag">Spanner</span><span class="gtag">Raft</span>
+        <span class="gtag">TrueTime</span><span class="gtag">Serializable</span><span class="gtag">Multi-Region</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Google Spanner: TrueTime API for external consistency <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">CockroachDB: Raft consensus per range, geo-partitioning <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">NewSQL vs NoSQL: when you need ACID + horizontal scale <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">GOOGLE SPANNER TRUETIME + COCKROACHDB ARCHITECTURE</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">THE PROBLEM NewSQL SOLVES:</span>
+  RDBMS (PostgreSQL/MySQL): ACID + SQL. Scales vertically. Horizontal = complex sharding.
+  NoSQL (Cassandra/DynamoDB): Horizontal scale. Eventual consistency. No JOINs. Limited ACID.
+  NewSQL: ACID + SQL + horizontal auto-sharding. Best of both. Higher cost.
+
+<span class="f-title">GOOGLE SPANNER — TrueTime (externally consistent global transactions):</span>
+  Problem: globally distributed DB. Clock skew between data centres = up to 200ms.
+  If server A timestamps tx at T=100, server B timestamps tx at T=99 (clock skew) → ordering wrong.
+  
+  TrueTime: Google's atomic clock + GPS receivers in every data centre.
+    TrueTime.now() returns interval [earliest, latest].
+    Guaranteed: exact current time is within [earliest, latest]. Uncertainty ≈ 7ms.
+  
+  Spanner 2-phase commit with TrueTime:
+    Coordinator assigns commit timestamp T = TrueTime.now().latest
+    Before committing: wait until TrueTime.now().earliest &gt; T (wait out uncertainty)
+    "Commit wait" ≈ 7-14ms overhead per write transaction.
+    After commit wait: GUARANTEE all future transactions have higher timestamp.
+    Result: true external consistency. Read your own writes. No clock-skew anomalies.
+
+<span class="f-title">COCKROACHDB — Open-source Spanner-inspired:</span>
+  Architecture: data split into ~64MB ranges. Each range: 3-5 replicas (Raft consensus group).
+  Range leader (Raft leader): receives writes → proposes to followers → majority ack → commit.
+  
+  Geo-partitioning: pin range lease-holders to specific regions:
+    Chicago users' data → ranges pinned to US-East nodes → low-latency local reads.
+    PARTITION BY LIST (country) → CONFIGURE ZONE USING constraints='region=US'
+  
+  Follower reads: read from nearest replica (may be slightly stale).
+    SELECT ... AS OF SYSTEM TIME '-10s' → read from stale follower, avoid round-trip to leader.
+    Useful for: analytics queries, read-heavy workloads, multi-region read local.
+
+<span class="f-title">WHEN TO USE NewSQL:</span>
+  ✓ Global B2C apps needing transactions (payments, inventory) + massive scale
+  ✓ Compliance: ACID required, horizontal scale needed
+  ✓ Replacing sharded MySQL: same SQL, no sharding logic in application
+  ✗ Pure read-heavy analytics → Spark + Iceberg cheaper
+  ✗ Simple key-value access patterns → DynamoDB simpler and cheaper
+  ✗ Full-text search → Elasticsearch
+  Cost: CockroachDB/Spanner 3-5× more expensive than single-region PostgreSQL.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G11: DB INTERNALS
+══════════════════════ -->
+<div class="group-card reveal" id="g11">
+  <div class="group-header">
+    <div class="group-emoji">🔧</div>
+    <div class="group-meta">
+      <div class="group-num">Group XI · The Internals Every Senior Engineer Must Know</div>
+      <div class="group-title">Database Internals — B-Tree vs LSM, MVCC, WAL & Indexes</div>
+      <div class="group-tags">
+        <span class="gtag">B+ Tree</span><span class="gtag">LSM Tree</span><span class="gtag">WAL</span>
+        <span class="gtag">Buffer Pool</span><span class="gtag">Query Planner</span><span class="gtag">ACID</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+
+    <div class="arch-box">
+      <pre>
+B+ TREE vs LSM TREE — Core Trade-Off Behind Every Major DB Choice
+
+B+ TREE (PostgreSQL, MySQL InnoDB, SQLite):
+  Structure: balanced tree. Leaf pages: sorted data. Internal pages: routing keys.
+  Read:  O(log N). Tree traversal → reach leaf page. 3-4 disk reads for 1B rows.
+  Write: find leaf page → insert → rebalance if needed (split pages).
+         Random I/O. Page splits → fragmentation → bloat over time.
+         One disk write per record (to specific page location).
+  Best for: read-heavy workloads. Low write amplification per record.
+            Range queries (sorted leaf pages). Strong consistency.
+  Used by: PostgreSQL, MySQL, SQLite, Oracle
+
+LSM TREE (Cassandra, RocksDB, LevelDB, InfluxDB, HBase):
+  Structure: memtable (in-memory) → L0 SSTables → L1 → L2 (ever-larger levels).
+  Write:  ALWAYS sequential append. Memtable → flush to SSTable → compact.
+          No random I/O. 10× higher write throughput than B-tree for same hardware.
+  Read:   Check memtable + each SSTable (newest first). Bloom filters skip irrelevant SSTables.
+          Write amplification: compaction rewrites data 10-30× over its lifetime.
+  Best for: write-heavy workloads. Append-only time-series. High-frequency updates.
+  Used by: Cassandra, RocksDB (Kafka, TiKV), InfluxDB, HBase, LevelDB
+
+ACID PROPERTIES — Each One Matters:
+  Atomicity:   Transaction commits entirely or not at all. No partial writes.
+               Implemented by: WAL + rollback log (undo log in InnoDB, undo log in PostgreSQL).
+  Consistency: DB moves from one valid state to another. Constraints satisfied after commit.
+               Implemented by: constraint checking before commit, foreign key validation.
+  Isolation:   Concurrent transactions don't interfere. Levels: RC, RR, Serializable.
+               Implemented by: MVCC (PostgreSQL), locks (MySQL), SSI (Serializable Snapshot Isolation).
+  Durability:  Committed transactions survive crashes.
+               Implemented by: WAL + fsync. "If fsync is disabled → durability is a lie."
+
+CAP THEOREM (for distributed databases):
+  Consistency + Availability + Partition Tolerance: pick 2 (P is always happening in distributed systems).
+  So really: CP (consistency + partition tolerance) vs AP (availability + partition tolerance).
+  CP: PostgreSQL (leader fails → elect new one; no writes during election = unavailable but consistent)
+      HBase, Zookeeper (stale reads refused)
+  AP: Cassandra (always accepts writes; eventual consistency; may read stale data)
+      CouchDB, DynamoDB (with eventual consistency)
+  CA: Not possible in distributed system (partitions happen)
+  Modern nuance: spectrum not binary. Spanner: "effectively CA" via TrueTime atomic clocks.
+
+CONNECTION POOLING — Why It Matters:
+  PostgreSQL: each connection = OS process (~5-10MB RAM, fork() overhead)
+  10,000 app instances × 10 connections each = 100,000 connections × 5MB = 500GB RAM just for connections.
+  PgBouncer (transaction mode): map 100,000 app connections → 100 actual DB connections.
+  Idle connections still consume: pgstat, bgwriter, checkpoint coordination overhead.
+  MySQL: thread-per-connection (lighter than pg processes). Still: 10K threads → context switches.
+  Always: set connection pool size = num_cores × (1 + wait_time/compute_time). Typical: 10-20 per service.</pre>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Internals</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Compare B-tree and LSM-tree storage engines. When would you choose Cassandra (LSM) over PostgreSQL (B-tree) for a time-series workload?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Explain ACID. If a database disables fsync for performance — which property breaks, and what is the exact failure scenario?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">CAP theorem says you can only have 2 of 3. But Google Spanner claims to be both consistent and highly available. How?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G12: CRITICAL SCENARIOS
+══════════════════════ -->
+<div class="group-card reveal" id="g12">
+  <div class="group-header">
+    <div class="group-emoji">💥</div>
+    <div class="group-meta">
+      <div class="group-num">Group XII · The War Stories and Production Disasters</div>
+      <div class="group-title">Critical Production Scenarios — Diagnosis & Fix</div>
+      <div class="group-tags">
+        <span class="gtag">N+1 Queries</span><span class="gtag">Deadlock</span><span class="gtag">Bloat</span>
+        <span class="gtag">Replication Lag</span><span class="gtag">Connection Exhaustion</span><span class="gtag">Split-Brain</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">12 PRODUCTION DISASTERS — Cause + Detection + Fix</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SCENARIO 1: N+1 Query — API goes from 50ms to 5,000ms</span>
+  Code: for user in users: db.query("SELECT * FROM orders WHERE user_id=?", user.id)
+  1000 users → 1001 queries. Each 5ms × 1001 = 5s response time.
+  Fix: db.query("SELECT * FROM orders WHERE user_id IN (?)", user_ids) → 1 query.
+  ORM fix (Django): users.prefetch_related('orders'). Rails: includes(:orders). JPA: @EntityGraph.
+  Detection: pg_stat_statements → identical query, called 1000× in one second.
+
+<span class="f-title">SCENARIO 2: Deadlock storm — 500 ERROR 40P01 per minute</span>
+  Two services updating order and inventory in different order:
+    Service A: BEGIN; UPDATE orders SET ...; UPDATE inventory SET ...;
+    Service B: BEGIN; UPDATE inventory SET ...; UPDATE orders SET ...;
+  Fix: both services must acquire locks in SAME ORDER (orders first, then inventory).
+  Or: SELECT ... FOR UPDATE SKIP LOCKED → skip locked rows, never wait.
+  Detection: log all 40P01 errors. pg_locks + pg_stat_activity → find blocking queries.
+
+<span class="f-title">SCENARIO 3: Table bloat — 100GB table but only 10GB active data</span>
+  Symptom: queries slow despite good indexes. Table size growing despite no new rows.
+  Cause: MVCC dead tuples not cleaned (autovacuum too slow, table too busy).
+  Fix: manual VACUUM VERBOSE ANALYZE orders; → see dead_tup_count before/after.
+  Bigger fix: pg_repack → online table rewrite without locking. Reclaims bloat.
+  Tune autovacuum: autovacuum_vacuum_cost_delay = 2ms (not default 20ms).
+  Detection: SELECT n_dead_tup, n_live_tup, n_dead_tup::float / n_live_tup FROM pg_stat_user_tables WHERE relname='orders';
+
+<span class="f-title">SCENARIO 4: Replication lag — replica 2 hours behind</span>
+  Symptom: reads from replica show stale data. Dashboards wrong.
+  PostgreSQL causes: a) long-running query on replica blocking WAL replay (hot standby feedback).
+    b) WAL volume exceeds network bandwidth. c) replica doing expensive queries → CPU bound.
+  Fix: a) kill long queries on replica. Set hot_standby_feedback=on to prevent conflict.
+       b) upgrade network / add replica / reduce writes. c) dedicated analytics replica.
+  Monitor: SELECT now() - pg_last_xact_replay_timestamp() AS replication_lag ON replica;
+
+<span class="f-title">SCENARIO 5: Connection exhaustion — FATAL: too many connections (53300)</span>
+  PostgreSQL max_connections = 100 (often default). App has 200 pods × 10 connection pool = 2000 connections attempted.
+  Fix immediate: add PgBouncer between app and PostgreSQL. Transaction-mode pooling.
+  Fix permanent: don't let each app pod maintain N-connection pool directly to Postgres.
+  Monitoring: SELECT count(*) FROM pg_stat_activity; → alert if &gt; 80% of max_connections.
+
+<span class="f-title">SCENARIO 6: Cassandra ReadTimeout — compaction during peak traffic</span>
+  Symptom: READ_TIMEOUT errors at same time every day.
+  Cause: compaction (disk-heavy operation) consuming I/O bandwidth → read latency spikes.
+  Fix: schedule major compaction during off-peak. Use STCS → LCS compaction (smoother).
+  compaction_throughput_mb_per_sec: limit compaction I/O. Default 64MB/s.
+  Increase: read_request_timeout_in_ms = 10000 (10s) to ride through compaction spike.
+
+<span class="f-title">SCENARIO 7: Redis split-brain after network partition</span>
+  Redis Sentinel: 3 sentinels, 2 can't reach master → elect replica as new master.
+  Original master comes back → two masters, both accepting writes → data diverge.
+  Fix: min-slaves-to-write 1 min-slaves-max-lag 10: master stops accepting writes if no replica in sync.
+  Or: Redis Cluster (cluster requires majority slot-holders) → more robust.
+  Recovery: compare AOF logs of both masters. Merge data manually (painful). Choose one master.
+
+<span class="f-title">SCENARIO 8: Elasticsearch JVM OOM — heap 95%, GC thrashing</span>
+  Cause: deep aggregations (high-cardinality terms agg), large result sets, too many shards.
+  Fix: set circuit breaker limits (indices.breaker.fielddata.limit=40%). 
+  Never: request_cache holds all term values in memory for fast agg. Reduce cardinality of aggregation keys.
+  JVM heap: never &gt;26GB (compressed oops threshold). Set xmx=xms=26g for large nodes.
+  Monitoring: GET /_nodes/stats/jvm → heap_used_percent. Alert at 80%.
+
+<span class="f-title">SCENARIO 9: DynamoDB throttling — ProvisionedThroughputExceededException</span>
+  Cause A: hot partition key (one item 100× more popular than others).
+  Cause B: provisioned capacity too low for current traffic.
+  Cause C: scan operation consuming all read capacity.
+  Fix A: add DAX cache + write sharding.
+  Fix B: use On-Demand capacity mode (auto-scaling, pay per request).
+  Fix C: replace Scan with Query + GSI. Never Scan in prod.
+
+<span class="f-title">SCENARIO 10: Long-running transaction blocking everyone</span>
+  PostgreSQL: transaction started at 9 AM holds lock. 50 other transactions waiting by 10 AM.
+  SELECT pg_blocking_pids(pid) FROM pg_stat_activity WHERE wait_event_type = 'Lock';
+  Find PID of oldest blocking transaction. Check application code.
+  Kill if necessary: SELECT pg_terminate_backend(pid);
+  Prevention: statement_timeout = '30s'; lock_timeout = '5s'; on all application connections.
+
+<span class="f-title">SCENARIO 11: MongoDB collection scan — queries stop using index</span>
+  Query: db.orders.find({status: 'COMPLETED', amount: {$gt: 100}})
+  Index: {status: 1, created_at: 1}. Not {amount: 1}.
+  Planner: may choose collection scan if index selectivity is low (90% of docs have status='COMPLETED').
+  Fix: add compound index {status:1, amount:1}. Or: use hint() to force index.
+  Detection: explain('executionStats') → 'stage':'COLLSCAN' → missing or unused index.
+
+<span class="f-title">SCENARIO 12: PostgreSQL XID wraparound imminent</span>
+  Alert: WARNING: database must be vacuumed within 10 million transactions.
+  SELECT datname, age(datfrozenxid) FROM pg_database ORDER BY 2 DESC;
+  If age &gt; 1.9B: EMERGENCY. PostgreSQL will soon shut down new connections.
+  Fix: immediately run VACUUM FREEZE on all tables (or pg_database FREEZE).
+  May take hours on huge tables. Schedule maintenance window.
+  Prevention: tune autovacuum_freeze_max_age lower (default 200M → set to 100M).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G13: CLICKHOUSE + DUCKDB
+══════════════════════ -->
+<div class="group-card reveal" id="g13">
+  <div class="group-header">
+    <div class="group-emoji">📦</div>
+    <div class="group-meta">
+      <div class="group-num">Group XIII · OLAP Powerhouses — Real-Time &amp; Embedded Analytics</div>
+      <div class="group-title">ClickHouse &amp; DuckDB — Columnar Engines That Changed Analytics</div>
+      <div class="group-tags">
+        <span class="gtag">ClickHouse</span><span class="gtag">MergeTree</span><span class="gtag">DuckDB</span>
+        <span class="gtag">Vectorized Execution</span><span class="gtag">Columnar Storage</span><span class="gtag">OLAP</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">ClickHouse MergeTree: how columnar storage + sparse index works <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">ClickHouse vs Postgres vs Spark: when to choose OLAP <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">DuckDB in-process analytics: zero-copy Parquet/CSV/Arrow reads <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">ClickHouse replication: ReplicatedMergeTree + ZooKeeper/ClickHouse Keeper <span class="diff diff-h">HARD</span></div>
+      <div class="problem">DuckDB vs Spark: when to use each for analytical workloads <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">ClickHouse materialized views for real-time aggregation <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CLICKHOUSE ARCHITECTURE + DUCKDB IN-PROCESS ANALYTICS</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">CLICKHOUSE — Why 100 Billion Rows/sec is Possible:</span>
+  Storage: MergeTree family. Data stored COLUMN by column (not row by row).
+  
+  Traditional row store: {id:1, name:"Alice", amount:99, country:"US"} → all fields together
+  ClickHouse column store:  id_column:     [1, 2, 3, 4, 5, ...]
+                            amount_column: [99, 150, 12, 500, 88, ...]
+                            country_col:   ["US", "IN", "US", "GB", "US", ...]
+  
+  Query: SELECT country, sum(amount) FROM orders WHERE date &gt; '2024-01-01' GROUP BY country
+    Only reads: date column + amount column + country column. id, name NOT touched.
+    For 1 billion rows:  Row store reads 1B × full row = ~80GB from disk.
+    ClickHouse reads: 1B × (8B date + 8B amount + 5B country avg) ≈ 21GB. ~4× less I/O.
+    Plus: same-type data compresses extremely well. Delta + LZ4. 21GB → ~3GB on disk.
+    Plus: SIMD vectorized execution: CPU processes 16-64 values per instruction simultaneously.
+    Result: sub-second aggregation over 100M rows on single node.
+
+<span class="f-title">MERGETREE INTERNALS:</span>
+  INSERT → data goes into a small "part" on disk (sorted by ORDER BY key).
+  Background: ClickHouse continuously merges small parts → larger sorted parts (like LSM compaction).
+  
+  Sparse primary index: NOT every row indexed. One index entry per 8192 rows (index granule).
+    For 100B rows: index has 12M entries (fits in RAM → fast binary search).
+  
+  Query: WHERE date = '2024-04-19'
+    1. Binary search sparse index → find granule range containing that date.
+    2. Skip marks: each granule has a byte offset in column file → seek directly to that position.
+    3. Read ONLY that granule's worth of data.
+    Skipping data that doesn't match: granule skipping = 99.99% of data never read.
+  
+  ReplicatedMergeTree: each insert replicated via ZooKeeper (or ClickHouse Keeper) for coordination.
+    ZK/Keeper: distributed log of what parts exist. Replication: pull-based (replica pulls from leader).
+  
+  Distributed table: fat proxy over multiple shards. Query fan-out to all shards → collect results.
+  Materialized View: triggers on INSERT → immediately computes aggregate → stores in target table.
+    Use for: real-time dashboards. Pre-aggregate on write. Read from MV = microseconds.
+
+<span class="f-title">DUCKDB — The SQLite of Analytics:</span>
+  In-process: no server. Library embedded in your Python/Java/Go/C++ process.
+  Like SQLite (embedded OLTP) but columnar OLAP. Zero infrastructure.
+  
+  Key capability: directly query Parquet/CSV/Arrow files without loading into DB:
+    SELECT sum(amount), country FROM 'orders_2024_*.parquet' GROUP BY country;
+    Reads Parquet files lazily with predicate pushdown and projection pushdown.
+    Parquet: row groups → DuckDB reads only relevant row groups + only needed columns from each.
+  
+  Zero-copy Arrow integration:
+    import duckdb, pandas as pd
+    df = pd.read_parquet('data.parquet')            # pandas DataFrame in memory
+    result = duckdb.sql("SELECT avg(amount) FROM df WHERE country='US'").df()  # zero-copy scan
+    DuckDB reads directly from pandas memory buffer. No copy. Fastest possible path.
+  
+  DuckDB vs Spark:
+    DuckDB:  Single machine. In-process. Works on laptop. 0 infrastructure. Up to ~500GB data.
+    Spark:   Multi-node cluster. For TB+ data. Complex setup. Distributed fault tolerance.
+             Rule: if data fits on one machine → DuckDB beats Spark (no serialization overhead).
+  
+  DuckDB vs ClickHouse:
+    DuckDB:    Embedded, no server, great for local analytics, Jupyter notebooks, data science.
+    ClickHouse: Server, distributed, production real-time analytics, sub-second on 100B rows.
+    Use DuckDB when: prototyping, data exploration, ETL on single machine, Parquet lake querying.
+    Use ClickHouse when: production serving layer, dashboards, &gt;1 user querying, multi-TB.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — ClickHouse &amp; DuckDB</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does ClickHouse's MergeTree index work? It stores a sparse index, not a dense one — why does this still allow it to find rows in milliseconds across 100 billion rows?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Your team needs to power a real-time analytics dashboard with 50 filters and aggregations over 1 trillion events. Compare ClickHouse materialized views vs Spark streaming + Iceberg vs a traditional PostgreSQL approach.</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">DuckDB vs Spark for a data pipeline processing 200GB of Parquet files in a Jupyter notebook. Which do you choose and why?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G14: ROCKSDB + SQLITE
+══════════════════════ -->
+<div class="group-card reveal" id="g14">
+  <div class="group-header">
+    <div class="group-emoji">🪶</div>
+    <div class="group-meta">
+      <div class="group-num">Group XIV · Embedded Storage Engines — The Foundation of Everything</div>
+      <div class="group-title">RocksDB &amp; SQLite — The Engines Inside Other Engines</div>
+      <div class="group-tags">
+        <span class="gtag">RocksDB</span><span class="gtag">LSM Tree</span><span class="gtag">Column Families</span>
+        <span class="gtag">SQLite</span><span class="gtag">WAL Mode</span><span class="gtag">B-tree</span><span class="gtag">Embedded</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">RocksDB: why Kafka, TiKV, Flink, MyRocks all use it as their storage engine <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">RocksDB column families: separate LSM trees within one DB <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">SQLite WAL mode: why it enables concurrent readers without locks <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">SQLite write serialization: why it's unsuitable for high concurrent writes <span class="diff diff-e">EASY</span></div>
+      <div class="problem">RocksDB compaction tuning: write stalls, level multipliers <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">ROCKSDB INTERNALS + SQLITE WAL MODE + WHERE EACH IS USED</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">ROCKSDB — Facebook's LSM-Based Embedded Storage Engine:</span>
+  Fork of Google LevelDB. Written in C++. Embedded library (like SQLite, not a server).
+  
+  Key difference from Cassandra's LSM: RocksDB is a library your process links against.
+  No network protocol. No replication built-in. You own the replication (Raft/Paxos on top).
+  
+  Who uses RocksDB as their storage engine:
+    Apache Kafka (KRaft + tiered storage): log segments backed by RocksDB for indexes.
+    Apache Flink (state backend): RocksDBStateBackend. Operator state stored in embedded RocksDB. Spills to disk.
+    TiKV (TiDB): each TiKV node = RocksDB + Raft. Distributed KV built on embedded RocksDB.
+    MyRocks (MySQL/MariaDB plugin): replace InnoDB B-tree with RocksDB LSM. 50% disk savings.
+    CockroachDB: each node uses Pebble (Go port of RocksDB) as storage layer.
+  
+  COLUMN FAMILIES: separate key namespaces with their own memtable + SSTable + compaction settings.
+    Like having multiple independent LSM trees in one RocksDB instance:
+    db.put(default_cf, key, value)   <span class="f-dim">← default column family</span>
+    db.put(metadata_cf, key, value)  <span class="f-dim">← separate LSM tree, own compaction</span>
+    
+    Flink uses this: one CF per operator state (keyed state, timer state, etc.)
+    Checkpoint: snapshot ALL column families atomically. Restore independently.
+  
+  WRITE STALL: RocksDB self-throttles writes when:
+    L0 file count &gt; level0_slowdown_writes_trigger (default 20): write rate slowed.
+    L0 file count &gt; level0_stop_writes_trigger (default 36): writes STOPPED until compaction catches up.
+    Cause: compaction can't keep up with write rate. Typical: 10K writes/s, compaction: 8K/s → stall accumulates.
+    Fix: increase compaction threads. Increase L0 file limit. Reduce write amplification (tune level multipliers).
+
+<span class="f-title">SQLITE — The Most Deployed Database in the World:</span>
+  SQLite is embedded in: every iPhone (iOS uses SQLite), every Android app,
+  every browser (Chrome, Firefox history/cookies), WhatsApp, Telegram, Python stdlib, etc.
+  
+  Architecture: single file on disk. B-tree pages (4KB default). No server. No network.
+  Concurrency (WAL mode = Write-Ahead Logging):
+    Default journal mode: writers block ALL readers. Single writer at a time.
+    WAL mode (PRAGMA journal_mode=WAL):
+      Writers write to WAL file (sequential append).
+      Readers read from main DB + consult WAL for newer data.
+      Multiple concurrent readers allowed while one writer writes to WAL.
+      WAL checkpoint: periodically merge WAL back into main DB file.
+  
+  Limitations (important for system design):
+    Single writer at a time: WAL mode allows one writer, any number of readers.
+    Not suitable for: 100 concurrent writes/second, multi-server shared writes, network access.
+    PERFECT for: mobile apps, desktop apps, embedded devices, test databases, read-heavy local storage.
+  
+  SQLite journal modes cheat sheet:
+    DELETE (default): rollback journal. Writer exclusive lock. Readers blocked.
+    WAL:             Write-ahead log. Best for concurrent read + write. Recommended always.
+    MEMORY:          Rollback journal in RAM. Fast. OS crash = corruption. Never use in prod.
+  
+  SQLite as application file format (SQLite 3.x):
+    Dropbox uses SQLite as local cache. WhatsApp messages stored in SQLite.
+    Better than JSON/CSV: queryable, transactional, typed, indexed. Read: SELECT * FROM messages LIMIT 100.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — RocksDB &amp; SQLite</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Why does Apache Flink use RocksDB as its state backend instead of a simple in-memory HashMap? What does RocksDB provide that makes it ideal for streaming operator state?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">SQLite allows multiple concurrent readers but only one writer in WAL mode. Why is this acceptable for mobile apps but disqualifies it for a backend API handling 500 concurrent requests?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G15: DRAGONFLY + MEMCACHED
+══════════════════════ -->
+<div class="group-card reveal" id="g15">
+  <div class="group-header">
+    <div class="group-emoji">🐉</div>
+    <div class="group-meta">
+      <div class="group-num">Group XV · The Cache Layer — Redis Alternatives</div>
+      <div class="group-title">Dragonfly &amp; Memcached — When Redis Isn't Enough</div>
+      <div class="group-tags">
+        <span class="gtag">Dragonfly</span><span class="gtag">Multi-threaded</span>
+        <span class="gtag">Memcached</span><span class="gtag">Simple KV</span><span class="gtag">Slab Allocator</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Redis single-threaded bottleneck: when does it become a problem? <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Dragonfly: how multi-threaded redis-compatible cache achieves 25× throughput <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Memcached: slab allocator, consistent hashing, no persistence <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Redis vs Memcached: which to choose and when <span class="diff diff-e">EASY</span></div>
+      <div class="problem">Dragonfly vs Redis: trade-offs and migration path <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">DRAGONFLY ARCHITECTURE + MEMCACHED INTERNALS + CACHE COMPARISON</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">REDIS BOTTLENECK — The Single-Thread Problem:</span>
+  Redis: single-threaded event loop. All commands execute serially.
+  Why this was fine: in-memory operations = millions/sec on one thread. Didn't need parallelism.
+  
+  When it breaks:
+    Large data structures: HGETALL hash with 100K fields → one thread blocked for tens of ms.
+    Heavy Lua scripts: blocking. All other clients wait.
+    BGSAVE (RDB snapshot): fork() with CoW. If parent modifies lots of memory → CoW copies = OOM risk.
+    Single core maxed: modern servers have 128 cores. Redis uses 1. Waste at FAANG scale.
+  
+  Redis 6+ added I/O multithreading (not command processing):  
+    Multiple threads do network read/write. Command execution: still single-threaded.
+    Partial fix: removes I/O bottleneck. Command processing still sequential. 2-4× improvement.
+
+<span class="f-title">DRAGONFLY — Multi-Threaded Redis Drop-In (2022):</span>
+  Compatible with Redis protocol. Use redis-cli, all Redis client libraries — they just work.
+  Architecture: shared-nothing multi-thread model.
+  
+  Key insight: shard keyspace across threads. Each thread owns its key shard.
+    Thread 1: handles keys A-F. Thread 2: keys G-M. Thread 3: keys N-Z.
+    Multi-key operations (MGET, pipeline): use message-passing between threads.
+  
+  Dashtable: custom hash table that's cache-line friendly. Avoids false sharing between threads.
+  Fiber-based concurrency: each thread runs fibers (cooperative coroutines). Yield on I/O wait.
+  
+  Benchmarks (Dragonfly claims, ~2024):
+    Single node Dragonfly: 4M ops/sec. Redis: 200K ops/sec (same hardware). 20× improvement.
+    Memory efficiency: Dragonfly uses 25% less RAM for same data (custom allocator).
+  
+  When to use Dragonfly instead of Redis:
+    CPU-bound Redis (consistently &gt;80% one core). Large pipelines. Sub-10ms P99 needed at &gt;1M ops/sec.
+    Dragonfly is Redis 7 compatible. RESP3 protocol. Cluster mode in progress.
+    Limitation: newer, less battle-tested than Redis. Cluster mode less mature. No Redis Modules ecosystem.
+
+<span class="f-title">MEMCACHED — Simple, Fast, Predictable:</span>
+  What Memcached does: just one thing. Key-Value cache. Get, Set, Delete, CAS (Compare-And-Swap).
+  No data structures (no ZSET, no Hash fields, no Streams). No persistence. No replication.
+  
+  Slab allocator: memory divided into slabs of fixed sizes (64B, 128B, 256B, ... 1MB).
+    Item stored in smallest slab that fits it.
+    Pros: zero fragmentation (each slab same size). No malloc/free overhead.
+    Cons: if items don't fit cleanly into slab sizes → wasted space (up to 50% in worst case).
+  
+  Multi-threaded: Memcached was multi-threaded from the start. Each thread handles connections.
+    On 32-core machine: scales nearly linearly. Contrast: Redis on 32-core = 1 core used.
+  
+  Consistent hashing (client-side): NO cluster coordination. Each client decides which node.
+    hash(key) % N_servers → server index. Client connects directly. No proxy.
+    Node added/removed: only (1/N) keys remapped. Vs mod hashing: all keys remapped.
+
+<span class="f-title">REDIS vs MEMCACHED vs DRAGONFLY — When to Choose:</span>
+  Memcached: pure cache, maximum simplicity, multi-threaded scalability, no persistence needed.
+             Facebook used Memcached for years. Still valid for simple high-throughput caching.
+  Redis:     When you need: data structures (leaderboards, sorted sets, pub/sub),
+             persistence (AOF/RDB for durability), Lua scripting, Streams, Cluster mode.
+  Dragonfly: When Redis single-thread is your bottleneck. Redis-protocol compatible drop-in.
+             Use when Redis CPU is consistently maxed. Avoid if Redis is working fine (newer tech).</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Dragonfly &amp; Memcached</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Redis is single-threaded. How is it possible to achieve millions of operations per second on a single thread? At what point would you consider Dragonfly or Memcached instead?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Compare Memcached vs Redis for a session store that needs to handle 5 million concurrent users. The sessions are simple JSON blobs, no complex data structures needed. Which do you choose?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G16: SCYLLADB + HBASE + SNOWFLAKE + BIGQUERY
+══════════════════════ -->
+<div class="group-card reveal" id="g16">
+  <div class="group-header">
+    <div class="group-emoji">🐝</div>
+    <div class="group-meta">
+      <div class="group-num">Group XVI · Wide-Column Alternatives &amp; Cloud Data Warehouses</div>
+      <div class="group-title">ScyllaDB, HBase, Snowflake &amp; BigQuery</div>
+      <div class="group-tags">
+        <span class="gtag">ScyllaDB</span><span class="gtag">HBase</span><span class="gtag">HDFS</span>
+        <span class="gtag">Snowflake</span><span class="gtag">Virtual Warehouse</span><span class="gtag">BigQuery</span><span class="gtag">Serverless</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">ScyllaDB: how C++ shard-per-core beats Cassandra's JVM 10×+ <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Snowflake: storage/compute separation, virtual warehouses, zero-copy clone <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">BigQuery: serverless OLAP, slot-based execution, partitioned tables <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">HBase: HDFS-backed wide-column, RegionServer, compaction <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Snowflake vs BigQuery vs Redshift: how to choose <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">SCYLLADB ARCHITECTURE + SNOWFLAKE INTERNALS + BIGQUERY SERVERLESS</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SCYLLADB — Cassandra Rewritten in C++ (10× faster, same protocol):</span>
+  Drop-in replacement for Cassandra. Same CQL, same drivers, same data model.
+  
+  Why faster:
+  1. C++ instead of JVM: no GC pauses. Cassandra GC pauses = P99 latency spikes of 100ms+.
+     ScyllaDB: predictable sub-millisecond P99 latency. No stop-the-world GC.
+  
+  2. Shard-per-core (Seastar framework): each CPU core owns its own:  
+       memtable, SSTable files, network I/O, compaction queue
+       No locking between cores. Each core is a mini-Cassandra. Zero coordination overhead.
+     Cassandra: one JVM, all cores share heap → lock contention → JVM GC overhead.
+  
+  3. Seastar async I/O: uses Linux io_uring for non-blocking disk I/O. No thread pool for I/O.
+  
+  When to choose ScyllaDB over Cassandra:
+    High P99 latency requirements (&lt;5ms). Large-scale deployments (cost savings = 3-10× fewer nodes).
+    JVM GC is a problem. Cloud cost reduction. New greenfield projects.
+  When to stick with Cassandra:
+    Already running Cassandra. Team expertise. Cassandra Kubernetes operators more mature.
+
+<span class="f-title">HBASE — Cassandra's Older, Hadoop-Coupled Sibling:</span>
+  Built on top of HDFS (Hadoop Distributed File System). Master-slave architecture.
+  
+  Architecture: HMaster (coordinator) + RegionServers (data) + ZooKeeper (coordination)
+  Regions: table split into regions (row ranges). Each RegionServer hosts multiple regions.
+  
+  Write path: Write → WAL (HLog) → MemStore → flush to HFile on HDFS (immutable, like SSTable)
+  Read path: Read → BlockCache → MemStore → HFiles (reads multiple HFiles, latest wins)
+  Compaction: minor (merge small HFiles) + major (merge all, remove tombstones)
+  
+  When HBase shines:
+    Tight Hadoop integration: data already in HDFS, need random access + bi-directional Spark reads.
+    Very large cells (&gt;1KB values). HBase handles large blob-like values better than Cassandra.
+    Google Bigtable workloads: HBase was born as Bigtable open-source counterpart.
+  HBase weaknesses vs Cassandra/ScyllaDB:
+    Single HMaster SPOF (High Availability HMaster requires ZooKeeper quorum election).
+    HDFS dependency: complex ops. Cassandra/ScyllaDB: independent storage, simpler deployment.
+    No multi-datacenter active-active (Cassandra strength).
+
+<span class="f-title">SNOWFLAKE — Storage &amp; Compute Separation, The Cloud DW Revolution:</span>
+  Architecture innovation: storage (S3/Azure Blob/GCS) completely separate from compute.
+  
+  Virtual Warehouses (VW): Snowflake's compute unit. Clusters of EC2 (T-shirt sized: XS, S, M, L, XL).
+    XS: 1 cluster node. XL: 16 nodes. Cost: dollars per hour per warehouse.
+  
+  KEY INSIGHT — Multiple independent warehouses share same data:
+    VW1 (ETL team): running heavy INSERT/UPDATE jobs.
+    VW2 (BI team): running SELECT analytics. Both read from SAME S3 data. NO resource conflict.
+    Cassandra/PostgreSQL: ETL load slows down BI queries. Snowflake: completely isolated.
+  
+  Column storage on S3: data stored in micro-partitions (50-500MB compressed columnar files).
+    Automatic clustering: Snowflake automatically clusters data (like partition pruning).
+    Automatic metadata: min/max per column per micro-partition → query prunes irrelevant files.
+  
+  Time Travel &amp; Zero-Copy Clone:
+    SELECT * FROM orders AT (timestamp =&gt; '2024-04-18 09:00:00'); → historical query (up to 90 days)
+    CREATE TABLE orders_dev CLONE orders; → zero-copy. Just copies metadata. Instant. No data copied.
+    Clones share micro-partitions until modified (CoW). Perfect for dev/test environments.
+
+<span class="f-title">BIGQUERY — Serverless OLAP, Pay Per Query:</span>
+  Google's managed serverless OLAP. No clusters to manage. No virtual warehouses to size.
+  Model: you query → Dremel execution engine allocates slots dynamically → you pay per TB scanned.
+  
+  Slots: BigQuery's unit of compute (CPU + memory + network). On-demand: 2000 slots/project default.
+  Separation of storage (Colossus, Google's distributed FS) and compute (Dremel query engine).
+  
+  Partitioning &amp; Clustering:
+    PARTITION BY DATE(event_time): query with WHERE event_time &gt; ... → only reads matching partitions.
+    CLUSTER BY user_id:            within each partition, data sorted by user_id → column-level pruning.
+    Best practice: always partition on time. Cluster on your most-filtered dimension.
+  
+  Cost optimization (critical — BigQuery charges per bytes scanned):
+    SELECT *                          <span class="f-warn">← NEVER. Reads ALL columns. Very expensive.</span>
+    SELECT user_id, amount            <span class="f-ok">← Only reads those 2 columns. Columnar = only needed.</span>
+    Materialized views: pre-compute aggregates. Query hits cache. 0 bytes scanned from base table.
+  
+  BigQuery vs Snowflake vs Redshift:
+    BigQuery:   Serverless, no management. Best for: Google ecosystem, sporadic queries, variable load.
+    Snowflake:  Multi-cloud, SQL-compatible, best ecosystem. Best for: complex transforms, sharing data.
+    Redshift:   AWS native, tight S3 integration, cheapest for steady high load with reserved instances.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — ScyllaDB, Snowflake &amp; BigQuery</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Why is ScyllaDB significantly faster than Cassandra despite being a drop-in CQL-compatible replacement? What architectural decisions account for the 10× latency improvement?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Explain Snowflake's storage/compute separation. How can two different teams run heavy queries on the same data simultaneously without affecting each other's performance?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Your BigQuery bill doubled this month. You diagnose the issue: a dashboard query is doing SELECT * FROM a 10TB table. What is the exact fix and why does it help with BigQuery's pricing model?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════
+  G17: SENIOR FAANG CRITICAL CONCEPTS
+══════════════════════ -->
+<div class="group-card reveal" id="g17">
+  <div class="group-header">
+    <div class="group-emoji">🏆</div>
+    <div class="group-meta">
+      <div class="group-num">Group XVII · The Concepts That Separate Senior from Staff</div>
+      <div class="group-title">FAANG Critical Mastery — Consistency Models, Distributed Transactions, Migrations & System Design DB Selection</div>
+      <div class="group-tags">
+        <span class="gtag">PACELC</span><span class="gtag">Linearizability</span><span class="gtag">Serializability</span>
+        <span class="gtag">2PC</span><span class="gtag">Saga Pattern</span><span class="gtag">Schema Migration</span>
+        <span class="gtag">Multi-Tenancy</span><span class="gtag">Read Consistency</span><span class="gtag">DB Selection</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">PACELC theorem: the real trade-off model Amazon, Google, Facebook use <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Linearizability vs Serializability: the question 80% of seniors fail <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Two-Phase Commit vs Saga: when to use distributed transactions <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Zero-downtime schema migrations at FAANG scale: expand-contract pattern <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Read-your-own-writes, monotonic reads, causal consistency guarantees <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Multi-tenancy database patterns: row isolation vs schema vs DB per tenant <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">System design DB selection: Twitter, Uber, Netflix, WhatsApp, YouTube <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Database-per-service pattern: challenges and anti-patterns in microservices <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">PACELC + CONSISTENCY MODELS + DISTRIBUTED TRANSACTIONS + SCHEMA MIGRATIONS</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">PACELC THEOREM — CAP's Successor (What Production Systems Actually Use):</span>
+  CAP theorem: choose 2 of Consistency, Availability, Partition Tolerance.
+  Problem: partitions are rare. What about NORMAL operation — no partition? CAP says nothing.
+  
+  PACELC (Daniel Abadi, 2012):
+    If Partition (P): trade-off between Availability (A) and Consistency (C). [same as CAP]
+    Else (E): trade-off between Latency (L) and Consistency (C).
+  
+  Read as: "PAC, ELC" — two separate trade-offs depending on whether partition is happening.
+  
+  Real systems:
+    DynamoDB:   PA / EL — highly available during partition (AP). Low latency else. Eventual consistency.
+    Cassandra:  PA / EL — same as DynamoDB. Tunable but defaults to availability + low latency.
+    Spanner:    PC / EC — consistent during partition (CP). Strong consistency always. Pays latency cost.
+    CockroachDB: PC / EC — same as Spanner. Serializable everywhere. Latency: ~10ms (cross-region: 100ms).
+    MySQL (single master): PC / EC — consistent, but latency spike on writes (synchronous).
+    MongoDB (majority):    PC / EC — with w:majority read+write, consistent and low latency on single region.
+  
+  Why this matters in interviews:
+    "Why is DynamoDB eventually consistent by default?" → It optimizes for EL (low latency in normal operation).
+    "Why is Spanner's write latency 10ms minimum?" → It optimizes for EC (always consistent, pays latency).
+    "We need global consistency AND low latency. What DB?" → Impossible. PACELC says you must choose.
+
+<span class="f-title">LINEARIZABILITY vs SERIALIZABILITY — The Most Confused Concepts:</span>
+  These are NOT the same. 80% of senior engineers confuse them. Know the difference cold.
+  
+  SERIALIZABILITY (transaction isolation):
+    Multi-transaction property. Multiple concurrent transactions appear to execute one at a time.
+    The ORDER they appear to execute may not match real time order — just must be SOME valid serial order.
+    Example: T1 and T2 run concurrently. Serializable = result is equivalent to T1→T2 OR T2→T1.
+    The chosen serial order can be different from the actual clock order.
+    "Strongest isolation level in SQL" — Serializable isolation.
+  
+  LINEARIZABILITY (single-operation consistency):
+    Single-operation property. Each operation appears to take effect at some point between its start and end.
+    THE ORDER must respect real wall-clock time. If Write completes BEFORE Read starts → Read must see the write.
+    "Real-time ordering guarantee." Sometimes called "strong consistency" or "external consistency."
+  
+  STRICT SERIALIZABILITY = Serializability + Linearizability. The gold standard.
+    Spanner provides strict serializability (via TrueTime commit wait).
+    Most databases claiming "serializable" isolation only provide Serializability (not Linearizable reads).
+  
+  Practical example:
+    Op1: Write(x=1) starts at T=0, completes at T=10ms.
+    Op2: Read(x) starts at T=15ms.
+    Linearizable: Op2 MUST return x=1. Write completed before Read started.
+    Serializable only: Op2 MIGHT return x=0 if placed before Op1 in the serial order. Still valid!
+  
+  "Eventual Consistency" means: NEITHER. No order guarantee. Read might return stale data for arbitrary time.
+  
+  Interview answer: "PostgreSQL Serializable isolation = serializable. Not linearizable (reads from replica may be stale).
+  Spanner = strictly serializable. Redis single-node = linearizable (single-threaded). Redis Cluster = not linearizable."
+
+<span class="f-title">TWO-PHASE COMMIT (2PC) vs SAGA PATTERN — Distributed Transactions:</span>
+  Problem: operation spans multiple databases (order-service DB + inventory-service DB + payment-service DB).
+  You need atomicity: either ALL succeed or ALL fail. No partial state.
+  
+  TWO-PHASE COMMIT (2PC):
+  Phase 1 (Prepare): Coordinator sends PREPARE to all participants.
+    Each participant: lock resources. Write to WAL. Reply READY or ABORT.
+  Phase 2 (Commit): If ALL replied READY → Coordinator sends COMMIT. All flush and unlock.
+                     If ANY replied ABORT → Coordinator sends ROLLBACK. All undo.
+  
+  Problem: Coordinator failure after Phase 1 COMMIT sent to some but not all participants:
+    Some participants committed. Others waiting. Blocking protocol. Cannot make progress without coordinator.
+    Recovery: coordinator restarts, re-reads log, sends COMMIT to remaining. But outage window exists.
+  
+  When to use 2PC:
+    Same data store (MySQL XA, PostgreSQL distributed with pg_dist_transaction).
+    Short transactions (OLTP). Low latency tolerance. Need synchronous guarantee.
+    NOT for: cross-service microservices (your services shouldn't share DB connection context).
+  
+  SAGA PATTERN (for microservices):
+    Sequence of local transactions. Each local transaction publishes an event → triggers next service.
+    If step N fails → compensating transactions for steps 1..N-1 (undo actions).
+  
+  Order Saga example:
+    Step 1: OrderService creates order (status=PENDING). Publishes ORDER_CREATED event.
+    Step 2: InventoryService reserves item. Publishes RESERVATION_CONFIRMED event.
+    Step 3: PaymentService charges card. Publishes PAYMENT_CHARGED event.
+    Step 4: OrderService updates order (status=CONFIRMED).
+  
+  If PaymentService fails:
+    Compensating: PaymentService publishes PAYMENT_FAILED → InventoryService releases reservation
+                  → OrderService marks order CANCELLED.
+  
+  Choreography (event-driven): each service listens to events, reacts. Simple. No coordinator. Can be hard to trace.
+  Orchestration (coordinator): central Saga orchestrator sends commands to each service. Easier to trace. More coupling.
+  
+  2PC vs Saga trade-off:
+    2PC: synchronous, strong consistency, blocking, tight coupling, simpler logic, same tech stack.
+    Saga: async, eventual consistency, non-blocking, loose coupling, complex compensating logic, any tech stack.
+    FAANG default: Saga for microservices. 2PC: only within single database or tightly coupled systems.
+
+<span class="f-title">ZERO-DOWNTIME SCHEMA MIGRATIONS AT FAANG SCALE:</span>
+  Problem: ALTER TABLE orders ADD COLUMN delivery_time TIMESTAMP;
+    PostgreSQL: acquires ACCESS EXCLUSIVE LOCK. All reads/writes blocked. 100M rows = 30 minutes offline.
+    MySQL: some ALTERs copy full table. Production dead for minutes.
+  
+  SOLUTION: Expand-Contract Pattern (Blue-Green for schema)
+  
+  Phase 1: EXPAND (backward-compatible addition)
+    Deploy: add new column delivery_time NULLABLE. Old code writes NULLs (doesn't know about it).
+    New code: writes delivery_time on every new row.
+    Both old and new code work. No downtime.
+    Online tool: gh-ost (GitHub) or pt-online-schema-change (Percona) — copy table with new schema,
+                 apply binlog changes live, atomic rename at end. Zero-lock migration.
+  
+  Phase 2: BACKFILL
+    Background job: UPDATE orders SET delivery_time = shipped_at WHERE delivery_time IS NULL AND id BETWEEN ? AND ?
+    Batched updates (1000 rows at a time). Throttled. No table lock. Runs for hours/days.
+  
+  Phase 3: SWITCH
+    All code now writes delivery_time. All rows backfilled. Add NOT NULL constraint.
+    Online: CREATE INDEX CONCURRENTLY ON orders(delivery_time); <span class="f-dim">← PostgreSQL concurrent index, no lock</span>
+  
+  Phase 4: CONTRACT (backward-incompatible removal, later)
+    Deploy code that no longer reads old column. Drop column. Zero-downtime.
+  
+  Rule: NEVER run ALTER TABLE that locks on a large table in production.
+  Always: gh-ost / pt-osc / Flyway (with careful migration) / Liquibase.
+  Most dangerous migration: adding NOT NULL column without default to a large table.
+  Safest: always add columns as NULLABLE first, backfill, then add constraint.
+
+<span class="f-title">READ CONSISTENCY PATTERNS — What Your Application Code Must Handle:</span>
+  After a write to PostgreSQL primary, read from replica. Replica 200ms behind. Read sees old value.
+  This is NOT a bug in the DB. It's expected. Your application must handle it.
+  
+  READ-YOUR-OWN-WRITES:
+    Problem: User updates profile photo. Reads back their profile from replica → sees old photo. Confusing.
+    Solution 1: After write, read from primary (not replica). Expensive but simple.
+    Solution 2: After write, remember "I wrote at T=X" in session. If replica lag > T → read from primary.
+    Solution 3: Sticky sessions to replica that received the write. Route reads to same node for 5s.
+  
+  MONOTONIC READS:
+    Problem: User reads message at T=0 (sees 5 messages). Reads again at T=1 (routed to different replica) → sees 3 messages.
+    Reads go backwards! Scary.
+    Solution: always route same user to same replica in a session. Consistent hash(userId) → replica selection.
+  
+  CONSISTENT PREFIX READS:
+    Problem: Conversation with 2 messages. Replica A has message 1. Replica B has message 2.
+    User reads message 2 before replaying message 1 → sees answer before question.
+    Solution: causal tokens. Write Token includes logical timestamp. Reads wait until replica catchup >= token.
+  
+  CAUSAL CONSISTENCY:
+    "If I see event B, I must have seen event A (which caused B)."
+    MongoDB (causally consistent sessions): client sends clusterTime token on each read.
+    MongoDB routes read to replica that has caught up to at least that time.
+    CockroachDB: follower reads with AS OF SYSTEM TIME 10s → read from local follower, ~10s stale.
+
+<span class="f-title">MULTI-TENANCY DATABASE PATTERNS:</span>
+  SaaS: serve thousands of customers (tenants) from same infrastructure. How to isolate their data?
+  
+  Pattern 1: Row-Level Isolation (Shared Database, Shared Schema)
+    Single DB. Single tables. tenant_id column on every table.
+    WHERE tenant_id = :tenant_id in every query (every query, or use Row Level Security).
+    PostgreSQL RLS: ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+                   CREATE POLICY tenant_policy ON orders USING (tenant_id = current_setting('app.tenant_id'));
+    Pros: cheapest (1 DB). Simple ops. Easy cross-tenant analytics.
+    Cons: noisy neighbor (one tenant's heavy query slows all). Security risk if RLS misconfigured. Backup is all-or-nothing.
+    Used by: small-medium SaaS, Stripe, GitHub (with careful query review).
+  
+  Pattern 2: Schema-Per-Tenant (Shared Database, Separate Schemas)
+    Single PostgreSQL instance. Each tenant has their own schema: tenant_1.orders, tenant_2.orders.
+    Schema isolation: one tenant's bloated table doesn't affect another's index statistics.
+    Pros: strong isolation. Per-tenant schema customization. Easier per-tenant backup/restore.
+    Cons: migrations must run per schema (1000 tenants = 1000 ALTERs). Connection: must set search_path per connection.
+    Used by: Shopify (historically), Notion (partially).
+  
+  Pattern 3: Database-Per-Tenant
+    Each tenant gets their own DB instance (or cluster). Complete isolation.
+    Pros: zero noisy neighbor. Independent scaling. Regulatory compliance (GDPR data residency per tenant region).
+           Customer can require dedicated hardware (enterprise contracts).
+    Cons: expensive (1000 tenants = 1000 DB instances). Ops complexity. Cross-tenant analytics impossible directly.
+    Used by: HubSpot (large enterprise tenants), Salesforce (large orgs), Atlassian (dedicated cloud).
+
+<span class="f-title">DATABASE SELECTION FOR FAANG SYSTEM DESIGN INTERVIEWS:</span>
+  The most important question: "What database would you use for X?"
+  
+  TWITTER / SOCIAL FEED:
+    Tweets (text + metadata): PostgreSQL or MySQL. Strict schema. Relational queries for profile.
+    Social graph (who follows who): Graph DB (Neo4j) or adjacency list in Cassandra.
+    Timeline feed (fanout-on-write): Redis ZSET per user. Pre-computed feed. ZADD timeline:userId score tweetId.
+    Search: Elasticsearch. Full-text on tweets + #hashtags.
+    Analytics (trends, engagement): ClickHouse or BigQuery. Aggregations over billions of events.
+  
+  UBER / RIDE-SHARING:
+    Trips/orders: PostgreSQL. ACID for pricing, payment, trip state machine.
+    Driver location (real-time): Redis GEOADD. GEORADIUS to find nearby drivers. 1-second TTL.
+    Surge pricing: Redis counters per region per time bucket.
+    Historical trips: Cassandra or DynamoDB. Append-heavy, queryable by userId, tripId.
+    Analytics: Presto/Trino over data lake (Parquet + Iceberg on S3).
+  
+  NETFLIX / VIDEO STREAMING:
+    Content metadata (titles, cast): PostgreSQL. Complex relational queries.
+    Watch history: Cassandra. Write-heavy, time-series, userId partition key.
+    Recommendations: Custom vector DB or Elasticsearch with dense vectors. kNN similarities.
+    CDN cache (video segments): Not a DB — object storage (S3) + CDN (Akamai/CloudFront).
+    Viewing analytics: Flink streaming → Iceberg data lake → Spark batch analytics.
+  
+  WHATSAPP / MESSAGING:
+    Messages: Cassandra. Partition by (chat_id, bucket). Clustering by timestamp. 100B messages/day.
+    User presence (online/offline): Redis. SETEX userId "online" EX 30. 30-second TTL.
+    Contacts/groups: PostgreSQL. Relational. Rarely updated.
+    Media (images, videos): Blob storage (S3). DB stores only the S3 URL.
+    Push notifications: Kafka queue → notification workers → FCM/APNs.
+  
+  YOUTUBE / VIDEO UPLOAD:
+    Video metadata + comments: PostgreSQL (metadata) + Cassandra (comments, append-heavy).
+    Video storage: Object storage (S3-compatible). NOT a database.
+    View counts: Redis INCR for real-time. Batched → PostgreSQL for persistence.
+    Search: Elasticsearch. Full-text video titles/descriptions.
+    Recommendations: BigQuery or Spark ML on analytics data.
+  
+  URL SHORTENER (LeetCode/FAANG starter system design):
+    Mappings: Redis (cache) + PostgreSQL (source of truth).
+    Redis: shortCode → longURL. TTL = never. Hit rate: 99%+ (most popular links are small %).
+    PostgreSQL: persist all mappings. Single table. Indexed on short_code (8 chars, B-tree, unique).
+    Analytics: Kafka → Flink → ClickHouse (count clicks per shortcode per time window).
+  
+  RATE LIMITER:
+    Redis ZSET (sliding window): ZADD ratelimit:userId now*1000 uuid. ZREMRANGEBYSCORE below window.
+    Redis fixed window: INCR key:userId:minute. EXPIRE 60. GET and check count.
+    Distributed token bucket: Lua script in Redis for atomic check-and-decrement. Single round-trip.
+  
+  NOTIFICATION SYSTEM:
+    User preferences: PostgreSQL. Rarely updated.
+    Message queue: Kafka. Decouple producers (events) from consumers (notification workers).
+    Device tokens: Cassandra. userId → [deviceToken1, deviceToken2]. High write (token refreshes).
+    Delivery status: Cassandra or DynamoDB. notificationId → status, timestamp.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">⚖️</div><div class="concept-title">Consistency Spectrum</div><div class="concept-body"><strong>Strict Serializable</strong> (Spanner): real-time ordered + one-at-a-time. <strong>Serializable</strong> (PostgreSQL SERIALIZABLE): one-at-a-time but not real-time ordered. <strong>Linearizable</strong> (single-key): real-time ordered per key. <strong>Causal</strong> (MongoDB sessions): cause-before-effect. <strong>Eventual</strong> (Cassandra default): will converge, no guarantees.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔄</div><div class="concept-title">2PC Failure Modes</div><div class="concept-body">Coordinator crash between Phase 1 COMMIT sent + Phase 2: <strong>blocking</strong> — some participants committed, others uncertain. Cannot proceed. Requires coordinator restart + log replay. Use 3PC or Paxos-based protocols to avoid. In practice: use Saga or accept 2PC limitations to single-DB transactions.</div></div>
+      <div class="concept-card"><div class="concept-icon">📐</div><div class="concept-title">Saga Failure Handling</div><div class="concept-body"><strong>Compensating transaction must be idempotent</strong>: if it fails mid-way and retries, it must produce same result. Design: use correlation IDs. Log saga state in DB. <strong>Idempotency key</strong>: PaymentService checks "did I already charge idempotencyKey=order123?" before charging. Prevents double-charge on retry.</div></div>
+      <div class="concept-card"><div class="concept-icon">🏗️</div><div class="concept-title">DB-per-Service Pattern</div><div class="concept-body">Each microservice owns its DB. NO direct cross-service DB queries. Only APIs. Prevents tight coupling. Challenge: cross-service queries require API composition or event-driven denormalization. <strong>CQRS</strong>: separate read model (materialized view) from write model. Read model built by consuming events from other services.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔐</div><div class="concept-title">Data at Rest Security</div><div class="concept-body"><strong>Transparent Data Encryption (TDE)</strong>: PostgreSQL pgcrypto, MySQL InnoDB TDE — encrypts data files. App doesn't change. <strong>Column-level encryption</strong>: encrypt specific sensitive columns (SSN, credit card). Only app decrypts. DB stores ciphertext. <strong>Row-level Security</strong>: PostgreSQL RLS — DB enforces tenant isolation in WHERE clause.</div></div>
+      <div class="concept-card"><div class="concept-icon">🌍</div><div class="concept-title">Data Residency & GDPR</div><div class="concept-body">EU users' data must stay in EU. Solution: <strong>geo-partitioning</strong>. CockroachDB: PARTITION BY LIST (region) CONFIGURE ZONE constraints='region=EU'. Data pinned to EU nodes. Spanner: similar. DynamoDB Global Tables: data replicated globally — need custom routing to ensure EU writes go to EU table. Challenge: joins across regions = cross-region latency.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical FAANG Interview Questions — The Staff-Level Differentiators</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">What is the difference between linearizability and serializability? Can a database be serializable but NOT linearizable? Give a concrete example where this difference causes a bug in a real application.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">You need to run: ALTER TABLE orders ADD COLUMN estimated_delivery TIMESTAMP NOT NULL. The orders table has 500 million rows in production PostgreSQL. Describe the exact process to do this with zero downtime.</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Design the database layer for a WhatsApp-like messaging system. Justify each DB choice — what properties of Cassandra make it the right choice for messages vs PostgreSQL for contacts?</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">Your microservices architecture: OrderService (PostgreSQL), InventoryService (MySQL), PaymentService (Stripe). A user places an order — you need to deduct inventory AND charge their card atomically. Why can't you use 2PC and how would you implement a Saga instead?</div></div>
+      <div class="iq"><div class="iq-num">Q5</div><div class="iq-text">A user updates their profile photo, then immediately reloads the page. The page shows the OLD photo. No bug in the application code — explain what is happening at the database level (replication lag) and give 3 different solutions.</div></div>
+      <div class="iq"><div class="iq-num">Q6</div><div class="iq-text">PACELC: DynamoDB is PA/EL and Spanner is PC/EC. You're building a global payment system that requires consistent account balances across regions. Which do you choose and why? What latency trade-off are you accepting?</div></div>
+      <div class="iq"><div class="iq-num">Q7</div><div class="iq-text">Your SaaS has 10,000 tenants. You're seeing "noisy neighbor" — one tenant's queries are slowing down all others. Walk through the three multi-tenancy patterns and recommend which to migrate to based on the constraint that you cannot afford separate DB instances.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON MATRIX -->
+<section class="section reveal" id="s-comparison">
+  <div class="section-divider"><div class="section-label">Quick Reference</div></div>
+  <div class="section-title">📊 Database Comparison Matrix</div>
+  <p class="section-sub">Choose the right database for the right problem. This is the single most important table in this book.</p>
+
+  <div style="overflow-x:auto;margin-top:1.5rem">
+    <table class="cmp-table">
+      <thead>
+        <tr><th>Database</th><th>Type</th><th>Best For</th><th>Consistency</th><th>Scale Axis</th><th>Avoid When</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PostgreSQL</td><td>RDBMS</td><td>Transactions, complex queries, JSON, geo</td><td class="ok">ACID / Serializable</td><td class="mid">Vertical + read replicas</td><td>Millions of writes/sec</td></tr>
+        <tr><td>MySQL / InnoDB</td><td>RDBMS</td><td>Web apps, read-heavy, sharding (Aurora)</td><td class="ok">ACID</td><td class="mid">Read replicas</td><td>Complex queries, JSONB</td></tr>
+        <tr><td>SQLite</td><td>Embedded RDBMS</td><td>Mobile, desktop, local apps, test DBs</td><td class="ok">ACID</td><td class="warn">Single-file, one writer</td><td>High concurrent writes, server apps</td></tr>
+        <tr><td>Cassandra</td><td>Wide-Column</td><td>Write-heavy, time-series, multi-region</td><td class="mid">Tunable (QUORUM)</td><td class="ok">Horizontal (masterless)</td><td>JOINs, ACID, ad-hoc queries</td></tr>
+        <tr><td>ScyllaDB</td><td>Wide-Column</td><td>Same as Cassandra, 10× lower latency</td><td class="mid">Tunable (QUORUM)</td><td class="ok">Horizontal (masterless)</td><td>If already on Cassandra (migration cost)</td></tr>
+        <tr><td>HBase</td><td>Wide-Column</td><td>Hadoop ecosystem, large cells, random access in HDFS</td><td class="mid">Strong (region-level)</td><td class="ok">Horizontal (HDFS)</td><td>Multi-DC active-active, Cassandra workloads</td></tr>
+        <tr><td>MongoDB</td><td>Document</td><td>Flexible schema, hierarchical data</td><td class="ok">ACID (4.0+)</td><td class="ok">Horizontal (sharding)</td><td>Relational data, analytics</td></tr>
+        <tr><td>Redis</td><td>In-Memory KV</td><td>Cache, session, pub/sub, leaderboards</td><td class="warn">Eventual (async replication)</td><td class="mid">Cluster (hash slots)</td><td>Primary data store, large datasets</td></tr>
+        <tr><td>Dragonfly</td><td>In-Memory KV</td><td>Redis-compatible, high-throughput cache</td><td class="warn">Eventual</td><td class="ok">Multi-threaded, vertical + cluster</td><td>Redis working fine, immature ecosystem</td></tr>
+        <tr><td>Memcached</td><td>Cache</td><td>Simple KV cache, multi-threaded, ultra-fast</td><td class="warn">No persistence</td><td class="ok">Horizontal (client hashing)</td><td>Data structures, persistence needed</td></tr>
+        <tr><td>Elasticsearch</td><td>Search Engine</td><td>Full-text search, log analytics</td><td class="mid">Eventually consistent</td><td class="ok">Horizontal (sharding)</td><td>ACID transactions, updates</td></tr>
+        <tr><td>DynamoDB</td><td>Key-Value</td><td>Known-pattern access, serverless, infinite scale</td><td class="mid">Eventual / strong (option)</td><td class="ok">Infinite (managed)</td><td>Ad-hoc queries, JOINs</td></tr>
+        <tr><td>Neo4j</td><td>Graph</td><td>Social graph, fraud, recommendations</td><td class="ok">ACID</td><td class="warn">Vertical (Enterprise clusters)</td><td>Tabular data, analytics</td></tr>
+        <tr><td>InfluxDB / TimescaleDB</td><td>Time-Series</td><td>Metrics, IoT, monitoring</td><td class="mid">Eventual</td><td class="ok">Horizontal</td><td>General-purpose queries, JOINs</td></tr>
+        <tr><td>CockroachDB</td><td>NewSQL</td><td>ACID + horizontal scale + multi-region</td><td class="ok">Serializable</td><td class="ok">Horizontal (auto)</td><td>Cost-sensitive, simple workloads</td></tr>
+        <tr><td>ClickHouse</td><td>OLAP (Columnar)</td><td>Real-time analytics, 100B row aggregations</td><td class="mid">Eventual (async replication)</td><td class="ok">Horizontal (sharding)</td><td>OLTP, low-latency point queries, ACID</td></tr>
+        <tr><td>DuckDB</td><td>Embedded OLAP</td><td>In-process analytics, Parquet/CSV queries</td><td class="ok">ACID (single writer)</td><td class="warn">Single-node (embedded)</td><td>Multi-user production serving, &gt;1TB data</td></tr>
+        <tr><td>RocksDB</td><td>Embedded KV</td><td>Storage engine for other systems (Kafka, Flink, TiKV)</td><td class="ok">ACID (library)</td><td class="warn">Embedded (no network)</td><td>Standalone use; compose into higher system</td></tr>
+        <tr><td>Snowflake</td><td>Cloud DW</td><td>Multi-cloud DW, data sharing, complex SQL</td><td class="ok">ACID (DML)</td><td class="ok">Unlimited (storage/compute separated)</td><td>Real-time &lt;1s queries, OLTP</td></tr>
+        <tr><td>BigQuery</td><td>Serverless OLAP</td><td>Serverless analytics, Google ecosystem</td><td class="mid">Eventually consistent (streaming)</td><td class="ok">Serverless (auto-scales)</td><td>Sub-second latency, frequent small queries</td></tr>
+        <tr><td>Apache Iceberg</td><td>Table Format</td><td>Data lake ACID, analytics, big data</td><td class="ok">ACID on object storage</td><td class="ok">Unlimited (object storage)</td><td>OLTP, low-latency queries</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CHEATSHEET -->
+<section class="section reveal" id="s-cheat">
+  <div class="section-divider"><div class="section-label">Quick Reference</div></div>
+  <div class="section-title">⚡ SQL & DB Diagnostic Cheatsheet</div>
+  <div class="cheat" style="margin-top:1.5rem">
+    <div class="cheat-row"><div class="cheat-key">Find slow queries (PG)</div><div class="cheat-val"><code>SELECT query, calls, mean_exec_time, total_exec_time FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 20;</code> — must enable pg_stat_statements extension.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Find blocking (PG)</div><div class="cheat-val"><code>SELECT pid, now()-query_start AS duration, query, wait_event_type, wait_event FROM pg_stat_activity WHERE state != 'idle' ORDER BY duration DESC;</code> then <code>SELECT pg_blocking_pids(blocking_pid);</code></div></div>
+    <div class="cheat-row"><div class="cheat-key">Table bloat (PG)</div><div class="cheat-val"><code>SELECT relname, n_dead_tup, n_live_tup, ROUND(n_dead_tup::numeric/NULLIF(n_live_tup,0)*100,1) AS dead_pct FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 10;</code></div></div>
+    <div class="cheat-row"><div class="cheat-key">Index usage (PG)</div><div class="cheat-val"><code>SELECT indexrelname, idx_scan, idx_tup_read FROM pg_stat_user_indexes WHERE schemaname='public' ORDER BY idx_scan ASC;</code> — indexes with 0 idx_scan are unused. Consider dropping.</div></div>
+    <div class="cheat-row"><div class="cheat-key">MySQL index usage</div><div class="cheat-val"><code>EXPLAIN FORMAT=JSON SELECT ...;</code> — look for "type":"ALL" (full scan). <code>SHOW INDEX FROM orders;</code> — cardinality. <code>SELECT * FROM sys.schema_unused_indexes;</code> — unused indexes.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Redis diagnostics</div><div class="cheat-val"><code>INFO memory</code> — used_memory, maxmemory, evicted_keys. <code>INFO stats</code> — keyspace_hits vs keyspace_misses → cache hit rate. <code>MEMORY DOCTOR</code> — Redis 4+ memory analysis. <code>redis-cli --latency</code> — latency baseline.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Cassandra nodetool</div><div class="cheat-val"><code>nodetool status</code> — cluster health. <code>nodetool tpstats</code> — thread pool stats (dropped messages). <code>nodetool tablestats keyspace.table</code> — SSTable count (high = need compaction). <code>nodetool compactionstats</code>.</div></div>
+    <div class="cheat-row"><div class="cheat-key">ES cluster health</div><div class="cheat-val"><code>GET /_cluster/health?pretty</code> — status green/yellow/red. <code>GET /_cat/indices?v&s=store.size:desc</code> — largest indexes. <code>GET /_nodes/stats/jvm</code> — heap pressure. <code>GET /_cluster/pending_tasks</code> — pending operations.</div></div>
+  </div>
+</section>
+
+<!-- PRIORITY -->
+<section class="section reveal" id="s-priority">
+  <div class="section-divider"><div class="section-label">Study Roadmap</div></div>
+  <div class="section-title">🎯 Priority Study Plan — Databases</div>
+
+  <div class="tier tier-1" style="margin-top:1.5rem">
+    <div class="tier-badge">🔥 Tier 1 — Every Senior Interview</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>PostgreSQL MVCC:</strong> how concurrent reads/writes work without table locks</div>
+      <div class="tier-item"><strong>Index types + EXPLAIN:</strong> B-tree, partial, expression, composite index rules</div>
+      <div class="tier-item"><strong>B-tree vs LSM tree:</strong> which DB uses which and why (and who uses RocksDB under the hood)</div>
+      <div class="tier-item"><strong>ACID properties:</strong> atomicity, consistency, isolation, durability — each with failure example</div>
+      <div class="tier-item"><strong>Redis data structures:</strong> which to use when (ZSET, Hash, HLL, Pub/Sub)</div>
+      <div class="tier-item"><strong>Cassandra data modelling:</strong> query-first, partition key, tombstones</div>
+      <div class="tier-item"><strong>CAP theorem:</strong> CP vs AP, examples of each in real databases</div>
+      <div class="tier-item"><strong>N+1 detection + fix:</strong> most common backend bug after SQL injection</div>
+      <div class="tier-item"><strong>ClickHouse vs PostgreSQL:</strong> OLAP vs OLTP — when to choose columnar</div>
+      <div class="tier-item"><strong>Snowflake/BigQuery:</strong> storage-compute separation, partitioning, cost model</div>
+    </div>
+  </div>
+
+  <div class="tier tier-2">
+    <div class="tier-badge">🟠 Tier 2 — Senior / Staff Level</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>PostgreSQL WAL + replication:</strong> sync vs async, RPO/RTO</div>
+      <div class="tier-item"><strong>MySQL clustered index:</strong> UUID vs AUTO_INCREMENT, covering index</div>
+      <div class="tier-item"><strong>Elasticsearch inverted index:</strong> filter vs query context, shard sizing</div>
+      <div class="tier-item"><strong>DynamoDB single-table design:</strong> access patterns, hot partition mitigations</div>
+      <div class="tier-item"><strong>Redis Cluster hash slots:</strong> hash tags, failover, eviction policies</div>
+      <div class="tier-item"><strong>PostgreSQL XID wraparound:</strong> one of the most dangerous production scenarios</div>
+      <div class="tier-item"><strong>Connection pooling (PgBouncer):</strong> transaction vs session mode</div>
+      <div class="tier-item"><strong>MongoDB shard key design:</strong> monotonic hotspot, compound hash key</div>
+      <div class="tier-item"><strong>ClickHouse MergeTree + sparse index:</strong> how granule skipping achieves billion-row speed</div>
+      <div class="tier-item"><strong>RocksDB as state backend:</strong> why Flink/Kafka/TiKV embed it, write stalls</div>
+      <div class="tier-item"><strong>ScyllaDB shard-per-core:</strong> why no JVM GC beats Cassandra on P99 latency</div>
+      <div class="tier-item"><strong>DuckDB zero-copy Parquet:</strong> in-process OLAP vs Spark for &lt;500GB</div>
+    </div>
+  </div>
+
+  <div class="tier tier-3">
+    <div class="tier-badge">🟡 Tier 3 — Principal / Distinguished</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Google Spanner TrueTime:</strong> external consistency, commit wait</div>
+      <div class="tier-item"><strong>Neo4j index-free adjacency:</strong> why graph traversal beats SQL JOINs</div>
+      <div class="tier-item"><strong>Cassandra LSM compaction strategies:</strong> STCS vs LCS vs TWCS tombstone nuances</div>
+      <div class="tier-item"><strong>TimescaleDB hypertables + downsampling:</strong> continuous aggregates</div>
+      <div class="tier-item"><strong>Snowflake zero-copy clone + time travel:</strong> CoW micro-partitions</div>
+      <div class="tier-item"><strong>BigQuery Dremel + slot model:</strong> serverless query planning, cost per TB</div>
+      <div class="tier-item"><strong>SQLite WAL + journal modes:</strong> when to embed vs serve, concurrency limits</div>
+      <div class="tier-item"><strong>Dragonfly shared-nothing threading:</strong> dashtable, fibers, Redis compat</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-links">
+    <a href="library.html" class="footer-link">🏛️ Library</a>
+    <a href="book-1.html" class="footer-link">I · The City</a>
+    <a href="book-2.html" class="footer-link">II · Codex</a>
+    <a href="book-3.html" class="footer-link">III · Foundations</a>
+    <a href="book-4.html" class="footer-link">IV · The Hall</a>
+    <a href="book-5.html" class="footer-link">V · The River</a>
+    <a href="book-6-systems.html" class="footer-link">VI · Systems</a>
+    <a href="book-7-devops.html" class="footer-link">VII · Platform</a>
+    <a href="book-8-bigdata.html" class="footer-link">VIII · Big Data</a>
+    <a href="book-9-databases.html" class="footer-link current">IX · Databases ✓</a>
+  </div>
+  <p style="font-size:.88rem;font-style:italic;color:var(--text-3);max-width:560px;margin:0 auto;line-height:1.7">"Every database makes a choice. Read fast or write fast. Strong consistency or availability. Index everything or nothing. The senior engineer's job is to know which choice each system made — and to choose the right system for the problem, not the system they're most comfortable with."</p>
+</footer>
+
+</main>
+
+<script>
+const prog=document.getElementById('progress');
+window.addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-window.innerHeight;prog.style.width=(window.scrollY/h*100)+'%';});
+const tocBtn=document.getElementById('tocBtn'),toc=document.getElementById('toc');
+tocBtn.addEventListener('click',()=>{tocBtn.classList.toggle('open');toc.classList.toggle('open');});
+toc.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{tocBtn.classList.remove('open');toc.classList.remove('open');}));
+const tocLinks=document.querySelectorAll('.toc-a');
+const io=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){tocLinks.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.toc-a[href="#${en.target.id}"]`);if(a)a.classList.add('active');}});},{rootMargin:'-10% 0px -80% 0px'});
+document.querySelectorAll('[id]').forEach(el=>io.observe(el));
+const revIO=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');revIO.unobserve(en.target);}});},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>revIO.observe(el));
+function animateCount(el){const target=+el.dataset.target,dur=1600,start=performance.now();(function tick(now){const t=Math.min((now-start)/dur,1),ease=1-Math.pow(1-t,3);el.textContent=Math.round(ease*target)+(t>=1?'+':'');if(t<1)requestAnimationFrame(tick);})(start);}
+const cIO=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){en.target.querySelectorAll('[data-target]').forEach(animateCount);cIO.unobserve(en.target);}});},{threshold:.5});
+const se=document.querySelector('.hero-stats');if(se)cIO.observe(se);
+</script>
+</body>
+</html>

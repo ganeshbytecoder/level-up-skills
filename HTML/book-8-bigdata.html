@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book VIII · Big Data Engineering Mastery</title>
+<meta name="description" content="Spark · Flink · Airflow · Kafka Streaming · Iceberg · Parquet · Avro · Trino · Zookeeper — zero to FAANG senior data engineer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void:#020208;--deep:#06060f;--surface:#0c0c1e;--card:#10102a;
+  --elevated:#161632;--raised:#1e1e44;
+  --border:rgba(255,255,255,0.06);
+  --border-glow:rgba(139,92,246,0.28);
+  --text-1:#f4f1ec;--text-2:#9e9aaa;--text-3:#5e5a6a;
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.12);--purple-glow:rgba(139,92,246,0.07);
+  --violet:#7c3aed;--indigo:#6366f1;
+  --orange:#f97316;--amber:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --blue:#3b82f6;--cyan:#06b6d4;--teal:#14b8a6;
+  --ff-sans:'Inter',system-ui,sans-serif;
+  --ff-display:'Sora','Inter',sans-serif;
+  --ff-mono:'JetBrains Mono','Fira Code',monospace;
+  --r-sm:8px;--r-md:14px;--r-lg:22px;--r-xl:32px;
+  --shadow-md:0 8px 32px rgba(0,0,0,0.6);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:15px;}
+body{font-family:var(--ff-sans);background:var(--void);color:var(--text-1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+::selection{background:rgba(139,92,246,0.28);color:var(--text-1);}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--elevated);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 15% -10%,rgba(139,92,246,0.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 40% at 85% 110%,rgba(99,102,241,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+#progress{position:fixed;top:0;left:0;height:2px;width:0;
+  background:linear-gradient(90deg,var(--purple),var(--indigo),var(--purple));
+  background-size:200% auto;animation:shimmer 2s linear infinite;z-index:2000;transition:width .1s linear;}
+@keyframes shimmer{to{background-position:200% center;}}
+
+.nav{position:fixed;top:2px;left:0;right:0;height:58px;
+  background:rgba(2,2,8,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;
+  padding:0 1.5rem;gap:1rem;z-index:1000;}
+.nav-home{display:flex;align-items:center;gap:.5rem;text-decoration:none;
+  color:var(--purple);font-size:.8rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;opacity:.85;transition:opacity .2s;white-space:nowrap;}
+.nav-home:hover{opacity:1;}
+.nav-title{flex:1;text-align:center;font-family:var(--ff-display);font-size:.9rem;font-weight:600;color:var(--text-2);}
+.nav-badge{padding:.3rem .75rem;background:var(--purple-dim);border:1px solid var(--border-glow);
+  border-radius:100px;font-size:.72rem;font-weight:700;color:var(--purple);letter-spacing:.05em;white-space:nowrap;}
+
+.toc-wrap{position:fixed;top:60px;left:0;width:228px;height:calc(100vh - 60px);
+  overflow-y:auto;z-index:900;transform:translateX(-100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  background:rgba(6,6,15,.96);backdrop-filter:blur(20px);
+  border-right:1px solid var(--border);padding:1.25rem 0 2rem;}
+.toc-wrap.open{transform:translateX(0);}
+.toc-toggle{position:fixed;top:70px;left:.75rem;width:38px;height:38px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  cursor:pointer;z-index:950;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.toc-toggle:hover{border-color:var(--border-glow);background:var(--elevated);}
+.toc-toggle i{display:block;width:16px;height:2px;background:var(--text-2);border-radius:2px;transition:all .3s;}
+.toc-toggle.open i:nth-child(1){transform:rotate(45deg) translate(5px,5px);}
+.toc-toggle.open i:nth-child(2){opacity:0;}
+.toc-toggle.open i:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}
+.toc-label{padding:0 1.25rem .75rem;font-size:.65rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.15em;color:var(--text-3);border-bottom:1px solid var(--border);margin-bottom:.5rem;}
+.toc-a{display:block;padding:.4rem 1.25rem;font-size:.78rem;color:var(--text-2);
+  text-decoration:none;border-left:2px solid transparent;transition:all .2s;line-height:1.4;}
+.toc-a:hover,.toc-a.active{color:var(--purple);border-left-color:var(--purple);background:var(--purple-glow);}
+.toc-section{margin-top:.5rem;}
+.toc-section-label{padding:.3rem 1.25rem;font-size:.6rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.15em;color:var(--text-3);}
+
+main{max-width:920px;margin:0 auto;padding:78px 1.5rem 6rem;position:relative;z-index:1;}
+
+.hero{text-align:center;padding:4rem 1rem 3rem;position:relative;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(139,92,246,0.08) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem 1rem;
+  background:var(--purple-dim);border:1px solid var(--border-glow);border-radius:100px;
+  font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;
+  color:var(--purple);margin-bottom:1.75rem;animation:fadeUp .6s ease .1s both;}
+h1.hero-title{font-family:var(--ff-display);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;
+  line-height:1.1;margin-bottom:1.25rem;animation:fadeUp .6s ease .25s both;}
+h1.hero-title .gradient{background:linear-gradient(135deg,#fff 0%,var(--purple) 45%,var(--indigo) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h1.hero-title .sub{display:block;font-size:.5em;color:var(--text-2);font-weight:400;
+  margin-top:.4rem;font-family:var(--ff-sans);}
+.hero-desc{font-size:1.05rem;color:var(--text-2);max-width:640px;margin:0 auto 2.5rem;
+  line-height:1.75;animation:fadeUp .6s ease .4s both;}
+.hero-stats{display:flex;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .55s both;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;max-width:680px;margin:0 auto 2rem;}
+.stat{flex:1;min-width:110px;padding:1.25rem 1rem;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border:none;}
+.stat-n{font-family:var(--ff-display);font-size:2rem;font-weight:900;color:var(--purple);
+  line-height:1;margin-bottom:.25rem;}
+.stat-l{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);}
+.hero-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .7s both;}
+.btn-primary{padding:.75rem 1.75rem;background:linear-gradient(135deg,var(--purple) 0%,var(--violet) 100%);
+  border:none;border-radius:100px;color:#fff;font-family:var(--ff-sans);font-weight:700;font-size:.88rem;
+  cursor:pointer;text-decoration:none;transition:all .3s;box-shadow:0 4px 24px rgba(139,92,246,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(139,92,246,.45);}
+.btn-ghost{padding:.75rem 1.75rem;background:transparent;border:1px solid var(--border);
+  border-radius:100px;color:var(--text-2);font-size:.88rem;cursor:pointer;text-decoration:none;transition:all .3s;}
+.btn-ghost:hover{border-color:var(--border-glow);color:var(--purple);}
+
+.section{margin-top:4.5rem;}
+.section-divider{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.section-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:var(--purple);white-space:nowrap;}
+.section-title{font-family:var(--ff-display);font-size:clamp(1.5rem,3vw,1.9rem);font-weight:800;color:var(--text-1);margin-bottom:.5rem;}
+.section-sub{font-size:.9rem;color:var(--text-2);line-height:1.6;max-width:620px;}
+
+.group-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;margin-top:3.5rem;transition:border-color .3s;}
+.group-card:hover{border-color:rgba(139,92,246,.15);}
+.group-header{display:flex;gap:1.25rem;align-items:flex-start;padding:1.75rem 2rem;
+  background:linear-gradient(135deg,var(--elevated) 0%,var(--card) 100%);
+  border-bottom:1px solid var(--border);}
+.group-emoji{width:56px;height:56px;background:var(--purple-dim);border:1px solid var(--border-glow);
+  border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+.group-meta{flex:1;}
+.group-num{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:var(--purple);margin-bottom:.3rem;}
+.group-title{font-family:var(--ff-display);font-size:1.2rem;font-weight:800;color:var(--text-1);margin-bottom:.3rem;line-height:1.3;}
+.group-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.gtag{padding:.2rem .6rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:.7rem;color:var(--text-2);}
+.group-body{padding:1.75rem 2rem;}
+
+.problems{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.75rem;}
+.problem{display:flex;gap:.5rem;align-items:center;padding:.55rem .9rem;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);
+  font-size:.8rem;color:var(--text-2);transition:all .2s;cursor:default;}
+.problem:hover{border-color:rgba(139,92,246,.2);color:var(--text-1);}
+.problem.priority{border-color:rgba(139,92,246,.18);}
+.problem.priority::before{content:'⭐';font-size:.7rem;}
+.diff{padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:800;letter-spacing:.05em;margin-left:auto;}
+.diff-h{background:rgba(239,68,68,.12);color:#ef4444;}
+.diff-m{background:rgba(245,158,11,.12);color:#f59e0b;}
+.diff-e{background:rgba(34,197,94,.12);color:#22c55e;}
+
+.flow-panel{background:#020208;border:1px solid rgba(139,92,246,.15);border-radius:var(--r-lg);overflow:hidden;margin:1.25rem 0;}
+.flow-panel-header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;
+  background:rgba(139,92,246,.05);border-bottom:1px solid rgba(139,92,246,.1);}
+.flow-panel-dots{display:flex;gap:6px;}
+.flow-panel-dot{width:8px;height:8px;border-radius:50%;}
+.dot-red{background:#ef4444;}.dot-blue{background:#3b82f6;}.dot-green{background:#22c55e;}
+.flow-panel-title{font-family:var(--ff-mono);font-size:.75rem;font-weight:600;color:var(--purple);letter-spacing:.05em;}
+.flow-panel-body{padding:1.5rem 1.75rem;font-family:var(--ff-mono);font-size:.79rem;line-height:1.8;color:#c9d1d9;overflow-x:auto;white-space:pre;}
+.f-title{color:#a78bfa;font-weight:700;}
+.f-key{color:#f59e0b;}.f-ok{color:#86efac;}.f-warn{color:#fca5a5;}
+.f-dim{color:#6b7280;}.f-blue{color:#93c5fd;}.f-cyan{color:#67e8f9;}.f-purple{color:#c4b5fd;}
+
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin:1.5rem 0;}
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.25rem;transition:all .25s;position:relative;overflow:hidden;}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--purple),transparent);opacity:0;transition:opacity .25s;}
+.concept-card:hover{border-color:rgba(139,92,246,.2);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.concept-card:hover::before{opacity:1;}
+.concept-icon{font-size:1.4rem;margin-bottom:.6rem;}
+.concept-title{font-size:.88rem;font-weight:700;color:var(--text-1);margin-bottom:.4rem;font-family:var(--ff-display);}
+.concept-body{font-size:.79rem;color:var(--text-2);line-height:1.6;}
+.concept-body strong{color:var(--text-1);}
+.concept-body code{font-family:var(--ff-mono);font-size:.75rem;background:rgba(139,92,246,.08);padding:.1rem .3rem;border-radius:4px;color:var(--purple);}
+
+.iq-section{margin:1.5rem 0;}
+.iq-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;
+  color:var(--text-3);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
+.iq-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.iq{display:flex;gap:.75rem;padding:.9rem 1rem;background:var(--surface);
+  border:1px solid var(--border);border-left:3px solid var(--purple);
+  border-radius:0 var(--r-md) var(--r-md) 0;margin-bottom:.6rem;transition:all .2s;}
+.iq:hover{background:var(--elevated);border-left-color:var(--indigo);}
+.iq-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--purple);opacity:.6;flex-shrink:0;padding-top:.1rem;}
+.iq-text{font-size:.86rem;color:var(--text-2);line-height:1.55;font-style:italic;}
+
+.arch-box{background:#020208;border:1px solid rgba(139,92,246,.12);border-radius:var(--r-lg);
+  padding:1.5rem 1.75rem;margin:1.5rem 0;overflow-x:auto;}
+.arch-box pre{font-family:var(--ff-mono);font-size:.78rem;line-height:1.75;color:#c9d1d9;margin:0;white-space:pre;}
+
+.cheat{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;margin:2rem 0;}
+.cheat-row{display:flex;gap:1rem;align-items:flex-start;padding:.85rem 1.5rem;
+  border-bottom:1px solid var(--border);transition:background .2s;}
+.cheat-row:last-child{border:none;}
+.cheat-row:hover{background:var(--elevated);}
+.cheat-key{font-family:var(--ff-mono);font-size:.8rem;font-weight:700;color:var(--purple);min-width:145px;padding-top:.05rem;}
+.cheat-val{font-size:.82rem;color:var(--text-2);line-height:1.6;}
+.cheat-val strong{color:var(--text-1);}
+
+.tier{border-radius:var(--r-lg);padding:1.5rem;margin:1rem 0;}
+.tier-1{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);}
+.tier-2{background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.18);}
+.tier-3{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.14);}
+.tier-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem;}
+.tier-1 .tier-badge{color:#ef4444;}.tier-2 .tier-badge{color:var(--purple);}.tier-3 .tier-badge{color:#f59e0b;}
+.tier-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.5rem;}
+.tier-item{display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;color:var(--text-2);}
+.tier-item::before{content:'→';color:var(--purple);flex-shrink:0;font-weight:700;margin-top:.05rem;}
+.tier-item strong{color:var(--text-1);}
+
+.footer{margin-top:5rem;padding:3rem 0;border-top:1px solid var(--border);text-align:center;}
+.footer-links{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem;}
+.footer-link{padding:.4rem .8rem;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text-2);text-decoration:none;font-size:.78rem;transition:all .2s;}
+.footer-link:hover{color:var(--purple);border-color:var(--border-glow);}
+.footer-link.current{color:var(--purple);border-color:var(--border-glow);font-weight:700;}
+.footer-quote{font-size:.88rem;font-style:italic;color:var(--text-3);max-width:520px;margin:0 auto;line-height:1.7;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.4,0,.2,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+@media(max-width:640px){
+  main{padding:72px 1rem 4rem;}
+  .hero{padding:2.5rem 0 2rem;}
+  .group-body{padding:1.25rem;}
+  .group-header{padding:1.25rem;}
+  .concept-grid{grid-template-columns:1fr;}
+  .tier-items{grid-template-columns:1fr;}
+  .flow-panel-body{font-size:.72rem;padding:1rem;}
+  .nav-badge{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav class="nav">
+  <a href="library.html" class="nav-home">⬅ Library</a>
+  <div class="nav-title">Big Data Engineering Mastery</div>
+  <div class="nav-badge">Book VIII · Zero to FAANG</div>
+</nav>
+
+<button class="toc-toggle" id="tocBtn" aria-label="Table of Contents"><i></i><i></i><i></i></button>
+<nav class="toc-wrap" id="toc">
+  <div class="toc-label">Table of Contents</div>
+  <div class="toc-section">
+    <div class="toc-section-label">Compute Engines</div>
+    <a href="#g1" class="toc-a">⚡ I · Apache Spark</a>
+    <a href="#g2" class="toc-a">🌊 II · Apache Flink</a>
+    <a href="#g3" class="toc-a">🔄 III · Kafka Streaming Deep Dive</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Storage Formats</div>
+    <a href="#g4" class="toc-a">📐 IV · Parquet, Avro & ORC</a>
+    <a href="#g5" class="toc-a">🏔️ V · Apache Iceberg & Lakehouse</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Orchestration & Query</div>
+    <a href="#g6" class="toc-a">🎯 VI · Apache Airflow</a>
+    <a href="#g7" class="toc-a">🔍 VII · Trino & Federated Queries</a>
+    <a href="#g8" class="toc-a">🦁 VIII · Zookeeper & Coordination</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Architecture & Failures</div>
+    <a href="#g9" class="toc-a">🏗️ IX · Data Architecture Patterns</a>
+    <a href="#g10" class="toc-a">💥 X · Optimisation & War Stories</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Reference</div>
+    <a href="#s-cheat" class="toc-a">📋 Command Cheatsheet</a>
+    <a href="#s-priority" class="toc-a">🎯 Study Priority</a>
+  </div>
+</nav>
+
+<main>
+
+<header class="hero" id="top">
+  <div class="hero-eyebrow">📚 The Engineer's Library · Book VIII · Data Edition</div>
+  <h1 class="hero-title">
+    <span class="gradient">Big Data Engineering</span>
+    <span class="sub">Spark · Flink · Kafka · Airflow · Iceberg · Parquet · Trino · Zookeeper · Lakehouse</span>
+  </h1>
+  <p class="hero-desc">
+    The engine room beneath every FAANG data platform. Every shuffle, every watermark, every skewed partition — from first principles to the production war stories that separate senior data engineers from the rest.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n" data-target="10">0</div><div class="stat-l">Topic Groups</div></div>
+    <div class="stat"><div class="stat-n" data-target="55">0</div><div class="stat-l">Critical Scenarios</div></div>
+    <div class="stat"><div class="stat-n" data-target="40">0</div><div class="stat-l">Interview Qs</div></div>
+    <div class="stat"><div class="stat-n" data-target="15">0</div><div class="stat-l">Tech Covered</div></div>
+  </div>
+  <div class="hero-actions">
+    <a href="#g1" class="btn-primary">Start with Spark →</a>
+    <a href="#s-priority" class="btn-ghost">Jump to Priority Plan</a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+  GROUP 1: APACHE SPARK
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g1">
+  <div class="group-header">
+    <div class="group-emoji">⚡</div>
+    <div class="group-meta">
+      <div class="group-num">Group I · The King of Batch Processing</div>
+      <div class="group-title">Apache Spark — Architecture, DAG & Optimisation</div>
+      <div class="group-tags">
+        <span class="gtag">RDD</span><span class="gtag">DataFrame</span><span class="gtag">Catalyst</span>
+        <span class="gtag">Tungsten</span><span class="gtag">Shuffle</span><span class="gtag">Partitioning</span><span class="gtag">AQE</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Spark architecture: Driver, Executor, DAG scheduler <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Shuffle: why it kills performance and how to avoid it <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Data skew: 1 partition processing for 10 hours <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Catalyst optimizer + Adaptive Query Execution (AQE) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">RDD vs DataFrame vs Dataset — when to use each <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Spark memory model: heap, off-heap, execution vs storage <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Broadcast joins vs sort-merge joins <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Spark Structured Streaming vs Flink <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">SPARK INTERNALS: DAG → STAGES → TASKS → OUTPUT</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">ARCHITECTURE — WHAT RUNS WHERE:</span>
+  Driver: your spark-submit process. Builds DAG. Coordinates. 1 per application.
+    SparkContext → DAG Scheduler → Task Scheduler
+  Cluster Manager: YARN / Kubernetes / Standalone — allocates Executors
+  Executor: JVM processes on worker nodes. Run Tasks. Store cached data.
+    Each Executor: N cores (N tasks in parallel) + configurable memory
+
+<span class="f-title">FROM spark.sql() TO CLUSTER EXECUTION — every step:</span>
+  1. Your code: spark.read.parquet("s3://datalake/orders/") .filter(col("amount") &gt; 100) .groupBy("country").agg(sum("amount"))
+  2. Unresolved Logical Plan: parsed AST (column names not yet resolved)
+  3. Analyzed Logical Plan: Catalog resolves column names, types, table schemas
+  4. <span class="f-key">CATALYST OPTIMIZER</span> (rule-based + cost-based):
+     - Predicate pushdown: push .filter() DOWN into Parquet reader → read fewer row groups
+     - Column pruning: only read "amount", "country" columns from Parquet → 10× less I/O
+     - Join reordering: smaller table first (cost-based using table statistics)
+     - Constant folding: 1 + 1 evaluated at plan time, not per-row
+  5. Physical Plan: chosen execution strategy (BroadcastHashJoin vs SortMergeJoin)
+  6. <span class="f-key">TUNGSTEN</span>: generates optimized JVM bytecode (whole-stage code generation)
+     10-100× faster than interpreted code. Operates on binary format, avoids GC pressure.
+  7. DAG cut into Stages at SHUFFLE BOUNDARIES:
+     Stage 1: read parquet → filter → partial aggregation (map-side combiner)
+     --- SHUFFLE ---   <span class="f-dim">← rows with same country go to same partition</span>
+     Stage 2: reduce aggregation → write output
+
+<span class="f-title">SHUFFLE — THE PERFORMANCE KILLER:</span>
+  All rows must be partitioned by key → network transfer across all executors.
+  200 tasks × 200 tasks = 40,000 network connections. Disk I/O + network + re-read.
+  Cost: minutes to hours for large datasets.
+
+  How to MINIMIZE shuffles:
+  a) Broadcast join (small table &lt;10MB): spark.conf.set("spark.sql.autoBroadcastJoinThreshold", "10485760")
+     small_df broadcast to ALL executors. Large table never moves. Zero shuffle.
+  b) Partition on join key before joining: pre-bucket tables by customer_id.
+     Two tables bucketed same way? → zero shuffle join (bucket pruning + local join)
+  c) Reduce spark.sql.shuffle.partitions: default=200. For small data → 200 empty tasks.
+     With AQE: automatically coalesces small post-shuffle partitions.
+
+<span class="f-title">DATA SKEW — The Most Common FAANG Interview Problem:</span>
+  Problem: 99% of orders belong to country="US". 1 partition gets all of them.
+  199 tasks finish in 5 min. Task 200 runs for 6 HOURS. Job blocked on 1 task.
+
+  Solution 1: SALTING
+    Add random salt: country_salted = country + "_" + FLOOR(RAND() * 10)
+    Now "US" splits into ["US_0","US_1",...,"US_9"] → 10× more even distribution
+    Final aggregation: strip salt → sum up sub-totals. 2-pass but 10× faster end-to-end.
+
+  Solution 2: ADAPTIVE QUERY EXECUTION (AQE — Spark 3.0+):
+    spark.sql.adaptive.enabled = true
+    AQE re-plans at runtime based on actual partition sizes after shuffle:
+    - Skew join optimization: detects skewed partitions → splits them automatically
+    - Coalesces small partitions → reduces task count (200 → 20 for small data)
+    - Dynamically switches BroadcastJoin ↔ SortMergeJoin based on actual size
+
+  Solution 3: SKEW HINT
+    df.hint("skew", "country") → Spark AQE splits the US partition into sub-tasks
+
+<span class="f-title">MEMORY TUNING:</span>
+  Total Executor memory 8GB breakdown:
+    300MB: JVM overhead (reserved for OS, metaspace)
+    Remaining 7.7GB × 0.6 (spark.memory.fraction = 0.6) = 4.6GB Spark managed:
+      4.6GB × 0.5 (spark.memory.storageFraction): 2.3GB Storage (cached RDDs)
+      4.6GB × 0.5:                                 2.3GB Execution (shuffle, sort, join)
+      (Execution can borrow from Storage if idle, and vice versa — unified memory model)
+    Remaining 7.7GB × 0.4: 3.1GB User memory (your data structures, UDFs)
+  
+  GC Tuning: G1GC for large heaps. spark.executor.extraJavaOptions=-XX:+UseG1GC
+  Off-heap: project Tungsten stores shuffle data off-heap → no GC pressure on binary data</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔄</div><div class="concept-title">Transformations vs Actions</div><div class="concept-body"><strong>Transformations (lazy):</strong> map, filter, join, groupBy — build the DAG but don't execute. <strong>Actions (trigger execution):</strong> count(), show(), write, collect(). Only then does Spark submit stages to the cluster. This laziness enables Catalyst to optimise the full plan before any data moves.</div></div>
+      <div class="concept-card"><div class="concept-icon">💾</div><div class="concept-title">Caching Strategy</div><div class="concept-body"><code>df.cache()</code> or <code>df.persist(StorageLevel.MEMORY_AND_DISK)</code>. Cache AFTER expensive shuffle operations that are reused. Never cache input data (only read once). <strong>Checkpointing</strong>: breaks long lineage (streaming) — truncates DAG and saves snapshot to HDFS. Use for iterative algorithms (GraphX, ML).</div></div>
+      <div class="concept-card"><div class="concept-icon">📊</div><div class="concept-title">Partitioning Rules</div><div class="concept-body">Default shuffle partitions: 200. Rule: target 128MB–256MB per partition. Too few partitions → OOM. Too many → scheduling overhead. Repartition: <code>df.repartition(400, col("country"))</code> — full shuffle, use before heavy operations. Coalesce: reduce partitions, no shuffle, use before writing.</div></div>
+      <div class="concept-card"><div class="concept-icon">📁</div><div class="concept-title">Small Files Problem</div><div class="concept-body">1000 tasks each write 1MB files = 1000 tiny Parquet files on S3. Next job reading them: 1000 S3 LIST operations + 1000 parallel reads = slow. Fix: <code>df.coalesce(20).write.parquet(path)</code> before writing. Alternatively: periodic compaction job (Iceberg OPTIMIZE, Delta OPTIMIZE) merges small files.</div></div>
+      <div class="concept-card"><div class="concept-icon">⚡</div><div class="concept-title">Broadcast Join</div><div class="concept-body">If one table &lt; <code>spark.sql.autoBroadcastJoinThreshold</code> (default 10MB): driver sends it to EVERY executor's memory. Large table never moves. O(N) instead of O(N log N) sort-merge. WARNING: broadcast threshold should be &lt;20% of executor memory. Too large → OOM on a 200-way broadcast.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔬</div><div class="concept-title">Speculative Execution</div><div class="concept-body"><code>spark.speculation = true</code>: if a task runs 1.5× longer than median of its stage peers, Spark launches a duplicate on another node — whichever finishes first wins. Handles slow nodes (hardware issues, GC pause). Risk: for non-idempotent external writes, speculative tasks may double-write. Disable for output stages.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Apache Spark</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-num">Q1</div><div class="iq-text">Explain what happens internally when Spark executes a groupBy().agg() on 10TB of data — from your code line to the final output file. Name every component involved.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">One partition in your Spark job is taking 6 hours while all others finish in 5 minutes. What is the root cause and what are 3 different techniques to fix it?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">When would you choose a broadcast join over a sort-merge join? What happens if you broadcast a 500MB table across 200 executors each with 2GB of memory?</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">What is the difference between RDD, DataFrame, and Dataset? Why do DataFrames run faster than RDDs even though they're both distributed?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 2: APACHE FLINK
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g2">
+  <div class="group-header">
+    <div class="group-emoji">🌊</div>
+    <div class="group-meta">
+      <div class="group-num">Group II · True Stream Processing — Not Micro-Batch</div>
+      <div class="group-title">Apache Flink — Stateful Streaming at FAANG Scale</div>
+      <div class="group-tags">
+        <span class="gtag">Watermarks</span><span class="gtag">Windows</span><span class="gtag">State Backends</span>
+        <span class="gtag">Checkpointing</span><span class="gtag">Exactly-Once</span><span class="gtag">CEP</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Flink vs Spark Streaming: true streaming vs micro-batch <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Watermarks and late data handling <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Window types: Tumbling, Sliding, Session, Global <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Stateful processing: RocksDB state backend at scale <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Exactly-once semantics: Flink + Kafka 2-phase commit <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Complex Event Processing (CEP): fraud detection patterns <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">FLINK WATERMARKS + EXACTLY-ONCE — The Most Asked Flink Question</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">FLINK vs SPARK STREAMING — FUNDAMENTAL DIFFERENCE:</span>
+  Spark Structured Streaming: micro-batch. Collects events for 0.1–1s, processes as tiny batch.
+    Latency: 100ms–1s. Good enough for most. Familiar batch semantics.
+    Not "true" streaming: each micro-batch is a bounded Spark job.
+  
+  Apache Flink: record-at-a-time streaming. Each event triggers computation immediately.
+    Latency: &lt;10ms. Critical for: fraud detection, algorithmic trading, real-time recommendations.
+    True streaming: operators run continuously. State persisted between events.
+
+<span class="f-title">EVENT TIME vs PROCESSING TIME:</span>
+  Event A: sensor fires at 12:00:00 PM (event time)
+  Event A arrives at Flink at 12:00:07 PM (processing time) — 7s network delay
+  
+  Processing time window (12:00 - 12:01): would MISS event A entirely (arrived before window check).
+  Event time window (12:00 - 12:01): correctly placed in 12:00 window based on when it HAPPENED.
+  
+  Event time is always correct. Processing time is always wrong for out-of-order events.
+
+<span class="f-title">WATERMARKS — How Flink decides "the window is complete":</span>
+  Watermark = timestamp below which we believe all events have arrived.
+  Watermark(T) = max_event_time_seen_so_far - max_out_of_orderness
+  
+  Example: max_out_of_orderness = 10 seconds
+    Events seen with timestamps: 12:00:05, 12:00:12, 12:00:18
+    Watermark after 12:00:18 = 12:00:18 - 10s = 12:00:08
+    Window 12:00:00-12:00:10 closes when watermark passes 12:00:10
+    → Watermark = 12:00:11 → window FIRES → computes aggregate, emits result
+  
+  Setting max_out_of_orderness too low → events arrive after window closed = data loss
+  Setting it too high → huge state stored, result latency increases
+  
+  LATE DATA policy (after watermark passes):
+    allowedLateness(Duration.ofMinutes(5)) → window stays open for 5 more minutes
+    Events in that window: trigger UPDATES to already-emitted result (retract streams)
+    After 5min: events go to side output stream (you decide: reprocess or DLQ)
+
+<span class="f-title">WINDOW TYPES:</span>
+  Tumbling Window:   |--5min--|--5min--|--5min--|  Fixed, no overlap. Count events per 5min bucket.
+  Sliding Window:    |--10min--|     sliding by 2min. Adjacent windows overlap.
+  Session Window:    |--activity--|gap &gt;30min|--activity--|  Closes after 30min of inactivity.
+                     Perfect for: user session analytics, shopping cart abandonment.
+  Global Window:     One window for all time. Must define custom trigger to emit results.
+
+<span class="f-title">EXACTLY-ONCE — Flink + Kafka (2-Phase Commit Protocol):</span>
+  Flink achieves exactly-once via CHECKPOINTING + Kafka Transactions:
+  
+  Checkpoint N starts:
+    Flink injects BARRIER into each Kafka partition (a special marker message)
+    Each operator: when barrier from ALL input partitions received → snapshot its state to S3
+    Kafka sink: begin Kafka transaction (txn_id = "checkpoint-N")
+    
+  During checkpoint:
+    All outputs buffered in Kafka transaction (not yet committed = invisible to consumers)
+    Operators continue processing (non-blocking checkpoint → low latency impact)
+    
+  Checkpoint N completes (all operators confirmed snapshot):
+    Flink calls notifyCheckpointComplete()
+    Kafka sink: COMMIT transaction → records become visible to downstream consumers ATOMICALLY
+    
+  CRASH during checkpoint N:
+    Transaction never committed → Kafka automatically aborts → records invisible
+    Flink restores from checkpoint N-1 → re-reads Kafka from committed offset N-1
+    Result: each record processed exactly once end-to-end. No duplicates. No data loss.
+
+<span class="f-title">STATE BACKENDS:</span>
+  MemoryStateBackend: state in JVM heap. Max ~1GB. Dev/test only.
+  FsStateBackend: state in heap, checkpoints to HDFS/S3. Good for medium state.
+  RocksDBStateBackend: state on LOCAL SSD (RocksDB LSM tree). Checkpoints to S3.
+    Supports TERABYTES of state per TaskManager. Used by Uber, LinkedIn, Alibaba at PB scale.
+    Trade-off: 2-5× slower than heap state (serialization + disk I/O). Tunable.
+    Incremental checkpoints: only changed state blocks uploaded, not full snapshot. 10× faster.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🎭</div><div class="concept-title">CEP — Complex Event Processing</div><div class="concept-body">Flink CEP detects patterns across event sequences in real-time. Example fraud rule: <code>Pattern: 3 transactions > $1000 within 5 minutes from same user</code>. Flink CEP uses NFA (non-deterministic finite automaton) internally. Sub-10ms latency per event. Used by: PayPal fraud, Alibaba risk engine, Uber trip anomaly detection.</div></div>
+      <div class="concept-card"><div class="concept-icon">⚖️</div><div class="concept-title">Backpressure Handling</div><div class="concept-body">Flink's network stack is credit-based: downstream operator grants upstream "credits" (buffer space available). If downstream slow → upstream stops sending → backpressure propagates up to source (Kafka consumer slows down read rate). Natural throttling. No data loss. Monitor: Flink UI shows task backpressure % per operator.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔀</div><div class="concept-title">KeyedStream Parallelism</div><div class="concept-body"><code>stream.keyBy(event -> event.getUserId())</code> — all events for same key go to same subtask (consistent hashing). State is per-key, isolated. Auto-scaled: adding parallelism = redistribute keys across more subtasks. RocksDB: stores state as key-value, supports millions of distinct keys per subtask.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Apache Flink</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">What is the difference between event time and processing time in Flink? Why does event time require watermarks, and how do watermarks work mechanically?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Explain how Flink achieves exactly-once processing end-to-end with Kafka as both source and sink. What is the role of checkpoints and Kafka transactions?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">A sensor event from 12:00 PM arrives at Flink at 12:08 PM — 8 minutes late. Your tumbling window is 5 minutes with 2-minute allowed lateness. What happens to this event?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 3: KAFKA STREAMING DEEP DIVE
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g3">
+  <div class="group-header">
+    <div class="group-emoji">🔄</div>
+    <div class="group-meta">
+      <div class="group-num">Group III · The Central Nervous System of Big Data</div>
+      <div class="group-title">Kafka Streaming — Internals, Consumer Groups & Exactly-Once</div>
+      <div class="group-tags">
+        <span class="gtag">Log Compaction</span><span class="gtag">Consumer Groups</span><span class="gtag">ISR</span>
+        <span class="gtag">Transactions</span><span class="gtag">Schema Registry</span><span class="gtag">Kafka Streams</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Kafka partition internals: segment files, offset index, time index <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Consumer group rebalancing: cooperative sticky assignor <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Kafka transactions: exactly-once produce + consume <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Schema Registry + Avro: schema evolution without breaking consumers <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Log compaction: event sourcing and stateful consumers <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Kafka Streams vs Flink vs Spark Streaming — when to use each <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">KAFKA INTERNALS: What Happens When You Produce a Message</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">PARTITION PHYSICAL LAYOUT (on broker disk):</span>
+  /kafka-logs/orders-0/        <span class="f-dim">← partition 0 of "orders" topic</span>
+    00000000000000000000.log   <span class="f-dim">← segment file: records as byte stream</span>
+    00000000000000000000.index <span class="f-dim">← sparse offset index: offset → file position (every 4096 bytes)</span>
+    00000000000000000000.timeindex <span class="f-dim">← timestamp → offset index for time-based seek</span>
+    00000000000000012345.log   <span class="f-dim">← next segment (created when active segment exceeds 1GB or 7 days)</span>
+
+  Seek to offset 50000:
+    Binary search in .index for nearest entry ≤ 50000 → file position X
+    Linear scan .log from position X until offset 50000 found = O(1)-ish
+
+<span class="f-title">PRODUCE FLOW (acks=all, exactly-once):</span>
+  Producer → finds leader broker for partition (from metadata cache)
+  Producer sends batch: [{offset: auto, key: orderId, value: {…}, timestamp: now}]
+  Leader broker:
+    1. Write to local log (sequential append, write-ahead)
+    2. Followers fetch from leader (replication) – all ISR replicas must ack
+    3. Leader updates HW (High Watermark) = min(all ISR leo)
+    4. Sends ack to producer
+  ISR (In-Sync Replicas): followers within replica.lag.time.max.ms (default 10s) of leader
+  If follower falls behind → removed from ISR → no longer blocks acks
+  acks=all with min.insync.replicas=2: need at least 2 ISR replicas to ack. Durability guarantee.
+
+<span class="f-title">CONSUMER GROUP REBALANCING — The Pain Point:</span>
+  3 consumers, partition 0,1,2 assigned: C0→P0, C1→P1, C2→P2
+  Consumer C0 dies → rebalance triggered
+  
+  EAGER (old default): all consumers STOP. Drop all assignments. Reassign from scratch.
+    Called "stop-the-world rebalance." 30-60 seconds of processing halt. Bad for production.
+  
+  COOPERATIVE STICKY (modern): incremental rebalance.
+    Only partitions from dead consumers are reassigned.
+    Other consumers keep processing their partitions during rebalance.
+    2-round protocol: Round 1: consumers report capabilities. Round 2: minimal reassignment.
+    
+  Config: partition.assignment.strategy=CooperativeStickyAssignor
+  Group coordinator (a broker) manages assignment via heartbeat protocol (session.timeout.ms)
+
+<span class="f-title">EXACTLY-ONCE WITH KAFKA TRANSACTIONS:</span>
+  Producer creates transactional session: transactional.id = "order-processor-1"
+  BEGIN_TRANSACTION
+    producer.send("order-events", orderId, payload)  <span class="f-dim">← message in transaction</span>
+    producer.send("inventory-updates", orderId, delta)
+    consumer.commitOffset(topicPartition, offset)   <span class="f-dim">← consumed offset included in transaction</span>
+  COMMIT_TRANSACTION
+  
+  Consumers with isolation.level=read_committed: only see committed transaction messages.
+  If crash before COMMIT: transaction expires (transaction.timeout.ms) → auto-aborted.
+  Idempotent producer (enable.idempotence=true): deduplicates within single producer session.
+  Combining: transactional + idempotent = exactly-once end-to-end within Kafka.
+
+<span class="f-title">SCHEMA REGISTRY + AVRO — Schema Evolution Rules:</span>
+  Producer serializes: Avro bytes + magic byte + schema-id (4 bytes) = Kafka message value
+  Consumer: reads schema-id → fetches schema from Registry → deserializes
+  Registry enforces compatibility rules:
+    BACKWARD: new schema can read data written by old schema (add fields with defaults)
+    FORWARD: old schema can read data written by new schema (remove fields with defaults)
+    FULL: both BACKWARD + FORWARD
+    BREAKING (reject): rename field, change type, remove required field → registry rejects commit
+  Result: zero coordination needed between producer and consumer teams for safe schema changes.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Kafka Internals</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Explain the ISR (In-Sync Replicas) mechanism. What happens when a Kafka broker crashes? When could you lose a committed message and how do you prevent it?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is Kafka consumer group rebalancing? Why does eager rebalancing cause production outages, and how does cooperative sticky rebalancing fix it?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Why is Avro preferred over JSON for Kafka messages at scale? What is the Schema Registry and what prevents a producer from breaking all downstream consumers?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 4: PARQUET, AVRO & ORC
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g4">
+  <div class="group-header">
+    <div class="group-emoji">📐</div>
+    <div class="group-meta">
+      <div class="group-num">Group IV · The Foundation of Every Data Lake</div>
+      <div class="group-title">File Formats — Parquet, Avro, ORC & Compression</div>
+      <div class="group-tags">
+        <span class="gtag">Columnar</span><span class="gtag">Row Group</span><span class="gtag">Predicate Pushdown</span>
+        <span class="gtag">Snappy</span><span class="gtag">Zstandard</span><span class="gtag">Schema Evolution</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Parquet internals: row groups, column chunks, page encoding <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Why columnar formats are 10-100× faster for analytics <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Predicate pushdown + column pruning in Parquet <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Avro for streaming, Parquet for storage — when and why <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Compression: Snappy vs Gzip vs Zstd trade-offs <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Schema evolution: adding columns, renaming, changing types <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">PARQUET INTERNALS — How 1TB Scan Becomes 10GB Read</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">ROW-BASED (CSV/JSON) vs COLUMNAR (Parquet/ORC):</span>
+
+  Query: SELECT SUM(amount) FROM orders WHERE country = 'US'
+  100 columns, 10B rows.
+
+  Row-based (CSV): Read ALL 100 columns × 10B rows = 100% of data = 10TB read.
+    What you need: 2 columns × 10B rows = 0.2TB reading 2 columns.
+  Columnar (Parquet): Read ONLY "amount" + "country" columns = 2% of data = 200GB read.
+    50× less I/O. Queries complete 50× faster (or use 50× less cost on cloud).
+
+<span class="f-title">PARQUET PHYSICAL LAYOUT:</span>
+  File:
+    ├── Row Group 1 (128MB default)
+    │     ├── Column Chunk: "country" (all country values for rows 1-1M)
+    │     │     ├── Page 1 (1MB): [US,US,DE,US,UK,...] compressed + encoded
+    │     │     ├── Page 2 (1MB): ...
+    │     │     └── Page stats: min="AU", max="ZW", null_count=0
+    │     ├── Column Chunk: "amount" (all amount values for rows 1-1M)
+    │     └── Column Chunk: "timestamp" (all timestamp values for rows 1-1M)
+    │           └── Page stats: min=1672531200, max=1672617600  <span class="f-dim">← row group min/max</span>
+    ├── Row Group 2 (128MB) ...
+    └── Footer (file metadata, row group stats, schema, offsets)
+
+<span class="f-title">PREDICATE PUSHDOWN — 3 Levels of Skip:</span>
+
+  Level 1: Row group skipping (file footer stats):
+    Query: WHERE timestamp &gt; 2024-01-15
+    Row Group 1 stats: max=2024-01-10 → ALL rows in group &lt; filter → skip entire 128MB block
+    Row Group 2 stats: min=2024-01-14, max=2024-01-20 → might contain matches → read
+
+  Level 2: Page skipping (page stats within column chunk):
+    Row Group 2, "timestamp" column, Page 1: max=2024-01-14 → skip page
+    Row Group 2, "timestamp" column, Page 2: min=2024-01-15 → read this page
+
+  Level 3: Bloom filters (optional, per column):
+    Pre-computed: "does this row group contain country='JP'?"
+    Bloom filter answer: NO (with 0% false negatives) → skip entire row group.
+    INSERT into bloom filter at write time. O(1) lookup at read time.
+
+  Result: 10TB file, reading only 50MB. 200× I/O reduction.
+
+<span class="f-title">ENCODING STRATEGIES (automatic in Parquet):</span>
+  RLE (Run-Length Encoding): [US,US,US,US,US,DE,DE] → [(US,5),(DE,2)] → 70% smaller
+    Best for: low-cardinality columns (country, status enum)
+  Dictionary encoding: build dictionary {0:US, 1:DE, 2:UK}. Store indices instead of strings.
+    [US,DE,UK,US,US] → [0,1,2,0,0]. Integer indices compress much better than strings.
+    Best for: string columns with &lt;1000 unique values. Parquet default for strings.
+  Delta encoding: timestamps [1000,1001,1002,1003] → [1000, Δ=1,1,1]. Nearly free with sorted data.
+
+<span class="f-title">FORMAT DECISION GUIDE:</span>
+  Parquet: OLAP queries, S3/HDFS storage. Columnar. Best for: Spark/Trino analytics.
+  Avro:    Message serialisation (Kafka events), row-based. Best for: streaming, schema evolution.
+  ORC:     Hive-optimised columnar. Built-in ACID (Hive transactions). Best for: Hive workloads.
+  Delta/Iceberg: adds ACID + time travel ON TOP of Parquet. Best for: data lakehouse.
+
+<span class="f-title">COMPRESSION COMPARISON:</span>
+  Snappy:  Fast compress + fast decompress. CPU cheap. Ratio: 2-3×. Default Parquet choice.
+  Gzip:    High compression ratio: 5-8×. Slow compress. Medium decompress. Use: cold archive.
+  Zstd:    Best of both: ratio like Gzip, speed like Snappy. Recommended for new pipelines.
+  LZO:     Splittable (Hadoop can split mid-file). Use only if Snappy splitting not supported.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — File Formats</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Why is Parquet 50-100× faster than CSV for analytical queries? Explain predicate pushdown at all three levels — row group, page, and bloom filter.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">When would you use Avro vs Parquet? If you're building a pipeline where Kafka events land in S3 and are then queried by Spark, what format do you use at each stage and why?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">You've added a new column to your Parquet schema. Old Parquet files on S3 don't have this column. How does Parquet handle schema evolution — can Spark still read old files?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 5: ICEBERG & LAKEHOUSE
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g5">
+  <div class="group-header">
+    <div class="group-emoji">🏔️</div>
+    <div class="group-meta">
+      <div class="group-num">Group V · The Future of the Data Lake</div>
+      <div class="group-title">Apache Iceberg, Delta Lake & the Lakehouse Pattern</div>
+      <div class="group-tags">
+        <span class="gtag">ACID on S3</span><span class="gtag">Time Travel</span><span class="gtag">Hidden Partitioning</span>
+        <span class="gtag">Compaction</span><span class="gtag">Snapshot</span><span class="gtag">Schema Evolution</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Why Iceberg > Hive Metastore: ACID, time travel, schema evolution <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Iceberg metadata layers: catalog → snapshots → manifests → data files <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Time travel queries: "show me orders table as of yesterday 3 PM" <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Hidden partitioning vs Hive-style partitioning <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Delta Lake vs Iceberg vs Apache Hudi — trade-offs <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Compaction and snapshot expiry: managing metadata at scale <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">ICEBERG METADATA HIERARCHY — How ACID Works on Object Storage</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">THE PROBLEM WITH HIVE-STYLE PARTITIONS:</span>
+  Hive table: s3://lake/orders/year=2024/month=04/day=19/*.parquet
+  Hive Metastore: RDBMS storing partition locations (single point of failure)
+  Problems:
+    - No ACID: two writers → partially written partitions → corrupt reads
+    - Schema changes: rename column → all old files still use old name → ETL breaks
+    - No time travel: deleted data is gone. Compliance: "show me data from 3 months ago" → impossible
+    - Bad filtering: WHERE order_date = '2024-04-19' requires knowing partition structure (SUBSTR tricks)
+    - Small files: many appends → thousands of tiny files → slow listing on S3
+
+<span class="f-title">ICEBERG METADATA STRUCTURE (on S3, no external metastore needed):</span>
+
+  Catalog (REST/Glue/Hive): points to current metadata file for table
+    ↓
+  Metadata File (JSON): snapshot history, schema versions, partition specs
+    ├── Current snapshot-id: 987654321
+    ├── Schema versions: [v1: {id,name,amount}, v2: {id,name,amount,country}]
+    └── Snapshots: snapshot_987654321, snapshot_876543210, ...
+    ↓
+  Snapshot File (JSON): list of manifest files for this version
+    ├── manifest_001.avro (summary: 50M rows, data_file_count=100)
+    └── manifest_002.avro (added 5M new rows via INSERT)
+    ↓
+  Manifest File (Avro): list of data files with column-level statistics
+    ├── s3://lake/orders/data/00001.parquet {min_date:2024-01-01, max_date:2024-01-31, rows:500K}
+    ├── s3://lake/orders/data/00002.parquet {min_date:2024-02-01, max_date:2024-02-28, rows:480K}
+    └── s3://lake/orders/data/00003.parquet {added in latest snapshot}
+    ↓
+  Data Files: actual Parquet files (content never mutated after write)
+
+<span class="f-title">HOW ACID WORKS ON S3:</span>
+  S3 is eventually consistent (historically). Iceberg uses OPTIMISTIC CONCURRENCY:
+  
+  Writer 1: creates new data files → creates new snapshot → atomic PUT catalog pointer
+  Writer 2: creates new data files → tries to PUT catalog pointer
+    If catalog pointer changed since W2 started: CONFLICT → retry (exponential backoff)
+    If catalog unchanged: W2 commits successfully
+  
+  Readers: always read a snapshot. Snapshot is immutable. Reading is always consistent.
+  MERGE/UPDATE: copy-on-write (rewrite affected data files) vs merge-on-read (write delete files).
+
+<span class="f-title">TIME TRAVEL:</span>
+  Snapshots are kept (configurable retention). Query past state:
+    SELECT * FROM orders FOR VERSION AS OF 987654321      <span class="f-dim">-- specific snapshot</span>
+    SELECT * FROM orders FOR TIMESTAMP AS OF '2024-04-01' <span class="f-dim">-- point-in-time</span>
+  Use cases: audit, rollback bad data, debugging, A/B comparison, reproducible ML training sets.
+  ROLLBACK: UPDATE catalog pointer to point to past snapshot = instant table rollback.
+
+<span class="f-title">HIDDEN PARTITIONING (Iceberg innovation):</span>
+  Hive: WHERE order_date = '2024-04-19' requires query to know partition structure
+    User must write: WHERE year=2024 AND month=4 AND day=19 → partition pruning works
+    Else: full table scan. Users constantly make mistakes.
+  
+  Iceberg hidden partitions: partition_spec says "partition by DAYS(order_date)"
+    Query: WHERE order_date = '2024-04-19'
+    Iceberg: automatically applies DAYS() transform → prunes correct date partitions
+    User never thinks about partitioning. Correct performance automatically.
+
+<span class="f-title">COMPACTION (mandatory maintenance):</span>
+  Streaming writes: 1000 tasks × 10 writes/hr = 10,000 tiny Parquet files/hr
+  After 24hrs: 240,000 files. Each Spark task: list 240K files + open + read = 10 min setup.
+  
+  Iceberg OPTIMIZE / bin-packing:
+    Scans all data files, rewrites into target-size (512MB) Parquet files.
+    New snapshot created pointing to compacted files. Old files expire after retention period.
+    Run as daily/weekly Spark job. Transparent to readers (snapshot-based isolation).</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🆚</div><div class="concept-title">Iceberg vs Delta vs Hudi</div><div class="concept-body"><strong>Iceberg:</strong> Open standard (Apache). Multi-engine (Spark, Trino, Flink, Athena). Hidden partitioning. Best multi-engine interop. Netflix, Apple, LinkedIn. <strong>Delta Lake:</strong> Databricks-first. Best Spark integration. Z-ordering. <strong>Hudi:</strong> Uber-first. Upsert-optimised (record-level updates). Best for CDC workloads. All three support ACID + time travel.</div></div>
+      <div class="concept-card"><div class="concept-icon">🗑️</div><div class="concept-title">Row-Level Deletes</div><div class="concept-body">GDPR "right to be forgotten": DELETE FROM orders WHERE user_id = 12345. Without Iceberg: rewrite every Parquet file that contained that user = expensive. Iceberg: adds a delete file (position delete file: "row N in file X is deleted"). Query engine merges data + delete files at read time. Schedule periodic compaction to physically remove deleted rows.</div></div>
+      <div class="concept-card"><div class="concept-icon">📈</div><div class="concept-title">Z-Ordering / Sort Order</div><div class="concept-body">SORT ORDER BY(country, date) — data files physically sorted by these columns. Query WHERE country='US' AND date&gt;'2024-01-01': skip entire files where min/max shows no overlap. Similar to data clustering in Snowflake. Iceberg: defined at table level, applied during compaction. Max skipping benefit for high-cardinality filters.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Iceberg</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does Apache Iceberg provide ACID transactions on S3, which has no native locking mechanism? Walk through what happens when two Spark jobs write to the same Iceberg table simultaneously.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A data quality bug corrupted your orders table at 2 PM. You need to restore it to 1 PM state. How do you do this with Iceberg without restoring from backup?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">What is the "small files problem" in a streaming data lake, and how does Iceberg compaction solve it without interrupting concurrent readers?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 6: APACHE AIRFLOW
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g6">
+  <div class="group-header">
+    <div class="group-emoji">🎯</div>
+    <div class="group-meta">
+      <div class="group-num">Group VI · The Pipeline Glue</div>
+      <div class="group-title">Apache Airflow — DAGs, Scheduling & Production Patterns</div>
+      <div class="group-tags">
+        <span class="gtag">DAG</span><span class="gtag">Operators</span><span class="gtag">XComs</span>
+        <span class="gtag">Task Groups</span><span class="gtag">Dynamic DAGs</span><span class="gtag">KubernetesPodOperator</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Airflow architecture: Scheduler, Worker, Webserver, Metadata DB <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Idempotent DAGs: safe to re-run without side effects <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Dynamic DAGs vs TaskFlow API — modern pattern <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">DAG backfilling and catchup strategies <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Airflow on Kubernetes: KubernetesExecutor vs CeleryExecutor <span class="diff diff-h">HARD</span></div>
+      <div class="problem">SLA monitoring and alerts for DAG failures <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">AIRFLOW ARCHITECTURE + PRODUCTION DAG PATTERNS</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">COMPONENTS:</span>
+  Webserver:   Flask app. UI + REST API. Read-only view of Metadata DB.
+  Scheduler:   Parses DAG files every 30s. Creates TaskInstances in Metadata DB. Single point.
+  Workers:     Execute tasks. CeleryWorker (persistent) or KubernetesWorker (ephemeral pod per task).
+  Metadata DB: PostgreSQL / MySQL. Stores DAG definitions, task states, logs, connections, variables.
+  Executor:    How tasks are dispatched: LocalExecutor (dev), CeleryExecutor (scale-out), KubernetesExecutor (cloud-native).
+
+<span class="f-title">SCHEDULE INTERVAL GOTCHA:</span>
+  schedule_interval="@daily"  → runs at midnight. But for what day?
+  
+  Airflow schedule: data_interval_start + data_interval_end. A DAG scheduled for 2024-04-19
+  ACTUALLY RAN at 2024-04-20 00:00:00 UTC. (End of the interval = trigger time)
+  This trips up EVERY beginner. Logical date != execution date.
+  
+  Modern (Airflow 2.2+): use data_interval_start and data_interval_end context variables.
+  data_interval_start = "2024-04-19 00:00:00"  ← what your task should process
+  execution_date (deprecated) = logical_date = "2024-04-19"
+
+<span class="f-title">IDEMPOTENT DAG — Production Must-Have:</span>
+  Idempotent: running the same DAG run twice produces the same output. Safe to re-run.
+  
+  BAD (not idempotent): INSERT INTO daily_summary SELECT ... (runs twice = duplicate rows)
+  GOOD:
+    Option 1: DELETE + INSERT in same atomic transaction
+    Option 2: INSERT ... ON CONFLICT (logical_date) DO UPDATE SET ... (upsert)
+    Option 3: Overwrite partition in Parquet/Iceberg
+      spark.write.mode("overwrite").partitionBy("date").parquet(path)
+      Overwrites only the partition for this date. Re-running: same output.
+
+<span class="f-title">TASKFLOW API (Airflow 2.0+) — Modern Pattern:</span>
+  from airflow.decorators import dag, task
+  from datetime import datetime
+
+  @dag(schedule="@daily", start_date=datetime(2024,1,1), catchup=False)
+  def orders_pipeline():
+    @task
+    def extract() -&gt; dict:
+      return {"row_count": 1_000_000, "s3_path": "s3://lake/raw/orders/2024-04-19"}
+    
+    @task
+    def transform(raw: dict) -&gt; dict:  <span class="f-dim"># raw dict passed automatically via XCom</span>
+      return {"cleaned_path": "s3://lake/clean/orders/2024-04-19"}
+    
+    @task
+    def load(clean: dict): 
+      # write to Iceberg
+      pass
+    
+    load(transform(extract()))  <span class="f-dim"># dependencies declared by function call, not set_downstream()</span>
+  
+  dag = orders_pipeline()
+
+<span class="f-title">BACKFILL — Processing historical data:</span>
+  New DAG deployed. Need to process last 90 days of data.
+  airflow dags backfill --start-date 2024-01-01 --end-date 2024-04-18 orders_pipeline
+  Airflow: creates 108 DAG runs (one per day). Executes in parallel (up to max_active_runs).
+  Idempotency: running backfill on already-processed dates: upsert/overwrite = safe.
+
+<span class="f-title">KUBERNETES EXECUTOR (each task = isolated K8s pod):</span>
+  No persistent workers (vs CeleryExecutor with always-on workers).
+  Scheduler submits task → creates K8s pod with task env → pod runs → terminates.
+  Benefits: perfect isolation, custom Docker image per task, no resource contention between tasks.
+  Overhead: pod startup time: 10-30s. Bad for tasks faster than 1 minute.
+  KubernetesPodOperator: run ANY Docker image as a task. Spark, dbt, custom code. Maximum flexibility.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Airflow</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">What does it mean for a DAG to be idempotent? Give a concrete example of a non-idempotent DAG and show how you'd fix it.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Airflow's "execution_date" for a @daily DAG scheduled for April 19 is April 19, but the DAG actually runs at midnight on April 20. Why? How does this affect how you write SQL queries inside tasks?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">When would you choose KubernetesExecutor over CeleryExecutor? What are the trade-offs in terms of latency, isolation, and resource usage?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 7: TRINO
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g7">
+  <div class="group-header">
+    <div class="group-emoji">🔍</div>
+    <div class="group-meta">
+      <div class="group-num">Group VII · Query Anything, Anywhere</div>
+      <div class="group-title">Trino (PrestoSQL) — Federated Query Engine</div>
+      <div class="group-tags">
+        <span class="gtag">MPP</span><span class="gtag">Connector API</span><span class="gtag">Cost-Based Optimizer</span>
+        <span class="gtag">Exchange</span><span class="gtag">Dynamic Filtering</span><span class="gtag">Spill to Disk</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Trino architecture: Coordinator, Workers, connectors <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">How Trino executes a JOIN across Iceberg on S3 + Postgres <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Trino vs Spark for interactive vs batch queries <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Dynamic filtering: pushing runtime bloom filters to table scans <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Trino memory management: OOM kills and spill-to-disk <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">TRINO QUERY EXECUTION — From SQL to Distributed Result</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">ARCHITECTURE:</span>
+  Coordinator: single node. Parses SQL → optimises → creates distributed execution plan → dispatches to Workers.
+  Workers: N nodes. Execute pipeline stages in parallel. Pull data from connectors.
+  Connectors: pluggable. Hive (S3+Parquet/Iceberg), PostgreSQL, MySQL, Kafka, Elasticsearch, BigQuery.
+  No persistent storage. Pure compute. All data read from connectors on demand.
+  
+  Key difference from Spark: Trino is pipeline-based (pipelined execution, no write-to-disk between stages).
+  Spark: stage-by-stage with disk materialisation of shuffle. Trino: fully pipelined → 10-100× lower latency.
+  Trade-off: Spark handles arbitrarily large datasets (spills to disk). Trino: memory-bound per query.
+
+<span class="f-title">FEDERATED QUERY — JOIN across different data sources:</span>
+  SELECT o.order_id, u.email, o.amount
+  FROM iceberg.orders o              <span class="f-dim">← Parquet files on S3</span>
+  JOIN postgresql.users u            <span class="f-dim">← live Postgres DB</span>
+    ON o.user_id = u.id
+  WHERE o.amount &gt; 1000
+
+  Execution plan:
+  Stage 0 (Hive connector): Scan Parquet on S3 → filter amount &gt; 1000 → partial table
+  Stage 1 (PostgreSQL connector): Full scan users table from Postgres
+  Stage 2 (Exchange): Hash join on user_id
+    Build side (smaller): users table → distributed hash table across workers
+    Probe side (larger): filtered orders → probe hash table per row
+  Stage 3: Aggregate results → return to coordinator → send to client
+
+<span class="f-title">DYNAMIC FILTERING (Trino's killer optimisation):</span>
+  Query: WHERE user.country = 'US' AND orders JOIN users ON user_id
+  Runtime: after reading users table, Trino knows all user_ids where country='US'.
+  Bloom filter: built dynamically from actual user_id values at runtime.
+  Pushed DOWN to the orders table scan (Hive connector).
+  Parquet reader: checks if each row group's user_id range overlaps bloom filter.
+  Skip 80% of Parquet row groups → orders scan reads 1TB instead of 10TB.
+  This is pure runtime magic — no static predicate. Done automatically by Trino.
+
+<span class="f-title">TRINO vs SPARK — WHEN TO CHOOSE:</span>
+  Interactive analytics (&lt;30s latency goal):     <span class="f-ok">→ Trino</span>  (pipelined, no write overhead)
+  ETL on 100TB+ (batch, latency doesn't matter): <span class="f-ok">→ Spark</span>  (handles huge shuffles via disk)
+  Real-time SQL on Kafka stream:                  <span class="f-ok">→ Trino Kafka connector</span>
+  ML feature engineering:                         <span class="f-ok">→ Spark</span>  (MLlib, built-in model training)
+  Federated query (multiple sources, one SQL):    <span class="f-ok">→ Trino</span>  (connector model)
+  Data lake UPSERT / MERGE INTO:                  <span class="f-ok">→ Spark + Iceberg</span></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Trino</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Trino can join a table on S3 (Parquet) with a table in PostgreSQL in a single SQL query. How does this work technically — what are the connectors doing?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">When would you use Trino vs Spark for querying a 50TB Iceberg table? What are the trade-offs?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 8: ZOOKEEPER
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g8">
+  <div class="group-header">
+    <div class="group-emoji">🦁</div>
+    <div class="group-meta">
+      <div class="group-num">Group VIII · Distributed Coordination Primitive</div>
+      <div class="group-title">Apache Zookeeper — Leader Election, Config & Locks</div>
+      <div class="group-tags">
+        <span class="gtag">ZNode</span><span class="gtag">Watches</span><span class="gtag">Leader Election</span>
+        <span class="gtag">Zab Protocol</span><span class="gtag">Quorum</span><span class="gtag">KRaft</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">ZNode types: persistent, ephemeral, sequential <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Leader election pattern using ZooKeeper <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Distributed lock: how to implement using ZooKeeper <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Zab consensus protocol: how ZK maintains consistency <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Kafka KRaft: replacing ZooKeeper with Raft — why and how <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">ZOOKEEPER INTERNALS — ZNodes, Watches and Leader Election</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">DATA MODEL — HIERARCHICAL KEY-VALUE STORE (like a filesystem):</span>
+  /kafka                  ← persistent ZNode
+  /kafka/brokers          ← persistent
+  /kafka/brokers/ids      ← persistent
+  /kafka/brokers/ids/1    ← ephemeral! Vanishes when broker 1 disconnects.
+  /kafka/controller       ← ephemeral: whoever created this is the Kafka controller
+  
+  Ephemeral ZNodes: tied to client session. Session expires → ZNode deleted.
+  Persistent ZNodes: survive client disconnection. Explicit delete required.
+  Sequential ZNodes: /lock/lock-0000000001, /lock-0000000002 — monotonically increasing suffix.
+
+<span class="f-title">LEADER ELECTION RECIPE:</span>
+  5 Kafka brokers want one of them to be Kafka Controller.
+  
+  All brokers attempt: CREATE /kafka/controller {brokerId=3} EPHEMERAL
+  Only ONE succeeds (atomic in ZK). That broker is now leader.
+  Others: set a WATCH on /kafka/controller (notify me if this ZNode changes)
+  
+  Leader broker crashes:
+    1. Session timeout detected by ZK (session.timeout.ms, default 18s)
+    2. ZK deletes /kafka/controller (ephemeral node)
+    3. ALL watchers notified: "/kafka/controller was deleted"
+    4. All brokers race to CREATE /kafka/controller again
+    5. One wins. New leader elected. Followers update watches.
+  
+  Herd Effect: 1000 brokers all wake on same event → thundering herd on ZK.
+  Better: sequential lock-based election (each candidate only watches predecessor):
+    Broker creates /election/lock-00000001, /lock-00000002, /lock-00000003 (sequential)
+    Broker holding lowest number = leader.
+    Others watch only the NEXT LOWER sequential node (not all watching same node).
+    Lowest node deleted → only second-lowest woken up → it becomes leader → no herd.
+
+<span class="f-title">DISTRIBUTED LOCK (ZooKeeper recipe):</span>
+  Thread wants lock on "order-processor":
+  1. CREATE /locks/order-processor/lock-000000001 EPHEMERAL SEQUENTIAL
+  2. List children of /locks/order-processor/
+  3. Is MY node the lowest sequence? YES → Lock acquired. Do work.
+                                     NO → Watch the node with sequence-1 before mine.
+  4. WATCHED node deleted → Back to step 2 (re-check, don't assume lock is mine).
+  5. On work complete: DELETE my ephemeral node → next in queue wakes up.
+  
+  Fencing: if client crashes while holding lock → ephemeral node auto-deleted → next acquires.
+  Problem: "zombie" process that was declared dead may resume. Use fencing tokens (monotonic number from ZK) to reject stale writes.
+
+<span class="f-title">KAFKA KRAFT — REMOVING ZOOKEEPER (Kafka 3.3+):</span>
+  Problem with ZK: separate 3/5 node ZK cluster to manage. Admin burden. ZK has 10ms+ write latency.
+  KRaft: Kafka implements its own Raft-based metadata quorum. Controller quorum within Kafka brokers.
+  Benefits:
+    - No separate ZK deployment. Simpler operations.
+    - Faster controller failover: ZK-based: 30s+. KRaft: sub-second.
+    - Kafka can support millions of partitions (ZK was a bottleneck at ~200K partitions)
+  Migration: Kafka 3.3+ fully ZK-free. Production migration tool provided.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Zookeeper</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does ZooKeeper's leader election work? What happens step by step when the current leader crashes? What is the "thundering herd" problem and how do sequential ZNodes solve it?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Why is Kafka replacing ZooKeeper with KRaft? What specific limitations of ZooKeeper made it a bottleneck for large Kafka deployments?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 9: DATA ARCHITECTURE PATTERNS
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g9">
+  <div class="group-header">
+    <div class="group-emoji">🏗️</div>
+    <div class="group-meta">
+      <div class="group-num">Group IX · The Architectural Patterns Every Senior Must Know</div>
+      <div class="group-title">Data Architecture — Lambda, Kappa, Medallion & Lakehouse</div>
+      <div class="group-tags">
+        <span class="gtag">Lambda</span><span class="gtag">Kappa</span><span class="gtag">Medallion</span>
+        <span class="gtag">Data Mesh</span><span class="gtag">CDC</span><span class="gtag">Event Sourcing</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+
+    <div class="arch-box">
+      <pre>
+MEDALLION ARCHITECTURE (Bronze → Silver → Gold) — Industry Standard at LinkedIn, Databricks, Netflix
+
+RAW SOURCES          BRONZE (Raw)              SILVER (Cleaned)           GOLD (Business)
+─────────────────    ──────────────────────    ─────────────────────────  ──────────────────────────
+PostgreSQL CDC   ──► Kafka topic: orders       De-duplicated orders       orders_daily_summary (agg)
+Kafka events     ──► Iceberg: bronze/orders   Parsed + typed              customer_360_view (joined)
+S3 raw files     ──► (append-only, raw)       Validated + enriched        product_revenue (metrics)
+API webhooks     ──► Avro format preserved    Conformed schema             ML feature store
+                     No transformations        Parquet + Iceberg           Parquet + Iceberg
+                     Ingested by Flink         Spark batch + Flink stream   Spark batch
+                     Retention: 90 days        Retention: 5 years          Retention: 2 years
+
+LATENCY:             &lt; 5 seconds              &lt; 15 minutes                  &lt; 1 hour
+
+LAMBDA ARCHITECTURE:   Batch Layer (Spark, 6hr latency) + Speed Layer (Flink, 1s latency) → Serving layer merges
+  When to use: batch and streaming need different logic. Historical recomputation needed.
+  Problem: TWO codebases to maintain. Complex merge logic. Often out of sync.
+
+KAPPA ARCHITECTURE:    Single streaming path (Flink / Kafka Streams). Historical replay = reprocess from Kafka.
+  When to use: same logic for batch and streaming. Kafka retention &gt; computation window.
+  Advantage: one codebase. Simpler. Kafka as immutable event log.
+  Limitation: infinite Kafka retention = expensive. Large replay takes time (vs Spark's optimised batch).
+
+CDC (Change Data Capture) — Debezium pattern:
+  PostgreSQL WAL (Write-Ahead Log) → Debezium → Kafka topic: postgres.public.orders
+  Every INSERT/UPDATE/DELETE becomes a Kafka event. No polling. Sub-second latency.
+  Iceberg: CDC consumer updates Iceberg table (MERGE INTO = upsert). Near-real-time sync.
+  Use: replace nightly database dumps. Power real-time analytics on operational data.
+
+DATA MESH (Organizational Pattern, not a technology):
+  Problem: central data team becomes bottleneck for 50 product teams.
+  Data Mesh: each product domain owns its OWN data as a "data product."
+    Orders team owns + publishes: orders_clean (SLA: &lt;15min freshness, 99.9% uptime)
+    Payments team consumes orders_clean without depending on central team.
+  Enabling technology: data catalog (Apache Atlas, DataHub) + Iceberg (multi-team access)
+    + unified governance (column-level access control, centralized quality checks)</pre>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Architecture</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Describe the Medallion architecture. Why do we have 3 layers instead of writing directly to the Gold layer? What goes wrong if you don't have a Bronze layer?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">You need to replicate your 50 operational PostgreSQL tables to a data lake in near-real-time for analytics. How do you do this without impacting the production database's performance?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 10: OPTIMISATION & WAR STORIES
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g10">
+  <div class="group-header">
+    <div class="group-emoji">💥</div>
+    <div class="group-meta">
+      <div class="group-num">Group X · The Performance War Stories</div>
+      <div class="group-title">Critical Optimisation Scenarios & Debugging</div>
+      <div class="group-tags">
+        <span class="gtag">Spark Tuning</span><span class="gtag">Kafka Lag</span><span class="gtag">Skew</span>
+        <span class="gtag">OOM</span><span class="gtag">Stage Failure</span><span class="gtag">Slow Query</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">10 CRITICAL PRODUCTION SCENARIOS — Cause + Diagnosis + Fix</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SCENARIO 1: Spark job runs for 6 hours then fails at 99%</span>
+  Symptom: 1 task of 200 running for hours. Other 199 finished in 5min.
+  Diagnosis: Spark UI → Stages → find hanging task → check shuffle read bytes.
+    One partition: 50GB. Others: 200MB. Classic data skew.
+  Fix: salting + AQE skew join hint. Check for NULL keys (all NULLs hash to same partition).
+
+<span class="f-title">SCENARIO 2: Spark OOM — java.lang.OutOfMemoryError in executor</span>
+  Symptom: "Lost task 5.0 in stage 3.0: ExecutorLostFailure (executor 2 exited)"
+  Causes: a) join of two large tables in-memory, b) too many partitions too small (GC overhead)
+           c) UDF using Python with large objects, d) collect() pulling 1B rows to driver
+  Fix: a) increase spark.executor.memory or use disk spill. b) reduce shuffle partitions.
+       c) use Pandas UDFs with Arrow (10× faster GC). d) NEVER collect() at scale. Use write().
+
+<span class="f-title">SCENARIO 3: Kafka consumer lag growing — pipeline falling behind</span>
+  Symptom: consumer_group_lag metric 0 = healthy. Growing lag = pipeline can't keep up.
+  Causes: a) slow processing (N+1 external API calls per message)
+           b) too few partitions (can't add more consumers than partitions)
+           c) GC pauses causing consumer to miss heartbeat → rebalance → processing stops for 30s
+  Fix: a) batch external calls (group 100 messages, one API call). b) increase partitions (irreversible).
+       c) tune G1GC: -XX:MaxGCPauseMillis=100. Increase heartbeat interval. Use CooperativeStickyAssignor.
+
+<span class="f-title">SCENARIO 4: Airflow DAG failing intermittently — flapping heartbeat</span>
+  Symptom: DAG runs complete but some tasks show "zombie task not running on worker"
+  Cause: scheduler heartbeat timeout. Long-running tasks don't check in (job_heartbeat_sec = 5s default)
+  Fix: increase [scheduler] scheduler_heartbeat_sec. Fix: ensure workers don't OOM.
+  Better: KubernetesPodOperator with resourceLimits → isolated, immune to other task OOM.
+
+<span class="f-title">SCENARIO 5: Trino query OOM — "Query exceeded per-node memory limit"</span>
+  Symptom: trino.execution.MemoryRevokingSchedulerStatus: "running out of memory"
+  Cause: large join, no spill to disk configured (Trino defaults: no spill)
+  Fix: SET SESSION spill_enabled=true. SET SESSION max_revocable_memory_per_node='16GB'.
+  Prevention: always define query_max_memory in cluster config. Reject queries above limit.
+
+<span class="f-title">SCENARIO 6: Iceberg compaction not running — 10 million tiny files</span>
+  Symptom: Trino/Spark queries on Iceberg table take 20 minutes just to plan (listing S3 files).
+  Cause: streaming Flink job writing 1 file per task per checkpoint (every 5 minutes). Multiply.
+  Fix: run Airflow compaction DAG nightly:
+    spark.sql("CALL iceberg.system.rewrite_data_files(table=&gt;'orders', options=&gt;map('target-file-size-bytes','536870912'))")
+  Prevention: Flink sink: checkpoint interval 15min (not 5), larger target file size.
+
+<span class="f-title">SCENARIO 7: Parquet query slow — predicate pushdown not working</span>
+  Symptom: WHERE status='COMPLETED' query scans all 10TB. Should scan 200GB.
+  Cause: wrong partition column (partitioned by date, filtering by status). Row group stats useless if status values span all groups.
+  Fix: z-order/sort on status column during compaction → data clustering → row group stats now useful.
+  Or: add status as an Iceberg partition transform → separate data files per status value.
+
+<span class="f-title">SCENARIO 8: Flink job checkpoint failing repeatedly</span>
+  Symptom: checkpoint timeout (default 10min). Job continues but no recovery point.
+  Causes: a) RocksDB checkpoint upload to S3 too slow (state is 500GB, bandwidth 100MB/s = 83min)
+           b) Backpressure: upstream operator so slow that buffers fill, barriers can't flow
+  Fix: a) enable incremental checkpoints (only upload changed SST files). b) fix slow operator, not checkpoint timeout.
+  Monitor: Flink UI → checkpoints tab → checkpoint duration per subtask.
+
+<span class="f-title">SCENARIO 9: Schema evolution breaks downstream job</span>
+  Producer adds new REQUIRED field to Avro schema. Old Kafka messages have no value for it.
+  Flink consumer reading old messages: fails to deserialize. Job crashes.
+  Fix: ALWAYS add new fields with a DEFAULT value. Schema Registry: enforce BACKWARD compatibility.
+  BACKWARD means new schema can read data written with old schema. Old messages still valid.
+
+<span class="f-title">SCENARIO 10: Zookeeper quorum lost — Kafka cluster goes offline</span>
+  3-node ZK: ZK1 dies, ZK2 dies. ZK3 alone cannot form quorum (needs majority &gt; N/2).
+  Kafka: controller cannot talk to ZK → cluster freezes. No new producer/consumer connections.
+  Fix: replace failed ZK nodes. Restore quorum. Kafka detects ZK reconnect → resumes.
+  Prevention: 5-node ZK (tolerates 2 failures). Or: KRaft mode (no ZK dependency).
+  Alert: zookeeper_outstanding_requests → page if &gt; 10 for &gt; 1 minute.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Optimisation</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Your Spark job has 200 tasks, 199 finish in 5 minutes, one runs for 6 hours. How do you diagnose this? What are your 3 different strategies to fix it?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Your Kafka consumer group lag is growing — 10 million messages behind and getting worse. How do you troubleshoot this? What are 3 different root causes and their fixes?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">A Trino query that scans a 10TB Iceberg table shouldn't need to read all 10TB. You've filtered WHERE status = 'COMPLETED'. But the query is reading all 10TB anyway. Why might predicate pushdown not be working?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHEATSHEET -->
+<section class="section reveal" id="s-cheat">
+  <div class="section-divider"><div class="section-label">Quick Reference</div></div>
+  <div class="section-title">⚡ Big Data Command Cheatsheet</div>
+  <div class="cheat" style="margin-top:1.5rem">
+    <div class="cheat-row"><div class="cheat-key">Spark UI</div><div class="cheat-val">localhost:4040 during job. Jobs → Stages → Tasks. Look for: long-tail tasks (skew), GC time &gt;10% (memory), shuffle read bytes (join cost). SQL tab: see the analyzed plan + whether broadcast join was chosen.</div></div>
+    <div class="cheat-row"><div class="cheat-key">spark-submit</div><div class="cheat-val"><code>spark-submit --master yarn --deploy-mode cluster --num-executors 50 --executor-cores 4 --executor-memory 8g --conf spark.sql.adaptive.enabled=true --conf spark.sql.shuffle.partitions=400 app.jar</code></div></div>
+    <div class="cheat-row"><div class="cheat-key">Kafka CLI</div><div class="cheat-val"><code>kafka-consumer-groups.sh --bootstrap-server :9092 --describe --group my-group</code> → shows lag per partition. <code>kafka-topics.sh --alter --partitions 20 --topic orders</code> — increase partitions (irreversible).</div></div>
+    <div class="cheat-row"><div class="cheat-key">Trino</div><div class="cheat-val"><code>EXPLAIN ANALYZE SELECT ...</code> — shows actual rows read per stage. <code>SHOW STATS FOR table</code> — column statistics. <code>SET SESSION query_max_memory='50GB'</code>. Runtime URL: coordinator:8080/ui shows all running queries.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Iceberg maintenance</div><div class="cheat-val"><code>CALL catalog.system.rewrite_data_files('db.table')</code> — compaction. <code>CALL catalog.system.expire_snapshots('db.table', TIMESTAMP '2024-01-01')</code> — clean old snapshots. <code>SELECT * FROM db.table FOR TIMESTAMP AS OF '2024-04-01 12:00:00'</code> — time travel.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Flink CLI</div><div class="cheat-val"><code>flink savepoint :jobId hdfs:///savepoints</code> — take savepoint. <code>flink run -s hdfs:///savepoints/savepoint-abc</code> — restore from savepoint. Flink UI: localhost:8081 → Running Jobs → checkpoints tab → duration + size.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Airflow CLI</div><div class="cheat-val"><code>airflow dags backfill -s 2024-01-01 -e 2024-04-18 my_dag</code>. <code>airflow tasks test my_dag task_name 2024-04-19</code> — test single task locally. <code>airflow db check</code> — verify metadata DB connection.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Parquet tools</div><div class="cheat-val"><code>parquet-tools schema file.parquet</code> — inspect schema. <code>parquet-tools meta file.parquet</code> — row group stats, compression, encodings. <code>parquet-tools rowcount file.parquet</code>. Python: <code>pd.read_parquet(path, columns=['amount','country'])</code> — column pruning in pandas.</div></div>
+  </div>
+</section>
+
+<!-- PRIORITY -->
+<section class="section reveal" id="s-priority">
+  <div class="section-divider"><div class="section-label">Study Roadmap</div></div>
+  <div class="section-title">🎯 Priority Study Plan</div>
+  <p class="section-sub">Master these in order. Tier 1 topics appear in virtually every senior data engineer / big data engineer interview at FAANG.</p>
+
+  <div class="tier tier-1" style="margin-top:1.5rem">
+    <div class="tier-badge">🔥 Tier 1 — Every Data Engineer Interview</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Spark shuffle + skew:</strong> salting, AQE, broadcast join vs sort-merge</div>
+      <div class="tier-item"><strong>Parquet columnar format:</strong> predicate pushdown, column pruning, row groups</div>
+      <div class="tier-item"><strong>Kafka ISR + ordering:</strong> acks, replication, consumer groups, offsets</div>
+      <div class="tier-item"><strong>Lambda vs Kappa vs Medallion:</strong> when and why for each</div>
+      <div class="tier-item"><strong>Flink event time + watermarks:</strong> late data, window types</div>
+      <div class="tier-item"><strong>Avro schema evolution:</strong> backward/forward compat, Schema Registry</div>
+      <div class="tier-item"><strong>Airflow DAG idempotency:</strong> upsert, partition overwrite patterns</div>
+      <div class="tier-item"><strong>Iceberg vs Hive Metastore:</strong> ACID, time travel, hidden partitioning</div>
+    </div>
+  </div>
+
+  <div class="tier tier-2">
+    <div class="tier-badge">🟠 Tier 2 — Senior / Staff Data Engineer</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Flink exactly-once:</strong> checkpointing + Kafka 2PC protocol</div>
+      <div class="tier-item"><strong>Iceberg metadata hierarchy:</strong> snapshots, manifests, data files</div>
+      <div class="tier-item"><strong>Kafka transactions:</strong> exactly-once produce + consume</div>
+      <div class="tier-item"><strong>Trino dynamic filtering:</strong> runtime bloom filter pushdown</div>
+      <div class="tier-item"><strong>Compaction strategy:</strong> small files problem, bin-packing, Z-order</div>
+      <div class="tier-item"><strong>CDC with Debezium:</strong> WAL-based replication, near-real-time sync</div>
+      <div class="tier-item"><strong>Spark memory model:</strong> unified memory, GC tuning, off-heap</div>
+      <div class="tier-item"><strong>Zookeeper leader election:</strong> sequential ZNodes, ephemeral, watches</div>
+    </div>
+  </div>
+
+  <div class="tier tier-3">
+    <div class="tier-badge">🟡 Tier 3 — Principal / Distinguished Engineer Level</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Kafka KRaft internals:</strong> Raft vs Zab, controller quorum</div>
+      <div class="tier-item"><strong>Flink CEP:</strong> NFA pattern matching, state machine, output</div>
+      <div class="tier-item"><strong>Iceberg copy-on-write vs merge-on-read:</strong> latency/compute trade-off</div>
+      <div class="tier-item"><strong>Data Mesh architecture:</strong> domain ownership, data products, governance</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-links">
+    <a href="library.html" class="footer-link">🏛️ Library</a>
+    <a href="book-1.html" class="footer-link">I · The City</a>
+    <a href="book-2.html" class="footer-link">II · The Codex</a>
+    <a href="book-3.html" class="footer-link">III · Foundations</a>
+    <a href="book-4.html" class="footer-link">IV · The Hall</a>
+    <a href="book-5.html" class="footer-link">V · The River</a>
+    <a href="book-6-systems.html" class="footer-link">VI · Systems</a>
+    <a href="book-7-devops.html" class="footer-link">VII · Platform</a>
+    <a href="book-8-bigdata.html" class="footer-link current">VIII · Big Data ✓</a>
+  </div>
+  <p class="footer-quote">"Data at petabyte scale doesn't just require bigger machines. It requires fundamentally different thinking — about how data moves, where it lands, and why one skewed partition can hold an entire organisation hostage for a day."</p>
+</footer>
+
+</main>
+
+<script>
+const prog=document.getElementById('progress');
+window.addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-window.innerHeight;prog.style.width=(window.scrollY/h*100)+'%';});
+const tocBtn=document.getElementById('tocBtn'),toc=document.getElementById('toc');
+tocBtn.addEventListener('click',()=>{tocBtn.classList.toggle('open');toc.classList.toggle('open');});
+toc.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{tocBtn.classList.remove('open');toc.classList.remove('open');}));
+const tocLinks=document.querySelectorAll('.toc-a');
+const io=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){tocLinks.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.toc-a[href="#${en.target.id}"]`);if(a)a.classList.add('active');}});},{rootMargin:'-10% 0px -80% 0px'});
+document.querySelectorAll('[id]').forEach(el=>io.observe(el));
+const revIO=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');revIO.unobserve(en.target);}});},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>revIO.observe(el));
+function animateCount(el){const target=+el.dataset.target,dur=1600,start=performance.now();(function tick(now){const t=Math.min((now-start)/dur,1),ease=1-Math.pow(1-t,3);el.textContent=Math.round(ease*target)+(t>=1?'+':'');if(t<1)requestAnimationFrame(tick);})(start);}
+const cIO=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting){en.target.querySelectorAll('[data-target]').forEach(animateCount);cIO.unobserve(en.target);}});},{threshold:.5});
+const se=document.querySelector('.hero-stats');if(se)cIO.observe(se);
+</script>
+</body>
+</html>

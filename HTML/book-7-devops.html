@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book VII · Platform & Infrastructure Mastery</title>
+<meta name="description" content="Docker · Kubernetes · Istio · Envoy · Nginx · CDN · Security · CI/CD · Observability — zero to FAANG senior engineer level.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void:#020208;--deep:#06060f;--surface:#0c0c1e;--card:#10102a;
+  --elevated:#161632;--raised:#1e1e44;
+  --border:rgba(255,255,255,0.06);
+  --border-glow:rgba(20,184,166,0.28);
+  --text-1:#f4f1ec;--text-2:#9e9aaa;--text-3:#5e5a6a;
+  --teal:#14b8a6;--teal-dim:rgba(20,184,166,0.12);--teal-glow:rgba(20,184,166,0.07);
+  --orange:#f97316;--amber:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --blue:#3b82f6;--cyan:#06b6d4;--purple:#8b5cf6;
+  --ff-sans:'Inter',system-ui,sans-serif;
+  --ff-display:'Sora','Inter',sans-serif;
+  --ff-mono:'JetBrains Mono','Fira Code',monospace;
+  --r-sm:8px;--r-md:14px;--r-lg:22px;--r-xl:32px;
+  --shadow-md:0 8px 32px rgba(0,0,0,0.6);
+  --shadow-glow:0 0 40px rgba(20,184,166,0.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:15px;}
+body{font-family:var(--ff-sans);background:var(--void);color:var(--text-1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+::selection{background:rgba(20,184,166,0.28);color:var(--text-1);}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--elevated);border-radius:3px;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 50% at 15% -10%,rgba(20,184,166,0.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 40% at 85% 110%,rgba(139,92,246,0.05) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+
+/* Progress */
+#progress{position:fixed;top:0;left:0;height:2px;width:0;
+  background:linear-gradient(90deg,var(--teal),var(--cyan),var(--teal));
+  background-size:200% auto;animation:shimmer 2s linear infinite;z-index:2000;transition:width .1s linear;}
+@keyframes shimmer{to{background-position:200% center;}}
+
+/* Nav */
+.nav{position:fixed;top:2px;left:0;right:0;height:58px;
+  background:rgba(2,2,8,0.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 1.5rem;gap:1rem;z-index:1000;}
+.nav-home{display:flex;align-items:center;gap:.5rem;text-decoration:none;
+  color:var(--teal);font-size:.8rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;opacity:.85;transition:opacity .2s;white-space:nowrap;}
+.nav-home:hover{opacity:1;}
+.nav-title{flex:1;text-align:center;font-family:var(--ff-display);font-size:.9rem;font-weight:600;color:var(--text-2);}
+.nav-badge{padding:.3rem .75rem;background:var(--teal-dim);border:1px solid var(--border-glow);
+  border-radius:100px;font-size:.72rem;font-weight:700;color:var(--teal);letter-spacing:.05em;white-space:nowrap;}
+
+/* TOC */
+.toc-wrap{position:fixed;top:60px;left:0;width:228px;height:calc(100vh - 60px);
+  overflow-y:auto;z-index:900;transform:translateX(-100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  background:rgba(6,6,15,.96);backdrop-filter:blur(20px);
+  border-right:1px solid var(--border);padding:1.25rem 0 2rem;}
+.toc-wrap.open{transform:translateX(0);}
+.toc-toggle{position:fixed;top:70px;left:.75rem;width:38px;height:38px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);
+  cursor:pointer;z-index:950;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;transition:all .2s;}
+.toc-toggle:hover{border-color:var(--border-glow);background:var(--elevated);}
+.toc-toggle i{display:block;width:16px;height:2px;background:var(--text-2);border-radius:2px;transition:all .3s;}
+.toc-toggle.open i:nth-child(1){transform:rotate(45deg) translate(5px,5px);}
+.toc-toggle.open i:nth-child(2){opacity:0;}
+.toc-toggle.open i:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}
+.toc-label{padding:0 1.25rem .75rem;font-size:.65rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.15em;color:var(--text-3);border-bottom:1px solid var(--border);margin-bottom:.5rem;}
+.toc-a{display:block;padding:.4rem 1.25rem;font-size:.78rem;color:var(--text-2);
+  text-decoration:none;border-left:2px solid transparent;transition:all .2s;line-height:1.4;}
+.toc-a:hover,.toc-a.active{color:var(--teal);border-left-color:var(--teal);background:var(--teal-glow);}
+.toc-section{margin-top:.5rem;}
+.toc-section-label{padding:.3rem 1.25rem;font-size:.6rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.15em;color:var(--text-3);}
+
+/* Layout */
+main{max-width:920px;margin:0 auto;padding:78px 1.5rem 6rem;position:relative;z-index:1;}
+
+/* Hero */
+.hero{text-align:center;padding:4rem 1rem 3rem;position:relative;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(20,184,166,0.07) 0%,transparent 70%);
+  pointer-events:none;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem 1rem;
+  background:var(--teal-dim);border:1px solid var(--border-glow);border-radius:100px;
+  font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;
+  color:var(--teal);margin-bottom:1.75rem;animation:fadeUp .6s ease .1s both;}
+h1.hero-title{font-family:var(--ff-display);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;
+  line-height:1.1;margin-bottom:1.25rem;animation:fadeUp .6s ease .25s both;}
+h1.hero-title .gradient{background:linear-gradient(135deg,#fff 0%,var(--teal) 45%,var(--cyan) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+h1.hero-title .sub{display:block;font-size:.5em;color:var(--text-2);font-weight:400;
+  margin-top:.4rem;font-family:var(--ff-sans);}
+.hero-desc{font-size:1.05rem;color:var(--text-2);max-width:640px;margin:0 auto 2.5rem;
+  line-height:1.75;animation:fadeUp .6s ease .4s both;}
+.hero-stats{display:flex;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .55s both;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;max-width:680px;margin:0 auto 2rem;}
+.stat{flex:1;min-width:110px;padding:1.25rem 1rem;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border:none;}
+.stat-n{font-family:var(--ff-display);font-size:2rem;font-weight:900;color:var(--teal);
+  line-height:1;margin-bottom:.25rem;}
+.stat-l{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);}
+.hero-actions{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .7s both;}
+.btn-primary{padding:.75rem 1.75rem;background:linear-gradient(135deg,var(--teal) 0%,#0d9488 100%);
+  border:none;border-radius:100px;color:#fff;font-family:var(--ff-sans);font-weight:700;font-size:.88rem;
+  cursor:pointer;text-decoration:none;transition:all .3s;box-shadow:0 4px 24px rgba(20,184,166,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(20,184,166,.45);}
+.btn-ghost{padding:.75rem 1.75rem;background:transparent;border:1px solid var(--border);
+  border-radius:100px;color:var(--text-2);font-size:.88rem;cursor:pointer;text-decoration:none;transition:all .3s;}
+.btn-ghost:hover{border-color:var(--border-glow);color:var(--teal);}
+
+/* Section */
+.section{margin-top:4.5rem;}
+.section-divider{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.section-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;
+  color:var(--teal);white-space:nowrap;}
+.section-title{font-family:var(--ff-display);font-size:clamp(1.5rem,3vw,1.9rem);font-weight:800;
+  color:var(--text-1);margin-bottom:.5rem;}
+.section-sub{font-size:.9rem;color:var(--text-2);line-height:1.6;max-width:620px;}
+
+/* Group Card */
+.group-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;margin-top:3.5rem;transition:border-color .3s;}
+.group-card:hover{border-color:rgba(20,184,166,.15);}
+.group-header{display:flex;gap:1.25rem;align-items:flex-start;padding:1.75rem 2rem;
+  background:linear-gradient(135deg,var(--elevated) 0%,var(--card) 100%);
+  border-bottom:1px solid var(--border);}
+.group-emoji{width:56px;height:56px;background:var(--teal-dim);border:1px solid var(--border-glow);
+  border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;flex-shrink:0;}
+.group-meta{flex:1;}
+.group-num{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;
+  color:var(--teal);margin-bottom:.3rem;}
+.group-title{font-family:var(--ff-display);font-size:1.2rem;font-weight:800;
+  color:var(--text-1);margin-bottom:.3rem;line-height:1.3;}
+.group-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.gtag{padding:.2rem .6rem;background:var(--surface);border:1px solid var(--border);
+  border-radius:100px;font-size:.7rem;color:var(--text-2);}
+.group-body{padding:1.75rem 2rem;}
+
+/* Problems */
+.problems{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.75rem;}
+.problem{display:flex;gap:.5rem;align-items:center;padding:.55rem .9rem;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);
+  font-size:.8rem;color:var(--text-2);transition:all .2s;cursor:default;}
+.problem:hover{border-color:rgba(20,184,166,.2);color:var(--text-1);}
+.problem.priority{border-color:rgba(20,184,166,.18);}
+.problem.priority::before{content:'⭐';font-size:.7rem;}
+.diff{padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:800;
+  letter-spacing:.05em;margin-left:auto;}
+.diff-h{background:rgba(239,68,68,.12);color:#ef4444;}
+.diff-m{background:rgba(245,158,11,.12);color:#f59e0b;}
+.diff-e{background:rgba(34,197,94,.12);color:#22c55e;}
+
+/* Flow Panel */
+.flow-panel{background:#020208;border:1px solid rgba(20,184,166,.15);border-radius:var(--r-lg);
+  overflow:hidden;margin:1.25rem 0;}
+.flow-panel-header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.25rem;
+  background:rgba(20,184,166,.05);border-bottom:1px solid rgba(20,184,166,.1);}
+.flow-panel-dots{display:flex;gap:6px;}
+.flow-panel-dot{width:8px;height:8px;border-radius:50%;}
+.dot-red{background:#ef4444;}.dot-blue{background:#3b82f6;}.dot-green{background:#22c55e;}
+.flow-panel-title{font-family:var(--ff-mono);font-size:.75rem;font-weight:600;
+  color:var(--teal);letter-spacing:.05em;}
+.flow-panel-body{padding:1.5rem 1.75rem;font-family:var(--ff-mono);font-size:.79rem;
+  line-height:1.8;color:#c9d1d9;overflow-x:auto;white-space:pre;}
+.f-title{color:#14b8a6;font-weight:700;}
+.f-key{color:#f59e0b;}.f-ok{color:#86efac;}.f-warn{color:#fca5a5;}
+.f-note{color:#4b5563;}.f-blue{color:#93c5fd;}.f-dim{color:#6b7280;}
+.f-purple{color:#c4b5fd;}.f-cyan{color:#67e8f9;}
+
+/* Concept Grid */
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin:1.5rem 0;}
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.25rem;transition:all .25s;position:relative;overflow:hidden;}
+.concept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--teal),transparent);opacity:0;transition:opacity .25s;}
+.concept-card:hover{border-color:rgba(20,184,166,.2);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.concept-card:hover::before{opacity:1;}
+.concept-icon{font-size:1.4rem;margin-bottom:.6rem;}
+.concept-title{font-size:.88rem;font-weight:700;color:var(--text-1);margin-bottom:.4rem;font-family:var(--ff-display);}
+.concept-body{font-size:.79rem;color:var(--text-2);line-height:1.6;}
+.concept-body strong{color:var(--text-1);}
+.concept-body code{font-family:var(--ff-mono);font-size:.75rem;
+  background:rgba(20,184,166,.08);padding:.1rem .3rem;border-radius:4px;color:var(--teal);}
+
+/* IQ */
+.iq-section{margin:1.5rem 0;}
+.iq-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;
+  color:var(--text-3);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
+.iq-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.iq{display:flex;gap:.75rem;padding:.9rem 1rem;background:var(--surface);
+  border:1px solid var(--border);border-left:3px solid var(--teal);
+  border-radius:0 var(--r-md) var(--r-md) 0;margin-bottom:.6rem;transition:all .2s;}
+.iq:hover{background:var(--elevated);border-left-color:var(--cyan);}
+.iq-num{font-family:var(--ff-mono);font-size:.7rem;font-weight:700;color:var(--teal);
+  opacity:.6;flex-shrink:0;padding-top:.1rem;}
+.iq-text{font-size:.86rem;color:var(--text-2);line-height:1.55;font-style:italic;}
+
+/* Arch Box */
+.arch-box{background:#020208;border:1px solid rgba(20,184,166,.12);border-radius:var(--r-lg);
+  padding:1.5rem 1.75rem;margin:1.5rem 0;overflow-x:auto;}
+.arch-box pre{font-family:var(--ff-mono);font-size:.78rem;line-height:1.75;color:#c9d1d9;margin:0;white-space:pre;}
+
+/* Cheat */
+.cheat{background:var(--card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;margin:2rem 0;}
+.cheat-row{display:flex;gap:1rem;align-items:flex-start;padding:.85rem 1.5rem;
+  border-bottom:1px solid var(--border);transition:background .2s;}
+.cheat-row:last-child{border:none;}
+.cheat-row:hover{background:var(--elevated);}
+.cheat-key{font-family:var(--ff-mono);font-size:.8rem;font-weight:700;color:var(--teal);
+  min-width:130px;padding-top:.05rem;}
+.cheat-val{font-size:.82rem;color:var(--text-2);line-height:1.6;}
+.cheat-val strong{color:var(--text-1);font-weight:600;}
+
+/* Tier */
+.tier{border-radius:var(--r-lg);padding:1.5rem;margin:1rem 0;}
+.tier-1{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);}
+.tier-2{background:rgba(20,184,166,.05);border:1px solid rgba(20,184,166,.18);}
+.tier-3{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.14);}
+.tier-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.65rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem;}
+.tier-1 .tier-badge{color:#ef4444;}.tier-2 .tier-badge{color:var(--teal);}.tier-3 .tier-badge{color:#f59e0b;}
+.tier-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.5rem;}
+.tier-item{display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;color:var(--text-2);}
+.tier-item::before{content:'→';color:var(--teal);flex-shrink:0;font-weight:700;margin-top:.05rem;}
+.tier-item strong{color:var(--text-1);}
+
+/* Footer */
+.footer{margin-top:5rem;padding:3rem 0;border-top:1px solid var(--border);text-align:center;}
+.footer-links{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.5rem;}
+.footer-link{padding:.4rem .8rem;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text-2);text-decoration:none;font-size:.78rem;transition:all .2s;}
+.footer-link:hover{color:var(--teal);border-color:var(--border-glow);}
+.footer-link.current{color:var(--teal);border-color:var(--border-glow);font-weight:700;}
+.footer-quote{font-size:.88rem;font-style:italic;color:var(--text-3);max-width:520px;margin:0 auto;line-height:1.7;}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.4,0,.2,1);}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* Responsive */
+@media(max-width:640px){
+  main{padding:72px 1rem 4rem;}
+  .hero{padding:2.5rem 0 2rem;}
+  .group-body{padding:1.25rem;}
+  .group-header{padding:1.25rem;}
+  .concept-grid{grid-template-columns:1fr;}
+  .tier-items{grid-template-columns:1fr;}
+  .flow-panel-body{font-size:.72rem;padding:1rem;}
+  .nav-badge{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav class="nav">
+  <a href="library.html" class="nav-home">⬅ Library</a>
+  <div class="nav-title">Platform & Infrastructure Mastery</div>
+  <div class="nav-badge">Book VII · Zero to FAANG</div>
+</nav>
+
+<button class="toc-toggle" id="tocBtn" aria-label="Table of Contents">
+  <i></i><i></i><i></i>
+</button>
+<nav class="toc-wrap" id="toc">
+  <div class="toc-label">Table of Contents</div>
+  <div class="toc-section">
+    <div class="toc-section-label">Containers</div>
+    <a href="#g1" class="toc-a">🐳 I · Docker</a>
+    <a href="#g2" class="toc-a">☸️ II · Kubernetes</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Networking</div>
+    <a href="#g3" class="toc-a">🔀 III · Nginx & Load Balancers</a>
+    <a href="#g4" class="toc-a">🌐 IV · API Gateway</a>
+    <a href="#g5" class="toc-a">🕸️ V · Service Mesh (Istio/Envoy)</a>
+    <a href="#g6" class="toc-a">⚡ VI · CDN & Networking</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Reliability</div>
+    <a href="#g7" class="toc-a">🔒 VII · Security & Zero Trust</a>
+    <a href="#g8" class="toc-a">🚀 VIII · CI/CD & GitOps</a>
+    <a href="#g9" class="toc-a">🔭 IX · Observability</a>
+    <a href="#g10" class="toc-a">💥 X · Failure Scenarios</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Reference</div>
+    <a href="#s-cheat" class="toc-a">📋 Command Cheatsheet</a>
+    <a href="#s-priority" class="toc-a">🎯 Study Priority</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="hero-eyebrow">📚 The Engineer's Library · Book VII · Platform Edition</div>
+  <h1 class="hero-title">
+    <span class="gradient">Platform & Infrastructure</span>
+    <span class="sub">Docker · Kubernetes · Istio · Envoy · Nginx · CDN · Security · CI/CD · Observability</span>
+  </h1>
+  <p class="hero-desc">
+    The layer below your application that makes or breaks it in production. Zero to FAANG senior engineer — with every critical failure scenario, every architectural decision, and every command that matters.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n" data-target="10">0</div><div class="stat-l">Topic Groups</div></div>
+    <div class="stat"><div class="stat-n" data-target="60">0</div><div class="stat-l">Critical Scenarios</div></div>
+    <div class="stat"><div class="stat-n" data-target="45">0</div><div class="stat-l">Interview Qs</div></div>
+    <div class="stat"><div class="stat-n" data-target="80">0</div><div class="stat-l">Commands</div></div>
+  </div>
+  <div class="hero-actions">
+    <a href="#g1" class="btn-primary">Start with Docker →</a>
+    <a href="#s-priority" class="btn-ghost">Jump to Priority Plan</a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+  GROUP 1: DOCKER
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g1">
+  <div class="group-header">
+    <div class="group-emoji">🐳</div>
+    <div class="group-meta">
+      <div class="group-num">Group I · The Foundation of Modern Deployment</div>
+      <div class="group-title">Docker — Containers from First Principles</div>
+      <div class="group-tags">
+        <span class="gtag">Dockerfile</span><span class="gtag">Layers</span><span class="gtag">Multi-stage</span>
+        <span class="gtag">Networking</span><span class="gtag">Volumes</span><span class="gtag">Security</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">How does a Docker container work? Namespaces & cgroups <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Optimize a Dockerfile: 800MB → 90MB image <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Multi-stage builds for production images <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Container networking: bridge, host, overlay modes <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Docker security: running as root, CVE scanning <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Layer caching strategy to speed up CI builds <span class="diff diff-e">EASY</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">HOW DOCKER WORKS INTERNALLY + PRODUCTION OPTIMIZATION</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">ISOLATION PRIMITIVES (Linux kernel features, NOT a VM):</span>
+  <span class="f-key">Namespaces</span> — process-level isolation:
+    pid:   container sees only its own processes (PID 1 = your app)
+    net:   container gets its own network stack (eth0, routing table)
+    mnt:   container gets its own filesystem view (from image layers)
+    uts:   container gets its own hostname
+    ipc:   separate shared memory / semaphores
+    user:  map container root (uid 0) to unprivileged host uid (e.g., 65534)
+
+  <span class="f-key">cgroups</span> — resource limiting:
+    cpu:    --cpus=0.5 → container can use max 50% of one core
+    memory: --memory=512m → OOM kill if exceeded
+    io:     limit disk read/write throughput
+    No cgroup limits = container can steal all host CPU. <span class="f-warn">Always set limits in prod.</span>
+
+<span class="f-title">DOCKERFILE — BAD vs GOOD (800MB vs 90MB):</span>
+
+BAD (common mistakes):
+  FROM node:20                    <span class="f-dim">← pulls full Debian, 1.1GB base</span>
+  COPY . .                        <span class="f-dim">← copies node_modules too (huge)</span>
+  RUN npm install                 <span class="f-dim">← runs every build. Cache busted by any file change.</span>
+  RUN npm run build
+  EXPOSE 3000
+  CMD ["node", "src/index.js"]
+
+GOOD (multi-stage + optimized layers):
+  <span class="f-ok"># Stage 1: Build</span>
+  FROM node:20-alpine AS builder   <span class="f-dim">← alpine = 7MB base vs 1.1GB debian</span>
+  WORKDIR /app
+  COPY package*.json ./            <span class="f-ok">← COPY deps FIRST — cache layer until package.json changes</span>
+  RUN npm ci --only=production     <span class="f-dim">← ci = exact lockfile. --only=prod = skip devDeps</span>
+  COPY . .
+  RUN npm run build
+
+  <span class="f-ok"># Stage 2: Runtime (only production artifacts)</span>
+  FROM node:20-alpine AS runtime
+  RUN addgroup -S app && adduser -S app -G app  <span class="f-ok">← Never run as root</span>
+  WORKDIR /app
+  COPY --from=builder /app/dist ./dist          <span class="f-ok">← Only compiled output, ~5MB</span>
+  COPY --from=builder /app/node_modules ./node_modules
+  USER app                                       <span class="f-ok">← Switch to non-root</span>
+  EXPOSE 3000
+  HEALTHCHECK CMD wget -qO- http://localhost:3000/health || exit 1
+  CMD ["node", "dist/index.js"]
+
+  Result: 800MB → <span class="f-ok">~90MB</span>. Attack surface reduced 90%.
+
+<span class="f-title">CONTAINER NETWORKING MODES:</span>
+  bridge (default): veth pair → docker0 bridge → host network
+    Containers communicate via 172.17.0.0/16 subnet
+    Port publish: -p 8080:3000 → iptables DNAT rule
+
+  host: container shares host network stack directly
+    No NAT. Highest performance. Loses isolation. Use: metrics collection, eBPF
+
+  overlay (Swarm/K8s): VXLAN tunnel between hosts
+    Container on Host A → VXLAN encapsulation → UDP 4789 → Host B → container
+
+  none: no networking. Use: batch jobs, security-sensitive workloads
+
+<span class="f-title">.dockerignore (critical for build performance):</span>
+  node_modules/    <span class="f-dim">← ALWAYS ignore. Never copy into build context.</span>
+  .git/
+  *.log
+  dist/
+  coverage/
+  .env             <span class="f-dim">← NEVER bake secrets into images. Use runtime env vars or secrets.</span></div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">📦</div><div class="concept-title">Image Layers & Cache</div><div class="concept-body">Each RUN/COPY/ADD = new layer. Each layer is content-addressed (SHA256). Cache: if instruction + all preceding layers unchanged → cache hit (0ms). Key: order instructions from <strong>least to most frequently changing</strong>. COPY package.json before COPY src/ — avoids reinstalling deps on src change.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔐</div><div class="concept-title">Docker Security</div><div class="concept-body">Never run as root. Use <code>USER</code> directive. Scan images: <code>docker scout</code> or Trivy/Snyk. Read-only filesystem: <code>--read-only</code> flag. Drop capabilities: <code>--cap-drop=ALL --cap-add=NET_BIND_SERVICE</code>. No privileged containers in prod. Secrets: inject via env vars or mounted secret volumes — never COPY or ARG.</div></div>
+      <div class="concept-card"><div class="concept-icon">🏥</div><div class="concept-title">Healthchecks</div><div class="concept-body"><code>HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:3000/health</code>. States: starting → healthy → unhealthy. K8s uses liveness/readiness probes separately. Docker restart policy: <code>--restart=unless-stopped</code>. Unhealthy container → K8s kills + restarts it automatically.</div></div>
+      <div class="concept-card"><div class="concept-icon">💾</div><div class="concept-title">Volumes vs Bind Mounts</div><div class="concept-body"><strong>Volume:</strong> Docker-managed, <code>/var/lib/docker/volumes/</code>. Best for DB data, persistent state. Survives container removal. <strong>Bind mount:</strong> maps host path directly. Best for dev (live code reload). <strong>tmpfs:</strong> RAM-only, ephemeral. Best for sensitive data that must not hit disk (keys, session tokens).</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Docker</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does Docker isolate containers? What Linux kernel primitives does it actually use, and what would happen if you didn't set cgroup limits?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Your Docker image is 1.2GB and CI builds take 12 minutes. Walk me through exactly how you'd reduce both the size and the build time.</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Why should you never run production containers as root? What specific attack vectors does it open?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 2: KUBERNETES
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g2">
+  <div class="group-header">
+    <div class="group-emoji">☸️</div>
+    <div class="group-meta">
+      <div class="group-num">Group II · The Most Important FAANG Infrastructure Topic</div>
+      <div class="group-title">Kubernetes — Architecture, Scheduling & Production Patterns</div>
+      <div class="group-tags">
+        <span class="gtag">Control Plane</span><span class="gtag">Pods</span><span class="gtag">Deployments</span>
+        <span class="gtag">HPA</span><span class="gtag">RBAC</span><span class="gtag">Ingress</span><span class="gtag">Operators</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">K8s architecture: control plane vs data plane <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Zero-downtime deployment: rolling update + readiness probes <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">HPA: scale on CPU + custom metrics (RPS, queue depth) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Pod scheduling: affinity, taints/tolerations, priority classes <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">K8s RBAC: service accounts, roles, cluster roles <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">PodDisruptionBudget: graceful node drain <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">StatefulSets for databases in K8s <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">K8s ARCHITECTURE + WHAT HAPPENS WHEN YOU RUN kubectl apply</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">CONTROL PLANE (brain — runs on master nodes):</span>
+  kube-apiserver    — All state changes pass through here. Stateless. Horizontally scalable.
+  etcd              — Distributed key-value store. Source of truth for ALL cluster state.
+                      Raft consensus. 3 or 5 replicas for HA. NEVER let etcd go down.
+  kube-scheduler    — Watches for unscheduled pods. Runs scheduling algorithm to pick node.
+  kube-controller-manager — Runs control loops:
+    Deployment controller: actual replicas? = desired replicas? If not → create/delete pods.
+    Node controller: detect node failure → evict pods after 5min (configurable).
+    Endpoint controller: update Service endpoints when pods start/stop.
+
+<span class="f-title">DATA PLANE (workers — run your workloads):</span>
+  kubelet           — Agent on every node. Watches apiserver for pod assignments.
+                      Starts containers via CRI (containerd). Reports pod status back.
+  kube-proxy        — Programs iptables/IPVS rules for Service ClusterIP routing.
+                      Every request to ClusterIP → kernel routes to one of the healthy pods.
+  Container Runtime — containerd (standard). Pulls images, starts/stops containers.
+
+<span class="f-title">WHAT HAPPENS WHEN YOU kubectl apply -f deployment.yaml:</span>
+  1. kubectl authenticates to kube-apiserver (your kubeconfig cert)
+  2. apiserver validates manifest → stores in etcd
+  3. Deployment controller notices: desired=3 replicas, actual=0 → creates 3 Pod specs in etcd
+  4. Scheduler notices 3 unscheduled pods → runs scoring algorithm:
+     - Filters: enough CPU/memory? taints tolerated? affinity rules met?
+     - Scores: spread across zones? close to data? packed efficiently?
+     → Assigns pod to best node. Writes node name to pod spec in etcd.
+  5. Node's kubelet notices pod assigned to it → calls containerd to pull image + start container
+  6. Container starts → kubelet runs readiness probe every 10s
+     Readiness passes → kubelet updates pod status=Ready
+  7. Endpoint controller: pod Ready → add pod IP to Service endpoints
+  8. kube-proxy on all nodes: update iptables → traffic now reaches new pod
+  
+  Total time: typically 15-45 seconds per pod. Parallel for multiple pods.
+
+<span class="f-title">ZERO-DOWNTIME DEPLOYMENT (Rolling Update):</span>
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        <span class="f-dim">← Allow 1 extra pod during update (33% over capacity)</span>
+      maxUnavailable: 0  <span class="f-dim">← Never reduce below desired. Zero downtime guaranteed.</span>
+
+  Lifecycle:
+    Old: [v1, v1, v1]
+    Step 1: Start v2 pod → wait for readiness probe to pass
+    Step 2: v2 Ready → add to Service endpoints → remove one v1 from endpoints
+    Step 3: Terminate v1 pod (SIGTERM → 30s grace period → SIGKILL if still running)
+    Step 4: Repeat until all v1 pods replaced.
+    If v2 readiness probe never passes → rollout stalls. Run: kubectl rollout undo deployment/app
+
+<span class="f-title">HORIZONTAL POD AUTOSCALER (HPA):</span>
+  apiVersion: autoscaling/v2
+  spec:
+    metrics:
+    - type: Resource
+      resource: {name: cpu, target: {type: Utilization, averageUtilization: 70}}
+    - type: External
+      external: {metric: {name: kafka_consumer_lag}, target: {type: Value, value: "1000"}}
+    behavior:
+      scaleUp:   {stabilizationWindowSeconds: 30,  policies: [{type:Pods, value:4, periodSeconds:60}]}
+      scaleDown: {stabilizationWindowSeconds: 300, policies: [{type:Percent, value:50, periodSeconds:60}]}
+  
+  Scale-up: fast (30s stabilization). Scale-down: slow (300s / 5min stabilization).
+  Reason: false scale-down during traffic spike would cause immediate OOMKills.
+
+<span class="f-title">CRITICAL: PodDisruptionBudget (during node drain/upgrades):</span>
+  minAvailable: 2   <span class="f-dim">← At least 2 pods must be running during any voluntary disruption.</span>
+  Without PDB: kubectl drain might kill all 3 pods simultaneously → complete outage.
+  With PDB: drain respects budget → always keeps 2 running → graceful cluster upgrade.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🏷️</div><div class="concept-title">Taints & Tolerations</div><div class="concept-body"><strong>Taint</strong> a node: <code>kubectl taint nodes gpu-node gpu=true:NoSchedule</code>. No pod can land there unless it tolerates the taint. <strong>Toleration</strong> in pod spec: <code>tolerations: [{key: gpu, value: "true"}]</code>. Use case: reserve GPU nodes for ML workloads only. Also: system pods on master nodes tolerate <code>node-role.kubernetes.io/master</code>.</div></div>
+      <div class="concept-card"><div class="concept-icon">📍</div><div class="concept-title">Pod Anti-Affinity</div><div class="concept-body">Spread replicas across zones so a zone failure doesn't kill all pods: <code>podAntiAffinity.preferredDuringScheduling: topologyKey: topology.kubernetes.io/zone</code>. Hard anti-affinity (<code>required</code>): guarantees spread. Soft (<code>preferred</code>): best-effort. At FAANG scale: always use multi-zone anti-affinity for critical services.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔐</div><div class="concept-title">K8s RBAC</div><div class="concept-body"><strong>ServiceAccount</strong>: identity for pods. <strong>Role</strong>: permissions in one namespace. <strong>ClusterRole</strong>: cluster-wide. <strong>RoleBinding</strong>: bind role to ServiceAccount. Least privilege: app pod gets only <code>get/list pods</code>, not <code>*</code>. Audit: <code>kubectl auth can-i --list --as=system:serviceaccount:default:myapp</code>.</div></div>
+      <div class="concept-card"><div class="concept-icon">📦</div><div class="concept-title">ConfigMaps & Secrets</div><div class="concept-body">ConfigMap: non-sensitive config (feature flags, endpoints). Secret: base64-encoded (NOT encrypted by default). <strong>Encrypt at rest</strong>: enable EncryptionConfiguration in apiserver with AES-CBC or KMS provider. External secrets: use External Secrets Operator → pull from AWS Secrets Manager/HashiCorp Vault. Mount as files or env vars.</div></div>
+      <div class="concept-card"><div class="concept-icon">⚡</div><div class="concept-title">Resource Requests & Limits</div><div class="concept-body"><code>requests</code>: scheduler uses this to place pod. <code>limits</code>: hard ceiling — OOMKilled if exceeded. Best practice: set requests=limits for critical services (Guaranteed QoS class). Node overcommit: if pod requests < limits, node can be oversubscribed. CPU throttled at limit, memory OOMKilled.</div></div>
+      <div class="concept-card"><div class="concept-icon">🗄️</div><div class="concept-title">StatefulSets</div><div class="concept-body">Ordered pod names: <code>db-0, db-1, db-2</code>. Stable network identity: <code>db-0.db-svc.default.svc.cluster.local</code>. PVC per pod: each gets its own 100GB volume. Scale down: terminates highest index first (db-2, then db-1). Use for: databases (Postgres, Cassandra, Kafka). Never use Deployment for stateful workloads.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Kubernetes</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Walk me through what happens at the systems level — from the moment you run <code>kubectl apply</code> to the moment your container is receiving traffic. Name every component involved.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">You're doing a rolling update of a critical service. How do you guarantee zero downtime even if the new image has a slow startup? What K8s features do you use?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Your K8s cluster has 10 nodes in 3 AZs. One AZ goes down. What happens to the pods in that AZ, and how do you design your Deployment to survive this automatically?</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">What's the difference between a liveness probe and a readiness probe? What happens if you confuse them — specifically, what disaster does a wrong liveness probe cause?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 3: NGINX & LOAD BALANCERS
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g3">
+  <div class="group-header">
+    <div class="group-emoji">🔀</div>
+    <div class="group-meta">
+      <div class="group-num">Group III · The First Line of Traffic Management</div>
+      <div class="group-title">Nginx, HAProxy & Load Balancers</div>
+      <div class="group-tags">
+        <span class="gtag">Reverse Proxy</span><span class="gtag">SSL Termination</span><span class="gtag">L4/L7</span>
+        <span class="gtag">Upstream</span><span class="gtag">Rate Limiting</span><span class="gtag">Caching</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Nginx as reverse proxy + SSL termination + rate limiting <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">L4 vs L7 load balancing — when to use each <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Load balancing algorithms: round-robin, least conn, IP hash <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Nginx caching: proxy_cache for static + dynamic content <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Sticky sessions: IP hash vs cookie-based <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Health checks and automatic backend removal <span class="diff diff-e">EASY</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">PRODUCTION NGINX CONFIG — The Pattern That Handles 100K RPS</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WORKER TUNING (top of nginx.conf):</span>
+  worker_processes auto;          <span class="f-dim"># = number of CPU cores</span>
+  worker_connections 10000;       <span class="f-dim"># per worker. Total = workers × 10000</span>
+  use epoll;                      <span class="f-dim"># Linux event model. Non-blocking I/O. Key to 100K rps.</span>
+  multi_accept on;                <span class="f-dim"># Accept all pending connections per event loop</span>
+
+<span class="f-title">UPSTREAM (backend pool + health checks):</span>
+  upstream app_servers {
+    least_conn;                   <span class="f-dim"># Route to server with fewest active connections</span>
+    keepalive 32;                 <span class="f-dim"># Pool of 32 persistent connections per upstream server</span>
+    server app1:3000 weight=3;    <span class="f-dim"># 3× more traffic than weight=1 servers</span>
+    server app2:3000 weight=3;
+    server app3:3000 weight=1 backup;  <span class="f-dim"># Only used if primary servers are DOWN</span>
+    server app4:3000 max_fails=3 fail_timeout=30s;  <span class="f-dim"># Remove after 3 failures in 30s</span>
+  }
+
+<span class="f-title">SERVER BLOCK (HTTPS + security headers):</span>
+  server {
+    listen 443 ssl http2;
+    server_name api.yourapp.com;
+
+    ssl_certificate     /etc/letsencrypt/live/yourapp/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourapp/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;    <span class="f-dim"># Disable TLS 1.0/1.1 (insecure)</span>
+    ssl_ciphers         ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;
+    ssl_session_cache   shared:SSL:10m;      <span class="f-dim"># Session resumption — skip TLS handshake on reconnect</span>
+
+    <span class="f-ok"># Security headers</span>
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header Content-Security-Policy "default-src 'self'" always;
+
+    <span class="f-ok"># Rate limiting</span>
+    limit_req_zone $binary_remote_addr zone=api:10m rate=100r/m;
+    limit_req zone=api burst=20 nodelay;
+    limit_req_status 429;
+
+    location /api/ {
+      proxy_pass         http://app_servers;
+      proxy_http_version 1.1;               <span class="f-dim"># Required for keepalive</span>
+      proxy_set_header   Connection "";      <span class="f-dim"># Required for keepalive</span>
+      proxy_set_header   Host $host;
+      proxy_set_header   X-Real-IP $remote_addr;
+      proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_connect_timeout 5s;
+      proxy_send_timeout    60s;
+      proxy_read_timeout    60s;
+    }
+
+    location /static/ {
+      root /var/www;
+      expires 30d;
+      add_header Cache-Control "public, immutable";  <span class="f-dim"># CDN-friendly</span>
+      gzip_static on;
+    }
+  }
+
+<span class="f-title">L4 vs L7 LOAD BALANCER:</span>
+  <span class="f-blue">L4 (Transport Layer — TCP/UDP):</span>
+    Sees: IP addresses + ports only. Cannot inspect HTTP headers.
+    Routing: pure IP/port hash. Blindly forwards TCP streams.
+    <span class="f-ok">Pros:</span> Extremely fast (minimal processing). Low latency. Any protocol.
+    <span class="f-warn">Cons:</span> No path-based routing. No header-based decisions.
+    Tools: AWS NLB, HAProxy (TCP mode), MetalLB (K8s bare metal)
+    Use for: TCP databases, MQTT, gRPC (fastest path), raw speed
+
+  <span class="f-blue">L7 (Application Layer — HTTP/HTTPS):</span>
+    Sees: full HTTP request (URL path, headers, cookies, body).
+    Routing: /api/* → api servers, /static/* → CDN, based on JWT claims, etc.
+    <span class="f-ok">Pros:</span> Smart routing, SSL termination, request rewriting, auth.
+    <span class="f-warn">Cons:</span> Higher CPU (parse HTTP). Cannot handle raw TCP.
+    Tools: Nginx, AWS ALB, Envoy, Traefik, Kong
+    Use for: microservices routing, canary deployments, rate limiting per user</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Load Balancing</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Your API backend has 3 servers. Server 1 is handling 500 long-lived WebSocket connections. Server 2 just started. What load balancing algorithm prevents overloading server 1 with new requests?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A backend server starts returning 500s intermittently. How does Nginx automatically detect this and route traffic away from it? What config controls this behavior?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">When would you choose an L4 load balancer over an L7 load balancer? Give a specific production use case for each.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 4: API GATEWAY
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g4">
+  <div class="group-header">
+    <div class="group-emoji">🌐</div>
+    <div class="group-meta">
+      <div class="group-num">Group IV · The Unified Entry Point</div>
+      <div class="group-title">API Gateway — Kong, AWS API Gateway, Traefik</div>
+      <div class="group-tags">
+        <span class="gtag">Kong</span><span class="gtag">AWS APIGW</span><span class="gtag">Traefik</span>
+        <span class="gtag">Auth</span><span class="gtag">Rate Limiting</span><span class="gtag">Transformation</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design an API Gateway from scratch (what it must do) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Kong plugin architecture: auth, rate limit, logging <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Request/response transformation and protocol translation <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">API versioning strategies at the gateway level <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">API GATEWAY REQUEST LIFECYCLE — Every Plugin, Every Step</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">REQUEST FLOW (Kong / Envoy gateway pattern):</span>
+
+Client <span class="f-key">→</span> API Gateway
+  Phase 1: SECURITY
+    a) TLS termination (decrypt HTTPS → internal HTTP)
+    b) IP allowlist/denylist (block known bad actors)
+    c) DDoS protection: rate limit by IP at connection level (L4)
+    d) WAF (Web Application Firewall): check for SQLi, XSS, OWASP Top 10 patterns
+
+  Phase 2: AUTHENTICATION
+    e) Extract Authorization: Bearer {jwt} header
+    f) Validate JWT signature (asymmetric RS256, public key from JWKS endpoint)
+    g) Check expiry (exp claim), issuer (iss claim)
+    h) If invalid → 401 Unauthorized immediately. Upstream never called.
+
+  Phase 3: AUTHORIZATION
+    i) Check scopes in JWT (e.g., scope: "read:orders write:orders")
+    j) Check rate limit: INCR user:{userId}:rps in Redis → 429 if over limit
+    k) Check API quota: daily/monthly call limits per API key/plan
+
+  Phase 4: REQUEST TRANSFORMATION
+    l) Add upstream headers: X-User-Id, X-User-Roles, X-Request-Id (correlation)
+    m) Strip auth header before forwarding (microservice doesn't need JWT)
+    n) Protocol translation: REST/HTTP → gRPC (if backend speaks gRPC only)
+    o) Request validation: schema validation before hitting backend
+
+  Phase 5: ROUTING
+    p) Match path: /api/v2/orders/* → order-service:8080
+    q) Load balance across instances (least-conn / round-robin)
+    r) Circuit breaker: if order-service returning >50% errors → open circuit
+
+  Phase 6: RESPONSE
+    s) Add CORS headers (Access-Control-Allow-Origin)
+    t) Add response headers (X-Request-Id for tracing)
+    u) Cache GET responses if enabled (Cache-Control honored)
+    v) Compress response (gzip/brotli)
+    w) Emit access log → Fluentd → Elasticsearch
+
+<span class="f-title">API VERSIONING STRATEGIES:</span>
+  URL path:     /api/v1/users, /api/v2/users         <span class="f-ok">← Most common. Easy to route.</span>
+  Header:       API-Version: 2024-01-01              <span class="f-dim">← Stripe's approach. Cleaner URLs.</span>
+  Query param:  /api/users?version=2                 <span class="f-warn">← Breaks caching. Avoid in prod.</span>
+  Gateway: Route /api/v1/* → service:v1, /api/v2/* → service:v2
+  Run both simultaneously during migration. Sunset v1 after 6 months.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — API Gateway</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Design an API Gateway. What are its 6 core responsibilities? What happens to a request between "client sends request" and "backend receives it"?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Your API Gateway is a single point of failure. How do you make it highly available, and how do you ensure it doesn't become a latency bottleneck at 500K rps?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 5: SERVICE MESH — ISTIO & ENVOY
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g5">
+  <div class="group-header">
+    <div class="group-emoji">🕸️</div>
+    <div class="group-meta">
+      <div class="group-num">Group V · Platform Engineering's Most Complex Topic</div>
+      <div class="group-title">Service Mesh — Istio, Envoy & mTLS</div>
+      <div class="group-tags">
+        <span class="gtag">Envoy Sidecar</span><span class="gtag">Istio Control Plane</span><span class="gtag">mTLS</span>
+        <span class="gtag">Traffic Shifting</span><span class="gtag">Canary</span><span class="gtag">Observability</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">What is a service mesh? Why Envoy sidecar proxy? <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">mTLS between all services — zero trust networking <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Canary deployment: 95/5 traffic split without code changes <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Circuit breaking and retry policies in Istio <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Envoy xDS API: CDS, EDS, LDS, RDS <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Istio vs Linkerd vs Cilium — trade-offs <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">ENVOY SIDECAR + ISTIO CONTROL PLANE — Complete Architecture</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WHY SERVICE MESH? (The problem it solves):</span>
+  Without mesh: each microservice must implement:
+    - Retry logic (gRPC / HTTP)
+    - Circuit breakers (Resilience4j)
+    - mTLS (custom cert management per service)
+    - Tracing (inject trace headers)
+    - Metrics (expose /metrics endpoint)
+  500 services = 500× duplicated, inconsistent implementations.
+
+  With mesh: ALL of the above handled by the sidecar. Zero application code changes.
+
+<span class="f-title">ENVOY SIDECAR ARCHITECTURE:</span>
+  Every pod gets an Envoy sidecar injected automatically (via MutatingWebhook):
+    Pod: [Your Container] + [Envoy Proxy (port 15001)]
+    
+  iptables rules: ALL inbound/outbound traffic intercepted → Envoy
+    App → Envoy (localhost:15001) → [policy, retry, mTLS] → network
+    Network → Envoy → [auth, telemetry] → App (localhost:8080)
+  
+  App has NO idea mTLS is happening. Envoy is transparent.
+
+<span class="f-title">ISTIO CONTROL PLANE: (istiod — the "brain")</span>
+  Pilot:   Converts Istio config (VirtualService, DestinationRule) → Envoy xDS config
+  Citadel: Certificate Authority. Issues mTLS certs to every Envoy sidecar (SPIFFE/SVID format)
+  Galley:  Config validation and distribution
+
+  xDS APIs (dynamic configuration — no restart needed):
+    LDS (Listener Discovery): what ports Envoy should listen on
+    RDS (Route Discovery): URL path → upstream cluster mapping
+    CDS (Cluster Discovery): upstream service instances
+    EDS (Endpoint Discovery): individual IP:Port of each pod
+
+<span class="f-title">mTLS — ZERO TRUST BETWEEN SERVICES:</span>
+  Without mTLS: order-service can call payment-service with no authentication.
+    Any compromised pod could call payment-service and initiate transactions.
+
+  With Istio mTLS (PeerAuthentication: STRICT):
+    1. istiod issues X.509 cert to every Envoy: "This is order-service"
+    2. order-service Envoy → presents cert → payment-service Envoy
+    3. payment-service Envoy: validates cert against istiod CA → identity verified
+    4. If cert invalid → connection REJECTED before app code is touched
+    5. AuthorizationPolicy: allow order-service → payment-service:POST/charge ONLY
+
+  Commands:
+    <span class="f-key">kubectl apply -f</span> peer-auth-strict.yaml    <span class="f-dim"># Enforce mTLS globally</span>
+    <span class="f-key">istioctl analyze</span>                          <span class="f-dim"># Check for misconfigurations</span>
+    <span class="f-key">istioctl proxy-status</span>                     <span class="f-dim"># Are all Envoys synced from control plane?</span>
+
+<span class="f-title">CANARY DEPLOYMENT — 5% traffic to new version, no code changes:</span>
+  VirtualService:
+    http:
+    - match: [{headers: {x-canary: {exact: "true"}}}]  <span class="f-dim"># Internal testing header</span>
+      route: [{destination: {host: app, subset: v2}}]
+    - route:                                             <span class="f-dim"># Everyone else</span>
+      - destination: {host: app, subset: v1}
+        weight: 95
+      - destination: {host: app, subset: v2}
+        weight: 5
+
+  DestinationRule:
+    subsets:
+    - name: v1  labels: {version: v1}
+    - name: v2  labels: {version: v2}
+
+  Monitor: watch error rate in Grafana for v2 subset.
+  If error rate &gt; 1%: set v2 weight=0. Automatic rollback.
+  If healthy after 30min: set v2 weight=100. Old v1 pods drained.
+
+<span class="f-title">CIRCUIT BREAKER IN ISTIO (DestinationRule):</span>
+  outlierDetection:
+    consecutiveGatewayErrors: 5    <span class="f-dim"># 5 consecutive 5xx = eject pod</span>
+    interval: 10s
+    baseEjectionTime: 30s          <span class="f-dim"># Pod ejected for 30s then re-checked</span>
+    maxEjectionPercent: 50         <span class="f-dim"># Never eject >50% of pods (prevent full outage)</span>
+  connectionPool:
+    http:
+      http1MaxPendingRequests: 100  <span class="f-dim"># Circuit opens if >100 requests queued</span>
+      http2MaxRequests: 1000</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔄</div><div class="concept-title">Retry Policies</div><div class="concept-body">VirtualService retries: <code>retries: {attempts: 3, perTryTimeout: 2s, retryOn: "gateway-error,connect-failure,retriable-4xx"}</code>. Critical: only retry idempotent requests. Never retry POST /charge. Use <strong>idempotency keys</strong> if you must retry non-idempotent operations. Total timeout = perTryTimeout × attempts = 6s max.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔬</div><div class="concept-title">Fault Injection (Chaos)</div><div class="concept-body">Istio can inject faults for resilience testing: <code>fault: {delay: {percentage: 10%, fixedDelay: 5s}}</code> — adds 5s delay to 10% of requests. <code>fault: {abort: {percentage: 5%, httpStatus: 503}}</code> — forces 5% failure rate. Use in staging to verify circuit breakers and retries work correctly before production.</div></div>
+      <div class="concept-card"><div class="concept-icon">📊</div><div class="concept-title">Istio Telemetry</div><div class="concept-body">Every Envoy emits automatically: <strong>Metrics</strong> (rps, latency p50/p95/p99, error rate per route) to Prometheus. <strong>Traces</strong> (Zipkin/Jaeger headers propagated across services). <strong>Access logs</strong> (full request/response metadata). No instrumentation code needed. Grafana: pre-built Istio dashboards.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Service Mesh</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">What is a service mesh and the Envoy sidecar pattern? Explain how traffic flows from Service A to Service B when both have Envoy sidecars injected.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How does Istio implement mTLS between all microservices without any changes to the application code? What component issues the certificates?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How do you do a canary deployment where 5% of users get v2 of your service, monitor error rates, and automatically roll back if errors exceed 1% — all without code changes?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 6: CDN & NETWORKING
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g6">
+  <div class="group-header">
+    <div class="group-emoji">⚡</div>
+    <div class="group-meta">
+      <div class="group-num">Group VI · The Global Delivery Layer</div>
+      <div class="group-title">CDN, DNS, TCP/IP & HTTP Protocols</div>
+      <div class="group-tags">
+        <span class="gtag">CloudFront</span><span class="gtag">Anycast DNS</span><span class="gtag">TCP</span>
+        <span class="gtag">HTTP/2</span><span class="gtag">HTTP/3 QUIC</span><span class="gtag">TLS 1.3</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">How does CDN work? Edge PoPs, cache hit/miss lifecycle <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">DNS resolution: from browser to IP — every step <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">HTTP/1.1 vs HTTP/2 vs HTTP/3 — what changed and why <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">TLS handshake internals: 1-RTT and 0-RTT resumption <span class="diff diff-h">HARD</span></div>
+      <div class="problem">TCP congestion control: Slow Start, CWND, BBR algorithm <span class="diff diff-h">HARD</span></div>
+      <div class="problem">BGP anycast: how Cloudflare routes to nearest PoP <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">DNS → TCP → TLS → HTTP — What Happens in the First 200ms of a Request</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">DNS RESOLUTION (T=0ms to T=50ms):</span>
+  Browser: "I need api.yourapp.com"
+  1. Check browser DNS cache (TTL not expired?) → HIT: skip to step 6
+  2. Check OS /etc/hosts file → not found
+  3. OS → Recursive resolver (ISP's 8.8.8.8 or local)
+  4. Recursive resolver → Root nameserver (13 root servers worldwide, anycast)
+     Root: "For .com, ask Verisign's TLD servers: 192.5.6.30"
+  5. Recursive → TLD (.com) server → "yourapp.com? Ask ns1.yourregistrar.com"
+  6. Recursive → Authoritative NS (Route53/Cloudflare) → Return: "api.yourapp.com A 104.21.5.23"
+  7. OS returns IP to browser. Cached for TTL (60-3600s).
+
+<span class="f-title">TCP 3-WAY HANDSHAKE (T=50ms):</span>
+  Client → SYN (sequence=100)
+  Server → SYN+ACK (seq=200, ack=101)
+  Client → ACK (ack=201)
+  Cost: 1 RTT before any data can flow. For 50ms RTT = 50ms wasted.
+  HTTP/3 with QUIC: 0-RTT connection on repeat visits. Bypasses this entirely.
+
+<span class="f-title">TLS 1.3 HANDSHAKE (T=100ms):</span>
+  1-RTT (vs TLS 1.2's 2-RTT):
+  Client → ClientHello {supported ciphers, key_share (ephemeral public key)}
+  Server → ServerHello {chosen cipher, server key_share, Certificate, Finished}
+  Client → {Finished}  → APPLICATION DATA
+  
+  0-RTT Session Resumption: client sends request with first packet (PSK from previous session)
+    Risk: replay attacks. Safe for: GET requests. Avoid for: POST /charge.
+
+<span class="f-title">HTTP EVOLUTION:</span>
+  HTTP/1.1: 1 request per TCP connection (or keep-alive with 1 concurrent request)
+    Head-of-line blocking: request 2 waits for response 1.
+    Workaround: 6 parallel TCP connections per browser. Inefficient.
+
+  HTTP/2 (T=2015):
+    Multiplexing: multiple concurrent requests on 1 TCP connection (streams)
+    Binary framing: not text-based. Efficient parsing.
+    Header compression: HPACK — duplicate headers compressed. Saves 80% header bytes.
+    Server Push: server can send CSS/JS before browser requests it.
+    Still TCP: TCP head-of-line blocking at packet level (one lost packet stalls all streams)
+
+  HTTP/3 / QUIC (T=2022):
+    Built on UDP (not TCP). No head-of-line blocking.
+    Connection ID: connection migrates across IP changes (WiFi → LTE → WiFi).
+    0-RTT: data on first packet for returning users.
+    Built-in TLS 1.3: encrypted by default, always.
+    Adoption: YouTube, Gmail, Instagram all running HTTP/3.
+
+<span class="f-title">CDN CACHE LIFECYCLE:</span>
+  User → CDN edge PoP (nearest, via anycast DNS)
+  Cache MISS: edge → origin server → cache response → serve to user
+    Cache-Control: max-age=86400, s-maxage=3600  <span class="f-dim">← s-maxage for CDN, max-age for browser</span>
+  Cache HIT: serve from edge memory. 0 origin calls.
+  Cache PURGE: API call to CDN → invalidate specific URLs → next request = fresh fetch
+  
+  Cache keys: by default = URL. Customize: Vary: Accept-Language, Accept-Encoding
+  Versioned URLs: /static/app.v3.js — new version = new URL = instant cache bypass</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — CDN & Networking</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Walk me through every network step from the moment a user types "api.yourapp.com" to the moment your server processes the first byte of the HTTP request.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What problem does HTTP/2 multiplexing solve compared to HTTP/1.1? What problem does HTTP/3 / QUIC solve that HTTP/2 couldn't fix, and why?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How does a CDN decide which edge PoP serves a user's request? What is anycast and how does it work at the BGP routing level?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 7: SECURITY & ZERO TRUST
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g7">
+  <div class="group-header">
+    <div class="group-emoji">🔒</div>
+    <div class="group-meta">
+      <div class="group-num">Group VII · Never an Afterthought at Senior Level</div>
+      <div class="group-title">Security, Zero Trust & Defence in Depth</div>
+      <div class="group-tags">
+        <span class="gtag">OWASP Top 10</span><span class="gtag">Zero Trust</span><span class="gtag">WAF</span>
+        <span class="gtag">DDoS</span><span class="gtag">Secrets Management</span><span class="gtag">Supply Chain</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">OWASP Top 10 — attack vectors every engineer must know <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Zero Trust architecture: never trust, always verify <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Secrets management: Vault, AWS Secrets Manager, Sealed Secrets <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">DDoS mitigation strategies at different OSI layers <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Supply chain security: SBOM, sigstore, image signing <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Security scanning in CI/CD: SAST, DAST, SCA <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">OWASP TOP 10 + ZERO TRUST ARCHITECTURE — What FAANG Expects</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">OWASP TOP 10 — KNOW THESE DEEPLY:</span>
+
+A1. INJECTION (SQLi, NoSQLi, Command Injection):
+  Attack: POST /login { username: "admin'--", password: "x" } → bypasses auth
+  Fix: ALWAYS use parameterized queries / prepared statements. NEVER string concatenation.
+  Java: PreparedStatement. Python: cursor.execute("SELECT * FROM users WHERE id=%s", [id])
+
+A2. BROKEN AUTHENTICATION:
+  Attack: Weak sessions (sequential IDs), no brute-force protection, weak password hashing
+  Fix: cryptographically random session IDs (256-bit), bcrypt/argon2 for passwords (NOT SHA256),
+       rate limit login: 5 attempts per 15min per IP, MFA for privileged accounts
+
+A3. SENSITIVE DATA EXPOSURE:
+  Attack: API returns full credit card number, SSN in response
+  Fix: Never log/return sensitive data. Encrypt at rest (AES-256) + in transit (TLS 1.2+).
+       PCI-DSS: store only last 4 digits. Tokenization: store vault token, not card data.
+
+A5. SECURITY MISCONFIGURATION:
+  Attack: Default credentials (admin/admin), debug endpoints exposed (/actuator/env)
+  Fix: CIS Benchmarks for OS/K8s. Disable unnecessary endpoints. Regular audits.
+       K8s: disable anonymous auth in apiserver. Restrict /metrics to internal network.
+
+A7. XSS (Cross-Site Scripting):
+  Attack: POST comment "&#60;script&#62;document.cookie&#60;/script&#62;" → runs in other users' browsers
+  Fix: Output encoding (htmlspecialchars()). Content-Security-Policy header.
+       React/Vue auto-escape by default — but dangerouslySetInnerHTML bypasses it.
+
+A10. SSRF (Server-Side Request Forgery):
+  Attack: POST /fetch { url: "http://169.254.169.254/latest/meta-data/" }
+          → calls AWS EC2 metadata → exposes IAM credentials. <span class="f-warn">Critical at cloud-native scale.</span>
+  Fix: Whitelist allowed domains. Block 169.254.x.x / 10.x.x.x / 172.16-31.x.x ranges.
+
+<span class="f-title">ZERO TRUST ARCHITECTURE (BeyondCorp model — Google, Cloudflare):</span>
+  Old model: "Inside the firewall? Trusted."
+    Attack: Attacker breaches one internal service → free to move laterally.
+  
+  Zero Trust: "Never trust, always verify — regardless of network location."
+  5 Principles:
+    1. Identity-based access: every request authenticated + authorized (not IP-based)
+    2. Least privilege: each service can only call what it explicitly needs (Istio AuthorizationPolicy)
+    3. Microsegmentation: network policies restrict pod-to-pod traffic (Calico NetworkPolicy)
+    4. Continuous validation: re-auth frequently (short-lived tokens), anomaly detection
+    5. Encrypt everything: mTLS between all services (Istio), no plaintext internal traffic
+
+<span class="f-title">DDOS MITIGATION — LAYERED DEFENSE:</span>
+  Layer 3/4 (Volumetric — 1Tbps+):
+    BGP blackholing: ISP drops all traffic to victim IP at network level
+    Scrubbing centres: Cloudflare/Akamai absorb traffic, forward only clean traffic
+    Rate limit by IP at network edge: drop &gt;10K pps per IP at router
+
+  Layer 7 (Application — Slowloris, HTTP flood):
+    Challenge page: JavaScript/CAPTCHA challenge for suspicious requesters
+    WAF rules: block requests matching attack patterns
+    Rate limit: Nginx/Envoy 100 rps per IP per endpoint
+    Geo-blocking: temporary block if attack originates from specific countries
+
+<span class="f-title">SECRETS MANAGEMENT (HashiCorp Vault pattern):</span>
+  NEVER: hardcode secrets in code, env files, Docker image, K8s ConfigMap
+  ALWAYS: inject at runtime from a secrets store
+  
+  Vault dynamic secrets:
+    App authenticates to Vault using K8s ServiceAccount token
+    Vault: "Here's a temporary DB password, expires in 1 hour"
+    App: uses credentials for 1hr, Vault auto-rotates
+    Attack surface: no long-lived passwords to steal. Breach = 1hr window.
+  
+  K8s: Bitnami Sealed Secrets (encrypted in git), External Secrets Operator (pull from Vault/AWS)</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Security</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Explain SQL injection. A junior developer says "we sanitize inputs on the frontend, so we're safe." What's wrong with this? What's the correct fix?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is a Zero Trust architecture? How does it differ from perimeter-based security, and what specific K8s/Istio features implement it?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">An attacker sends 1 million requests/second to your API. Walk through your complete defense strategy — at the network level, CDN level, and application level.</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">How do you manage database passwords for 50 microservices? The naive approach is .env files checked into git. What should you actually do?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 8: CI/CD & GITOPS
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g8">
+  <div class="group-header">
+    <div class="group-emoji">🚀</div>
+    <div class="group-meta">
+      <div class="group-num">Group VIII · Ship Fast, Break Nothing</div>
+      <div class="group-title">CI/CD Pipelines, GitOps & Deployment Strategies</div>
+      <div class="group-tags">
+        <span class="gtag">GitHub Actions</span><span class="gtag">ArgoCD</span><span class="gtag">Blue-Green</span>
+        <span class="gtag">Canary</span><span class="gtag">GitOps</span><span class="gtag">Trunk-Based</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design a CI/CD pipeline: from git push to production <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Blue-Green vs Canary vs Rolling vs Feature Flags <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">GitOps with ArgoCD: declarative cluster state <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Database migrations in zero-downtime deployments <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Trunk-based development vs feature branches at scale <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Rollback strategy: how to undo a bad deploy in under 2 minutes <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">PRODUCTION CI/CD PIPELINE — Every Stage, Every Gate</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">COMPLETE PIPELINE (git push → production in ~15 minutes):</span>
+
+  <span class="f-ok">Stage 1: COMMIT (T=0s)</span>
+    git push → triggers CI (GitHub Actions / Jenkins / Tekton)
+    Pre-commit hooks: lint (ESLint), format (Prettier), type check (tsc --noEmit)
+
+  <span class="f-ok">Stage 2: BUILD (T=0-3min)</span>
+    Install dependencies (npm ci — exact lockfile, cached)
+    Run SAST (Semgrep, SonarQube) — static code analysis for vulnerabilities
+    Run unit tests (Jest/JUnit) — must be fast (&lt;3min). No DB calls.
+    Build artifact (npm run build / mvn package)
+    Build Docker image (multi-stage, cache layers)
+
+  <span class="f-ok">Stage 3: TEST (T=3-8min)</span>
+    Push image to registry (ECR/GCR) with tag: git-sha (e.g., sha-a3f4b2c)
+    Run integration tests against test DB in Docker Compose
+    Run DAST (OWASP ZAP) — dynamic security scan against staging endpoint
+    Run SCA (Snyk/OWASP Dependency-Check) — scan dependencies for known CVEs
+    Scan Docker image (Trivy) — OS + package vulnerabilities
+
+  <span class="f-ok">Stage 4: STAGING DEPLOY (T=8-10min)</span>
+    Update staging K8s manifest: image tag sha-a3f4b2c
+    ArgoCD detects diff → syncs → rolling update in staging
+    Run smoke tests (critical user journeys: login, checkout, API health)
+    Run performance regression test (k6: ensure p99 latency within SLA)
+
+  <span class="f-ok">Stage 5: PRODUCTION DEPLOY (T=10-15min)</span>
+    Manual approval gate (or auto on main branch with SLO checks)
+    Update prod K8s manifest (GitOps — PR to infra repo)
+    ArgoCD syncs: rolling update (maxSurge=1, maxUnavailable=0)
+    Monitor: watch error rate in Grafana for 10 minutes
+    Automated rollback: if error_rate &gt; 0.5% → kubectl rollout undo
+
+<span class="f-title">DEPLOYMENT STRATEGIES:</span>
+  <span class="f-blue">Blue-Green:</span>
+    Two identical environments (Blue=current, Green=new)
+    Deploy new version to Green. Run full test suite against Green.
+    Switch DNS/load balancer: Green is now live. Blue is standby.
+    Rollback: switch back to Blue (instant, &lt;30s via DNS TTL or LB config)
+    Cost: 2× infrastructure during switch. Best for: major version changes.
+
+  <span class="f-blue">Canary:</span>
+    Route 5% → new version. Monitor metrics. Gradually increase to 100%.
+    Metric gates: error_rate &lt; 0.1%, p99 latency &lt; 500ms → proceed to 50%
+    Auto-rollback: Flagger/Argo Rollouts monitors and automatically reduces weight on regression.
+    Best for: risk mitigation on user-facing changes.
+
+  <span class="f-blue">Feature Flags:</span>
+    Deploy code but enable via flag. Decouple deployment from release.
+    Dark launch: code in production, flag off. No users see it.
+    Gradual: enable for 1% → 10% → 100% of users. Each behind same deploy.
+    Kill switch: instant disable without a code deploy. 100ms propagation.
+
+<span class="f-title">DATABASE MIGRATIONS — ZERO DOWNTIME (Expand/Contract pattern):</span>
+  Problem: ALTER TABLE ADD COLUMN NOT NULL locks table for minutes in production.
+  
+  Step 1 EXPAND: Add column with DEFAULT and NULLABLE (no lock):
+    ALTER TABLE orders ADD COLUMN status_v2 VARCHAR DEFAULT 'pending' NULL;
+    Deploy app v2: writes to BOTH status + status_v2. Reads from status.
+  
+  Step 2 BACKFILL: Background job fills status_v2 for existing rows (no lock needed):
+    UPDATE orders SET status_v2 = status WHERE status_v2 IS NULL LIMIT 1000; <span class="f-dim"># Batched</span>
+  
+  Step 3 SWITCH: App v3 reads from status_v2. Drop old column later:
+    ALTER TABLE orders DROP COLUMN status; <span class="f-dim"># Safe now — nothing reads it</span>
+  3 separate deploys. Zero downtime. Zero locks.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔄</div><div class="concept-title">GitOps (ArgoCD)</div><div class="concept-body">Git repo = single source of truth for cluster state. ArgoCD constantly compares desired state (git) vs actual state (K8s cluster). Drift detected → auto-sync or alert. Never kubectl apply manually in prod. All changes via PR → review → merge → ArgoCD deploys. Full audit trail via git history.</div></div>
+      <div class="concept-card"><div class="concept-icon">⏮️</div><div class="concept-title">Rollback Strategy</div><div class="concept-body">Instant: <code>kubectl rollout undo deployment/app</code> — switches to previous ReplicaSet (already pulled image, ~30s). GitOps: revert git commit → ArgoCD auto-deploys previous version. DB rollback: hardest part — use backward-compatible migrations only (never DROP in same deploy as code change).</div></div>
+      <div class="concept-card"><div class="concept-icon">🌿</div><div class="concept-title">Trunk-Based Dev</div><div class="concept-body">Everyone commits to main (trunk) at least daily. Short-lived feature branches (max 1 day). Feature flags gate incomplete work. No long-lived branches → no merge conflicts → continuous deployment. Google / Meta engineering model. Requires: strong automated testing, feature flags, and monitoring.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — CI/CD</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Design a complete CI/CD pipeline for a microservice. What stages does it go through from git push to production? What automated gates prevent bad code from reaching users?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">You need to add a NOT NULL column to a PostgreSQL table with 100 million rows in production. Traditional ALTER TABLE will lock for 30 minutes. How do you do it with zero downtime?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">A bad deploy hits production at 2 AM causing a 5% error rate spike. What are your steps in the first 5 minutes? How do you roll back? How do you make sure this never silently reaches 100% of users again?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 9: OBSERVABILITY
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g9">
+  <div class="group-header">
+    <div class="group-emoji">🔭</div>
+    <div class="group-meta">
+      <div class="group-num">Group IX · You Can't Fix What You Can't See</div>
+      <div class="group-title">Observability — Metrics, Logs, Traces & Alerting</div>
+      <div class="group-tags">
+        <span class="gtag">Prometheus</span><span class="gtag">Grafana</span><span class="gtag">Fluentd</span>
+        <span class="gtag">ELK</span><span class="gtag">OpenTelemetry</span><span class="gtag">Jaeger</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">The 3 Pillars: Metrics vs Logs vs Traces — when to use each <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Prometheus + Grafana: metrics pipeline, alerting, SLOs <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Fluentd / Fluent Bit: centralized log aggregation pipeline <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Distributed tracing with OpenTelemetry + Jaeger <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Debug a production incident using only logs + metrics + traces <span class="diff diff-h">HARD</span></div>
+      <div class="problem">SLO, SLA, SLI — define meaningful service level objectives <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">COMPLETE OBSERVABILITY STACK — Prometheus + Fluentd + OpenTelemetry</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">PILLAR 1: METRICS (Prometheus + Grafana) — "What is happening?"</span>
+
+  Architecture:
+    Apps expose: GET /metrics → Prometheus text format
+    Prometheus scrapes every 15s → stores in time-series TSDB
+    Grafana queries Prometheus → dashboards + alerts
+
+  The 4 Golden Signals (Google SRE — monitor these for EVERY service):
+    Latency:      histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+    Traffic:      rate(http_requests_total[5m])
+    Errors:       rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+    Saturation:   container_memory_usage_bytes / container_spec_memory_limit_bytes
+
+  Alerting rules:
+    ALERT HighErrorRate
+      IF rate(http_errors_total[5m]) / rate(http_requests_total[5m]) &gt; 0.01  <span class="f-dim"># &gt;1% errors</span>
+      FOR 2m   <span class="f-dim"># Must be true for 2 minutes (avoids flapping alerts)</span>
+      LABELS {severity="page"}
+      ANNOTATIONS {summary="Error rate above 1% for {{$labels.service}}"}
+    → Alertmanager → PagerDuty (critical) / Slack (warning)
+
+<span class="f-title">PILLAR 2: LOGS (Fluentd → Elasticsearch) — "What happened?"</span>
+
+  Fluent Bit (lightweight, C-based): runs as DaemonSet on every K8s node
+    Input: tail /var/log/containers/*.log (all container stdout/stderr)
+    Parse: JSON structured logs (key=value pairs, not plaintext messages)
+    Filter: add pod_name, namespace, node_name, deployment from K8s metadata
+    Buffer: in-memory (fast) + disk (durability). Don't lose logs on restart.
+    Output: → Fluentd aggregator (via forward protocol, compressed TCP)
+
+  Fluentd aggregator:
+    Receives from all Fluent Bit agents
+    Routing: ERROR logs → Elasticsearch + PagerDuty webhook
+             All logs → Elasticsearch for search (7-day retention)
+             All logs → S3 Glacier (90-day cheap archive, compliance)
+
+  Elasticsearch: indexed by timestamp + service + log_level
+    Kibana dashboard: search across all service logs with correlation_id
+
+  CRITICAL: Log format must be structured JSON:
+    {"timestamp":"2024-04-19T12:00:00Z","level":"ERROR","service":"payment",
+     "trace_id":"abc123","span_id":"def456","msg":"Stripe timeout","duration_ms":30012}
+    NOT: "ERROR: Stripe timed out after 30s"   <span class="f-warn">← unstructured, unsearchable</span>
+
+<span class="f-title">PILLAR 3: DISTRIBUTED TRACING (OpenTelemetry + Jaeger) — "WHY did it happen?"</span>
+
+  Problem: user request fails after 3 seconds. Which of the 12 microservices caused it?
+  
+  Trace context: TraceID (128-bit, globally unique) propagated across every service call
+  
+  Flow:
+    API Gateway: generate TraceID=abc123, SpanID=span1
+    Order Service: receives TraceID=abc123, creates child span2
+      calls Inventory Service: same TraceID, child span3
+      calls Payment Service: same TraceID, child span4
+    
+  OpenTelemetry SDK: instruments every inter-service call automatically
+  Jaeger: stores and visualizes trace trees:
+    Trace abc123:
+      ├── API Gateway (12ms)
+      └── Order Service (2988ms) ← SLOW
+          ├── Inventory Service (15ms)
+          └── Payment Service (2970ms) ← ROOT CAUSE
+              └── Stripe timeout after 30s (HTTP 504)
+
+  With TraceID: 1 Jaeger search → pinpoint root cause across 12 services.
+  Without tracing: 12 service log searches, manually correlating timestamps.
+
+<span class="f-title">SLO / SLA / SLI FRAMEWORK:</span>
+  SLI (indicator):  actual measurement = 99.87% of requests &lt;200ms in last 30 days
+  SLO (objective):  target = 99.9% of requests &lt;200ms  (error budget = 0.1% = 43min/month)
+  SLA (agreement):  contractual = 99.5% uptime (with financial penalties)
+  Error budget:     Current month: used 0.03% of 0.1% budget = 70% remaining = safe to deploy</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🎯</div><div class="concept-title">Metrics vs Logs vs Traces</div><div class="concept-body"><strong>Metrics:</strong> aggregated numbers over time. "Error rate is 2%." Fast, cheap, no context. <strong>Logs:</strong> discrete events with full context. "User 123 got error X at 12:04:03." Expensive at scale. <strong>Traces:</strong> causal chain across services. "Request took 3s because Stripe timed out." Use all 3 together — metrics to detect, traces to diagnose, logs for forensics.</div></div>
+      <div class="concept-card"><div class="concept-icon">📊</div><div class="concept-title">RED vs USE Method</div><div class="concept-body"><strong>RED</strong> (for services): Rate, Errors, Duration. What interviewers expect for API metrics. <strong>USE</strong> (for resources): Utilization, Saturation, Errors. For CPU, memory, disk, network. Google SRE: 4 Golden Signals (Latency, Traffic, Errors, Saturation) = combination of both.</div></div>
+      <div class="concept-card"><div class="concept-icon">🚨</div><div class="concept-title">Alerting Best Practices</div><div class="concept-body">Alert on symptoms, not causes. Bad: "CPU &gt; 90%" (cause). Good: "error rate &gt; 1%" (symptom). Add <code>FOR: 2m</code> to prevent false positives from transient spikes. Multi-window: fast burn (1h window, 5% error budget consumed) = page. Slow burn (6h window, 10% consumed) = ticket. Runbook URL in every alert.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Observability</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">A user reports their order failed 10 minutes ago. You have Prometheus metrics, Elasticsearch logs, and Jaeger traces. Walk me through exactly how you investigate this — what do you look at first and why?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How does Fluentd/Fluent Bit collect logs from all containers in a Kubernetes cluster? What happens if Fluentd goes down — do you lose logs?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">What is an error budget? Your service has a 99.9% SLO and you've used 80% of your monthly error budget by the 15th of the month. What decisions should your team make?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  GROUP 10: CRITICAL FAILURE SCENARIOS
+══════════════════════════════════════ -->
+<div class="group-card reveal" id="g10">
+  <div class="group-header">
+    <div class="group-emoji">💥</div>
+    <div class="group-meta">
+      <div class="group-num">Group X · The War Stories That Separate Senior from Mid-Level</div>
+      <div class="group-title">Critical Production Failure Scenarios</div>
+      <div class="group-tags">
+        <span class="gtag">OOMKilled</span><span class="gtag">CrashLoopBackOff</span><span class="gtag">Thundering Herd</span>
+        <span class="gtag">Split Brain</span><span class="gtag">Cascading Failure</span><span class="gtag">Node Drain</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">10 CRITICAL SCENARIOS — Diagnosis + Root Cause + Prevention</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SCENARIO 1: OOMKilled — pod keeps restarting</span>
+  kubectl describe pod app-7d9f → "OOMKilled: container exceeded memory limit"
+  Root cause: memory.limits.requests too low, OR memory leak in app
+  Fix A: increase memory.limits (temporary). Fix B: fix memory leak (permanent)
+  Prevention: monitor container_memory_usage_bytes vs limit. Alert at 80%.
+  Java: set -Xmx to 75% of container limit. Without -Xmx, JVM doesn't know it's in a container.
+
+<span class="f-title">SCENARIO 2: CrashLoopBackoff — pod never starts</span>
+  kubectl logs app-7d9f --previous  <span class="f-dim"># Logs from crashed container</span>
+  Common causes: bad env var (DB connection string), missing secret, port conflict,
+    required service unreachable, bad health check threshold (liveness probe too aggressive)
+  Liveness probe killing healthy pod: if app takes 60s to start but liveness checks after 10s → kills+restarts forever
+  Fix: initialDelaySeconds: 60 on liveness probe. Or: use startupProbe instead.
+
+<span class="f-title">SCENARIO 3: THUNDERING HERD — cache miss storm</span>
+  Redis cluster reboots. All cache keys gone. 50K requests/sec all hit DB simultaneously.
+  DB can handle 5K req/sec → queue builds → timeouts → 502s everywhere.
+  Prevention: probabilistic early expiration (recalculate cache before TTL expires, randomly)
+  Prevention: mutex locking (only 1 thread recalculates, others wait with fallback TTL)
+  Prevention: never expire all keys simultaneously (add random jitter to TTL: base + rand(0, 300))
+
+<span class="f-title">SCENARIO 4: CASCADING FAILURE — one slow service takes down everything</span>
+  Inventory service becomes slow (DB query unindexed → 30s response time)
+  Order service calls inventory → waits 30s → thread pool exhausted
+  Order service now slow → API gateway timeout → 502 for all users
+  Root cause: no timeout + no circuit breaker between order and inventory
+  Fix: timeout: 2s on inventory call. Circuit breaker: open after 5 failures.
+  Fix: bulkhead: separate thread pool for each downstream dependency.
+  Fix: fail-fast: return cached/stale inventory data rather than waiting.
+
+<span class="f-title">SCENARIO 5: K8s NODE NOT READY — pods evicted unexpectedly</span>
+  Node: disk pressure OR memory pressure → kubelet evicts pods (no warning)
+  Low-priority pods evicted first. If no priority classes set → any pod evicted.
+  Prevention: PriorityClass for critical services. DiskPressure: clean up images (crictl rmi --prune)
+  Node goes NotReady → pod controller reschedules on other nodes (5 min default. Configure: node.kubernetes.io/not-ready:NoExecute tolerationSeconds: 60)
+
+<span class="f-title">SCENARIO 6: etcd DATA CORRUPTION — cluster brain dead</span>
+  etcd split-brain or disk failure. apiserver can't read cluster state.
+  ALL kubectl commands fail. You can't deploy, scale, or even describe pods.
+  Running pods continue (kubelet caches pod specs locally). No changes possible.
+  Recovery: restore from etcd snapshot (taken every 30 min via CronJob ideally)
+  Prevention: etcd on fast SSD (low latency critical for Raft consensus), etcd defrag regularly, monitor etcd_disk_wal_fsync_duration_seconds
+
+<span class="f-title">SCENARIO 7: IMAGE PULL ERROR — deployment stuck pending</span>
+  kubectl describe pod → "ErrImagePull: ImagePullBackOff"
+  Causes: image tag doesn't exist (typo), private registry auth expired (imagePullSecret)
+  Fix: kubectl create secret docker-registry regcred --docker-server=... 
+  Best practice: never use :latest tag in K8s. Pin to immutable SHA256 digest.
+  image: myapp@sha256:a3f4b2c... <span class="f-dim">← immutable, reproducible, no surprises</span>
+
+<span class="f-title">SCENARIO 8: NETWORK POLICY MISCONFIGURATION — service can't talk to DB</span>
+  NetworkPolicy is deny-all → new pod can't reach PostgreSQL
+  All K8s pod-to-pod traffic allowed by default. Once ANY NetworkPolicy applied: default deny.
+  Debug: kubectl exec -it app-pod -- nc -zv postgres-svc 5432
+  Fix: add explicit ingress rule allowing app pods to reach postgres on port 5432
+  Tools: Cilium Network Policy Editor, netshoot debug container
+
+<span class="f-title">SCENARIO 9: FLUENTD BACKPRESSURE — logs dropped silently</span>
+  Application logging 100K lines/sec. Fluentd processes 50K/sec. Buffer fills.
+  Default: drop oldest logs when buffer full. You lose production logs during incident.
+  Prevention: Fluent Bit memory_limit 512M + disk buffer fallback
+  Tune: flush_interval 1s → 5s (reduce I/O pressure). chunk_limit_size 1M.
+  Monitor: fluentd_output_status_buffer_queue_length → alert at 80% capacity
+
+<span class="f-title">SCENARIO 10: CERT EXPIRY — HTTPS breaks at 3 AM</span>
+  TLS cert expired. Users see "Your connection is not private." Revenue drops to 0.
+  Prevention: cert-manager in K8s (auto-renews Let's Encrypt certs 30 days before expiry)
+  Monitor: ssl_certificate_expiry_seconds → alert when &lt;30 days remaining
+  Wildcard certs: AWS Certificate Manager auto-renews and rotates ALB certs transparently.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Failure Scenarios</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Your K8s pod is in CrashLoopBackOff. Walk me through your exact debugging process — every command you'd run and what you'd look for.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Your Redis cache cluster reboots and loses all cached data. 50,000 concurrent users immediately hit your database. What happens and how do you prevent this thundering herd?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">One microservice starts responding slowly. 10 minutes later, your entire platform is down. Explain the cascade failure mechanism and the 3 architectural changes that would have prevented it.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  COMMAND CHEATSHEET
+══════════════════════════════════════ -->
+<section class="section reveal" id="s-cheat">
+  <div class="section-divider"><div class="section-label">Quick Reference</div></div>
+  <div class="section-title">⚡ The Command Cheatsheet</div>
+  <p class="section-sub">Commands every senior engineer must run fluently during incidents and interviews.</p>
+
+  <div class="cheat" style="margin-top:1.5rem">
+    <div class="cheat-row"><div class="cheat-key">kubectl debug</div><div class="cheat-val"><code>kubectl exec -it pod -- /bin/sh</code> — shell into running container. <code>kubectl debug pod -it --image=nicolaka/netshoot</code> — debug with network tools. <code>kubectl logs pod --previous --tail=100</code> — last logs before crash.</div></div>
+    <div class="cheat-row"><div class="cheat-key">kubectl rollout</div><div class="cheat-val"><code>kubectl rollout status deployment/app</code> — watch deploy progress. <code>kubectl rollout undo deployment/app</code> — instant rollback. <code>kubectl rollout history deployment/app</code> — see all revisions. <code>kubectl rollout pause/resume</code> — pause mid-deploy.</div></div>
+    <div class="cheat-row"><div class="cheat-key">kubectl top</div><div class="cheat-val"><code>kubectl top pods --sort-by=memory</code> — find memory hogs. <code>kubectl top nodes</code> — node resource usage. Requires metrics-server. Alert if any container &gt; 90% of its limit.</div></div>
+    <div class="cheat-row"><div class="cheat-key">kubectl get events</div><div class="cheat-val"><code>kubectl get events --sort-by=.metadata.creationTimestamp -A</code> — cluster-wide events sorted by time. Essential during incidents — shows OOMKilled, scheduling failures, image pull errors in one view.</div></div>
+    <div class="cheat-row"><div class="cheat-key">docker layer</div><div class="cheat-val"><code>docker history image:tag</code> — see all layers and sizes. <code>docker image inspect image:tag</code> — full metadata. <code>dive image:tag</code> — interactive layer explorer (find bloat).</div></div>
+    <div class="cheat-row"><div class="cheat-key">istioctl</div><div class="cheat-val"><code>istioctl analyze</code> — check for mesh misconfigurations. <code>istioctl proxy-status</code> — are all sidecars synced? <code>istioctl proxy-config routes pod-name</code> — dump routing table from Envoy.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Prometheus queries</div><div class="cheat-val"><strong>Error rate:</strong> <code>rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])</code>. <strong>p99 latency:</strong> <code>histogram_quantile(0.99, rate(http_duration_bucket[5m]))</code>. <strong>Memory %:</strong> <code>container_memory_usage_bytes / container_spec_memory_limit_bytes</code></div></div>
+    <div class="cheat-row"><div class="cheat-key">nginx -t / reload</div><div class="cheat-val"><code>nginx -t</code> — test config syntax (ALWAYS before reload). <code>nginx -s reload</code> — graceful reload (zero connections dropped). <code>nginx -s quit</code> — graceful shutdown (drain in-flight requests).</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+  PRIORITY PLAN
+══════════════════════════════════════ -->
+<section class="section reveal" id="s-priority">
+  <div class="section-divider"><div class="section-label">Study Roadmap</div></div>
+  <div class="section-title">🎯 Priority Study Plan</div>
+  <p class="section-sub">Master these in order. Tier 1 topics appear in virtually every senior / SRE / platform engineering interview.</p>
+
+  <div class="tier tier-1" style="margin-top:1.5rem">
+    <div class="tier-badge">🔥 Tier 1 — Non-Negotiable (every senior interview)</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Docker:</strong> namespaces, cgroups, multi-stage builds, image optimization</div>
+      <div class="tier-item"><strong>Kubernetes:</strong> full control plane flow, rolling deployments, HPA</div>
+      <div class="tier-item"><strong>K8s probes:</strong> liveness vs readiness vs startup — know the difference cold</div>
+      <div class="tier-item"><strong>CI/CD pipeline:</strong> design from git push to production, all stages</div>
+      <div class="tier-item"><strong>Observability 3 pillars:</strong> Prometheus alerting, structured logs, traces</div>
+      <div class="tier-item"><strong>L4 vs L7 LB:</strong> algorithms, health checks, Nginx config</div>
+      <div class="tier-item"><strong>OWASP Top 10:</strong> SQLi, XSS, SSRF, broken auth — prevention for each</div>
+      <div class="tier-item"><strong>Blue-green / Canary:</strong> trade-offs and when to use each</div>
+    </div>
+  </div>
+
+  <div class="tier tier-2">
+    <div class="tier-badge">🟠 Tier 2 — Senior / SRE / Platform roles</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Istio + Envoy:</strong> sidecar, mTLS, traffic shifting, VirtualService</div>
+      <div class="tier-item"><strong>GitOps / ArgoCD:</strong> declarative state, drift detection</div>
+      <div class="tier-item"><strong>DB zero-downtime migrations:</strong> expand/contract pattern</div>
+      <div class="tier-item"><strong>K8s RBAC:</strong> ServiceAccount, Role, RoleBinding, least privilege</div>
+      <div class="tier-item"><strong>Fluentd/Fluent Bit:</strong> DaemonSet collection, routing, buffering</div>
+      <div class="tier-item"><strong>Secret management:</strong> Vault, External Secrets, never in git</div>
+      <div class="tier-item"><strong>HTTP/3 + QUIC:</strong> why it matters, 0-RTT, connection migration</div>
+      <div class="tier-item"><strong>API Gateway design:</strong> all 6 phases, auth, rate limiting, routing</div>
+    </div>
+  </div>
+
+  <div class="tier tier-3">
+    <div class="tier-badge">🟡 Tier 3 — Specialist / Staff / Principal levels</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Envoy xDS APIs:</strong> CDS, EDS, LDS, RDS, dynamic configuration</div>
+      <div class="tier-item"><strong>eBPF-based networking:</strong> Cilium, zero-overhead observability</div>
+      <div class="tier-item"><strong>CNI plugins:</strong> Flannel vs Calico vs Cilium — network policy enforcement</div>
+      <div class="tier-item"><strong>etcd internals:</strong> Raft consensus, snapshot/restore, defrag</div>
+      <div class="tier-item"><strong>BGP anycast routing:</strong> how global CDN traffic steering works</div>
+      <div class="tier-item"><strong>Supply chain security:</strong> SBOM, sigstore, Cosign image signing</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-links">
+    <a href="library.html" class="footer-link">🏛️ Library</a>
+    <a href="book-1.html" class="footer-link">I · The City</a>
+    <a href="book-2.html" class="footer-link">II · The Codex</a>
+    <a href="book-3.html" class="footer-link">III · Foundations</a>
+    <a href="book-4.html" class="footer-link">IV · The Hall</a>
+    <a href="book-5.html" class="footer-link">V · The River</a>
+    <a href="book-6-systems.html" class="footer-link">VI · Systems</a>
+    <a href="book-7-devops.html" class="footer-link current">VII · Platform ✓</a>
+  </div>
+  <p class="footer-quote">"In production, it's not your code that saves you. It's your containers, your clusters, your pipelines, your alerts — and your ability to debug all of them at 3 AM with ice-cold clarity."</p>
+</footer>
+
+</main>
+
+<script>
+const prog = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  prog.style.width = (window.scrollY / h * 100) + '%';
+});
+const tocBtn = document.getElementById('tocBtn');
+const toc = document.getElementById('toc');
+tocBtn.addEventListener('click', () => { tocBtn.classList.toggle('open'); toc.classList.toggle('open'); });
+toc.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { tocBtn.classList.remove('open'); toc.classList.remove('open'); }));
+const tocLinks = document.querySelectorAll('.toc-a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.toc-a[href="#${en.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin:'-10% 0px -80% 0px' });
+document.querySelectorAll('[id]').forEach(el => io.observe(el));
+const revealIO = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); } });
+}, { threshold:0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+function animateCount(el) {
+  const target = +el.dataset.target, dur = 1600, start = performance.now();
+  (function tick(now) {
+    const t = Math.min((now - start) / dur, 1), ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(ease * target) + (t >= 1 ? '+' : '');
+    if (t < 1) requestAnimationFrame(tick);
+  })(start);
+}
+const countIO = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.querySelectorAll('[data-target]').forEach(animateCount); countIO.unobserve(en.target); } });
+}, { threshold:0.5 });
+const statsEl = document.querySelector('.hero-stats');
+if (statsEl) countIO.observe(statsEl);
+</script>
+</body>
+</html>

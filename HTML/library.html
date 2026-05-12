@@ -157,6 +157,22 @@
     .b5 .book-spine-num,.b5 .book-tag{color:var(--blue);}
     .b5:hover{border-color:rgba(59,130,246,0.3);}
 
+    .b6{--bc:#f97316;}       .b6 .book-spine{background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.2);}
+    .b6 .book-spine-num,.b6 .book-tag{color:#f97316;}
+    .b6:hover{border-color:rgba(249,115,22,0.35);box-shadow:0 0 40px rgba(249,115,22,0.08);}
+
+    .b7{--bc:#14b8a6;}       .b7 .book-spine{background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.2);}
+    .b7 .book-spine-num,.b7 .book-tag{color:#14b8a6;}
+    .b7:hover{border-color:rgba(20,184,166,0.35);box-shadow:0 0 40px rgba(20,184,166,0.08);}
+
+    .b8{--bc:#8b5cf6;}       .b8 .book-spine{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);}
+    .b8 .book-spine-num,.b8 .book-tag{color:#8b5cf6;}
+    .b8:hover{border-color:rgba(139,92,246,0.35);box-shadow:0 0 40px rgba(139,92,246,0.08);}
+
+    .b9{--bc:#10b981;}       .b9 .book-spine{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);}
+    .b9 .book-spine-num,.b9 .book-tag{color:#10b981;}
+    .b9:hover{border-color:rgba(16,185,129,0.35);box-shadow:0 0 40px rgba(16,185,129,0.08);}
+
     /* ── Characters Section ── */
     .characters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
     .char-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
@@ -222,7 +238,7 @@
 
 <nav class="nav">
   <div class="nav-logo">The Engineer's <span>Library</span></div>
-  <div class="nav-right">5 Books · 227+ Patterns · One City</div>
+  <div class="nav-right">9 Books · 450+ Patterns · One City</div>
 </nav>
 
 <div class="page">
@@ -231,16 +247,16 @@
   <section class="hero">
     <div class="hero-eyebrow">📚 The Complete Engineer's Library</div>
     <h1>
-      <span class="line1">Five Books to Think Like</span>
+      <span class="line1">Nine Books to Think Like</span>
       <span class="line2">a Senior Engineer</span>
     </h1>
     <p class="hero-desc">
-      Not textbooks. Not lecture notes. Five deeply human stories set in a single city —
+      Not textbooks. Not lecture notes. Nine deeply human stories set in a single city —
       each one teaching a different layer of what it means to build systems that last.
     </p>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num" data-target="227">0</span><span class="stat-label">Patterns & Concepts</span></div>
-      <div class="stat"><span class="stat-num" data-target="46">0</span><span class="stat-label">EDA Failure Modes</span></div>
+      <div class="stat"><span class="stat-num" data-target="300">0</span><span class="stat-label">Patterns & Concepts</span></div>
+      <div class="stat"><span class="stat-num" data-target="70">0</span><span class="stat-label">System Design Problems</span></div>
       <div class="stat"><span class="stat-num" data-target="23">0</span><span class="stat-label">GoF Design Patterns</span></div>
       <div class="stat"><span class="stat-num" data-target="20">0</span><span class="stat-label">Real Outage Case Studies</span></div>
     </div>
@@ -387,6 +403,98 @@
         </div>
       </a>
 
+      <div class="book-connector reveal">Master FAANG System Design</div>
+
+      <!-- Book 6 -->
+      <a href="book-6-systems.html" class="book-card b6 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">VI</span>
+          <span class="book-spine-label">Systems</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">⚡ FAANG Masterclass</div>
+          <div class="book-title">System Design Masterclass</div>
+          <div class="book-sub">12 system groups. 70+ problems. Every critical flow, trade-off, and architecture pattern from actual FAANG interview prep files.</div>
+          <div class="book-tags">
+            <span class="tag">70+ Problems</span><span class="tag">12 Groups</span>
+            <span class="tag">Critical Flows</span><span class="tag">Trade-Off Sheet</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~6 hours · The interview-ready capstone</span>
+            <span class="book-arrow" style="color:#f97316">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Master Platform Engineering</div>
+
+      <!-- Book 7 -->
+      <a href="book-7-devops.html" class="book-card b7 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">VII</span>
+          <span class="book-spine-label">Infra</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">⚙️ Platform Engineering</div>
+          <div class="book-title">Platform &amp; Infrastructure Mastery</div>
+          <div class="book-sub">Docker, Kubernetes, Istio, Envoy, Nginx, CDN, Security, CI/CD, Observability — zero to FAANG senior level with every critical scenario.</div>
+          <div class="book-tags">
+            <span class="tag">10 Topic Groups</span><span class="tag">K8s Deep Dive</span>
+            <span class="tag">CI/CD Pipelines</span><span class="tag">60+ Scenarios</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~5 hours · The infrastructure bible</span>
+            <span class="book-arrow" style="color:#14b8a6">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Master Big Data Engineering</div>
+
+      <!-- Book 8 -->
+      <a href="book-8-bigdata.html" class="book-card b8 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">VIII</span>
+          <span class="book-spine-label">Data</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">📊 Big Data Engineering</div>
+          <div class="book-title">Big Data Engineering Mastery</div>
+          <div class="book-sub">Spark, Flink, Airflow, Kafka Streaming, Iceberg, Parquet, Avro, Trino, Zookeeper — zero to FAANG senior data engineer with every critical scenario.</div>
+          <div class="book-tags">
+            <span class="tag">10 Topic Groups</span><span class="tag">Spark Deep Dive</span>
+            <span class="tag">Flink Streaming</span><span class="tag">55+ Scenarios</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~5 hours · The data engineering bible</span>
+            <span class="book-arrow" style="color:#8b5cf6">→</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-connector reveal">Master Every Database</div>
+
+      <!-- Book 9 -->
+      <a href="book-9-databases.html" class="book-card b9 reveal">
+        <div class="book-spine">
+          <span class="book-spine-num">IX</span>
+          <span class="book-spine-label">DB</span>
+        </div>
+        <div class="book-body">
+          <div class="book-tag">🗄️ Databases</div>
+          <div class="book-title">Databases — The Complete FAANG Guide</div>
+          <div class="book-sub">PostgreSQL, MySQL, Cassandra, Redis, MongoDB, Elasticsearch, DynamoDB, Neo4j, CockroachDB — every database, every critical scenario, one page.</div>
+          <div class="book-tags">
+            <span class="tag">12 DB Engines</span><span class="tag">Comparison Matrix</span>
+            <span class="tag">12 War Stories</span><span class="tag">65+ Scenarios</span>
+          </div>
+          <div class="book-footer-line">
+            <span class="book-count">~5 hours · Every database, one page</span>
+            <span class="book-arrow" style="color:#10b981">→</span>
+          </div>
+        </div>
+      </a>
+
     </div>
   </section>
 
@@ -394,7 +502,7 @@
   <section class="section" id="characters">
     <div class="section-header reveal">
       <div class="section-label">The Story Universe</div>
-      <h2>Characters Who Grow Across All Five Books</h2>
+      <h2>Characters Who Grow Across All Nine Books</h2>
       <p>One city. One generation. Your guides from vocabulary through mastery.</p>
     </div>
 
@@ -603,6 +711,10 @@
       <a href="book-3.html" class="footer-book-link" style="border-color:rgba(20,184,166,0.2);color:var(--teal)">III · The Foundations</a>
       <a href="book-4.html" class="footer-book-link" style="border-color:rgba(239,68,68,0.2);color:var(--red)">IV · The Hall</a>
       <a href="book-5.html" class="footer-book-link" style="border-color:rgba(59,130,246,0.2);color:var(--blue)">V · The River</a>
+      <a href="book-6-systems.html" class="footer-book-link" style="border-color:rgba(249,115,22,0.2);color:#f97316">VI · Systems</a>
+      <a href="book-7-devops.html" class="footer-book-link" style="border-color:rgba(20,184,166,0.2);color:#14b8a6">VII · Platform</a>
+      <a href="book-8-bigdata.html" class="footer-book-link" style="border-color:rgba(139,92,246,0.2);color:#8b5cf6">VIII · Big Data</a>
+      <a href="book-9-databases.html" class="footer-book-link" style="border-color:rgba(16,185,129,0.2);color:#10b981">IX · Databases</a>
     </div>
     <p class="footer-quote">
       "Ravi never learned the technical name for what saved his daughter's life. He only knew: someone had spent years building a city not for the easy days, but for the worst night he could imagine. And when that night came — it held."

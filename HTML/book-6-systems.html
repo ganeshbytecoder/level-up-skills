@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book VI · FAANG System Design Masterclass</title>
+<meta name="description" content="12 categories · 70+ problems · Every critical flow, trade-off and architecture pattern that appears in senior FAANG engineering interviews.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --void: #020208;
+  --deep: #06060f;
+  --surface: #0c0c1e;
+  --card: #10102a;
+  --elevated: #161632;
+  --raised: #1e1e44;
+
+  --border: rgba(255,255,255,0.06);
+  --border-glow: rgba(249,115,22,0.25);
+
+  --text-1: #f4f1ec;
+  --text-2: #9e9aaa;
+  --text-3: #5e5a6a;
+
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.12);
+  --orange-glow: rgba(249,115,22,0.08);
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --green: #22c55e;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --purple: #8b5cf6;
+  --teal: #14b8a6;
+
+  --ff-sans: 'Inter', system-ui, sans-serif;
+  --ff-display: 'Sora', 'Inter', sans-serif;
+  --ff-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+  --r-2xl: 48px;
+
+  --shadow-sm: 0 2px 12px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.6);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.7);
+  --shadow-glow: 0 0 40px rgba(249,115,22,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 15px; }
+body {
+  font-family: var(--ff-sans);
+  background: var(--void);
+  color: var(--text-1);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: rgba(249,115,22,0.28); color: var(--text-1); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--elevated); border-radius: 3px; }
+
+/* ── Background Mesh ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(249,115,22,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(139,92,246,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════════════════════════ */
+#progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--orange), var(--amber), var(--orange));
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+  z-index: 2000;
+  transition: width 0.1s linear;
+}
+@keyframes shimmer { to { background-position: 200% center; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 2px; left: 0; right: 0;
+  height: 58px;
+  background: rgba(2,2,8,0.88);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  z-index: 1000;
+}
+.nav-home {
+  display: flex; align-items: center; gap: 0.5rem;
+  text-decoration: none;
+  color: var(--orange);
+  font-size: 0.8rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.nav-home:hover { opacity: 1; }
+.nav-title {
+  flex: 1; text-align: center;
+  font-family: var(--ff-display);
+  font-size: 0.9rem; font-weight: 600;
+  color: var(--text-2);
+}
+.nav-badge {
+  padding: 0.3rem 0.75rem;
+  background: var(--orange-dim);
+  border: 1px solid var(--border-glow);
+  border-radius: 100px;
+  font-size: 0.72rem; font-weight: 700;
+  color: var(--orange); letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR TOC
+═══════════════════════════════════════════════════════════════ */
+.toc-wrap {
+  position: fixed;
+  top: 60px; left: 0;
+  width: 220px; height: calc(100vh - 60px);
+  overflow-y: auto; z-index: 900;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  background: rgba(6,6,15,0.96);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  padding: 1.25rem 0 2rem;
+}
+.toc-wrap.open { transform: translateX(0); }
+.toc-toggle {
+  position: fixed; top: 70px; left: 0.75rem;
+  width: 38px; height: 38px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer; z-index: 950;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px;
+  transition: all 0.2s;
+}
+.toc-toggle:hover { border-color: var(--border-glow); background: var(--elevated); }
+.toc-toggle i { display: block; width: 16px; height: 2px; background: var(--text-2); border-radius: 2px; transition: all 0.3s; }
+.toc-toggle.open i:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.toc-toggle.open i:nth-child(2) { opacity: 0; }
+.toc-toggle.open i:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+.toc-label {
+  padding: 0 1.25rem 0.75rem;
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.5rem;
+}
+.toc-a {
+  display: block;
+  padding: 0.4rem 1.25rem;
+  font-size: 0.78rem; color: var(--text-2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+.toc-a:hover, .toc-a.active {
+  color: var(--orange);
+  border-left-color: var(--orange);
+  background: var(--orange-glow);
+}
+.toc-section { margin-top: 0.5rem; }
+.toc-section-label {
+  padding: 0.3rem 1.25rem;
+  font-size: 0.6rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--text-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════════════════════════ */
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 78px 1.5rem 6rem;
+  position: relative; z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════════ */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem 3rem;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(249,115,22,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: var(--orange-dim);
+  border: 1px solid var(--border-glow);
+  border-radius: 100px;
+  font-size: 0.72rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--orange);
+  margin-bottom: 1.75rem;
+  animation: fadeUp 0.6s ease 0.1s both;
+}
+.hero h1 {
+  font-family: var(--ff-display);
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.6s ease 0.25s both;
+}
+.hero h1 .gradient {
+  background: linear-gradient(135deg, #fff 0%, var(--orange) 45%, var(--amber) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero h1 .sub { display: block; font-size: 0.55em; color: var(--text-2); font-weight: 400; margin-top: 0.4rem; font-family: var(--ff-sans); }
+.hero-desc {
+  font-size: 1.05rem; color: var(--text-2);
+  max-width: 640px; margin: 0 auto 2.5rem;
+  line-height: 1.75;
+  animation: fadeUp 0.6s ease 0.4s both;
+}
+.hero-stats {
+  display: flex; gap: 0; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.6s ease 0.55s both;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  max-width: 700px; margin: 0 auto 2rem;
+}
+.stat {
+  flex: 1; min-width: 120px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.stat:last-child { border: none; }
+.stat-n {
+  font-family: var(--ff-display);
+  font-size: 2rem; font-weight: 900;
+  color: var(--orange); line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.stat-l {
+  font-size: 0.7rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-3);
+}
+.hero-actions {
+  display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+  animation: fadeUp 0.6s ease 0.7s both;
+}
+.btn-primary {
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(135deg, var(--orange) 0%, #ea6a0a 100%);
+  border: none; border-radius: 100px;
+  color: #fff; font-family: var(--ff-sans);
+  font-weight: 700; font-size: 0.88rem;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 24px rgba(249,115,22,0.3);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(249,115,22,0.45); }
+.btn-ghost {
+  padding: 0.75rem 1.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-2); font-size: 0.88rem;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-ghost:hover { border-color: var(--border-glow); color: var(--orange); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION STRUCTURE
+═══════════════════════════════════════════════════════════════ */
+.section { margin-top: 4.5rem; }
+.section-divider {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2rem;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.section-label {
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--orange);
+  white-space: nowrap;
+}
+.section-title {
+  font-family: var(--ff-display);
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 800; color: var(--text-1);
+  margin-bottom: 0.5rem;
+}
+.section-sub {
+  font-size: 0.9rem; color: var(--text-2);
+  line-height: 1.6; max-width: 620px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6-STEP APPROACH (Visual Timeline)
+═══════════════════════════════════════════════════════════════ */
+.approach-wrap {
+  background: linear-gradient(135deg, var(--card) 0%, var(--elevated) 100%);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--r-xl);
+  padding: 0.5rem;
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.approach-wrap::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 0% 50%, rgba(249,115,22,0.05), transparent);
+  pointer-events: none;
+}
+.approach-step {
+  display: flex; gap: 0; align-items: stretch;
+  padding: 1rem 1.5rem;
+  border-radius: var(--r-lg);
+  transition: background 0.2s;
+  position: relative;
+}
+.approach-step:hover { background: rgba(249,115,22,0.04); }
+.step-left {
+  display: flex; flex-direction: column; align-items: center;
+  width: 52px; flex-shrink: 0; gap: 0;
+}
+.step-circle {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--orange), var(--amber));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.82rem;
+  color: #fff; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(249,115,22,0.4);
+}
+.step-line {
+  width: 2px; flex: 1; min-height: 16px;
+  background: linear-gradient(var(--border-glow), transparent);
+  margin: 4px 0;
+}
+.approach-step:last-child .step-line { display: none; }
+.step-body { flex: 1; padding: 0.25rem 0 1rem; }
+.step-time {
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--orange); opacity: 0.8;
+  margin-bottom: 0.2rem;
+}
+.step-title {
+  font-family: var(--ff-display);
+  font-size: 0.95rem; font-weight: 700;
+  color: var(--text-1); margin-bottom: 0.35rem;
+}
+.step-detail {
+  font-size: 0.82rem; color: var(--text-2);
+  line-height: 1.6;
+}
+.step-detail strong { color: var(--text-1); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SYSTEM GROUP CARD
+═══════════════════════════════════════════════════════════════ */
+.group-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-top: 3.5rem;
+  transition: border-color 0.3s;
+}
+.group-card:hover { border-color: rgba(249,115,22,0.15); }
+.group-header {
+  display: flex; gap: 1.25rem; align-items: flex-start;
+  padding: 1.75rem 2rem;
+  background: linear-gradient(135deg, var(--elevated) 0%, var(--card) 100%);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.group-header:hover { background: var(--elevated); }
+.group-emoji {
+  width: 56px; height: 56px;
+  background: var(--orange-dim);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; flex-shrink: 0;
+}
+.group-meta { flex: 1; }
+.group-num {
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--orange); margin-bottom: 0.3rem;
+}
+.group-title {
+  font-family: var(--ff-display);
+  font-size: 1.2rem; font-weight: 800;
+  color: var(--text-1); margin-bottom: 0.3rem;
+  line-height: 1.3;
+}
+.group-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.gtag {
+  padding: 0.2rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.7rem; color: var(--text-2);
+}
+.group-body { padding: 1.75rem 2rem; }
+
+/* ── Problem Pills Grid ── */
+.problems { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.75rem; }
+.problem {
+  display: flex; gap: 0.5rem; align-items: center;
+  padding: 0.55rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 0.8rem; color: var(--text-2);
+  transition: all 0.2s;
+  cursor: default;
+}
+.problem:hover { border-color: rgba(249,115,22,0.2); color: var(--text-1); }
+.problem.priority { border-color: rgba(249,115,22,0.18); }
+.problem.priority::before { content: '⭐'; font-size: 0.7rem; }
+.diff {
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em;
+  margin-left: auto;
+}
+.diff-h { background: rgba(239,68,68,0.12); color: #ef4444; }
+.diff-m { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.diff-e { background: rgba(34,197,94,0.12); color: #22c55e; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CRITICAL FLOW PANEL
+═══════════════════════════════════════════════════════════════ */
+.flow-panel {
+  background: #020208;
+  border: 1px solid rgba(249,115,22,0.15);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin: 1.25rem 0;
+}
+.flow-panel-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(249,115,22,0.06);
+  border-bottom: 1px solid rgba(249,115,22,0.12);
+}
+.flow-panel-dot { width: 8px; height: 8px; border-radius: 50%; }
+.flow-panel-dots { display: flex; gap: 6px; }
+.dot-red { background: #ef4444; }
+.dot-blue { background: #3b82f6; }
+.dot-green { background: #22c55e; }
+.flow-panel-title {
+  font-family: var(--ff-mono);
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--orange); letter-spacing: 0.05em;
+}
+.flow-panel-body {
+  padding: 1.5rem 1.75rem;
+  font-family: var(--ff-mono);
+  font-size: 0.79rem; line-height: 1.8;
+  color: #c9d1d9;
+  overflow-x: auto;
+  white-space: pre;
+}
+.f-title { color: #f97316; font-weight: 700; }
+.f-key { color: #f59e0b; }
+.f-ok { color: #86efac; }
+.f-warn { color: #fca5a5; }
+.f-note { color: #4b5563; }
+.f-blue { color: #93c5fd; }
+.f-dim { color: #6b7280; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCEPT GRID
+═══════════════════════════════════════════════════════════════ */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+  gap: 1rem; margin: 1.5rem 0;
+}
+.concept-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  transition: all 0.25s;
+  position: relative; overflow: hidden;
+}
+.concept-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--orange), transparent);
+  opacity: 0; transition: opacity 0.25s;
+}
+.concept-card:hover { border-color: rgba(249,115,22,0.2); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.concept-card:hover::before { opacity: 1; }
+.concept-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+.concept-title {
+  font-size: 0.88rem; font-weight: 700;
+  color: var(--text-1); margin-bottom: 0.4rem;
+  font-family: var(--ff-display);
+}
+.concept-body {
+  font-size: 0.79rem; color: var(--text-2);
+  line-height: 1.6;
+}
+.concept-body strong { color: var(--text-1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   INTERVIEW QUESTIONS
+═══════════════════════════════════════════════════════════════ */
+.iq-section { margin: 1.5rem 0; }
+.iq-label {
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--text-3); margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.iq-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.iq {
+  display: flex; gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin-bottom: 0.6rem;
+  transition: all 0.2s;
+}
+.iq:hover { background: var(--elevated); border-left-color: var(--amber); }
+.iq-num {
+  font-family: var(--ff-mono);
+  font-size: 0.7rem; font-weight: 700;
+  color: var(--orange); opacity: 0.6;
+  flex-shrink: 0; padding-top: 0.1rem;
+}
+.iq-text {
+  font-size: 0.86rem; color: var(--text-2);
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TRADE-OFF TABLE
+═══════════════════════════════════════════════════════════════ */
+.tradeoff-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin: 2rem 0;
+}
+.tradeoff-table { width: 100%; border-collapse: collapse; }
+.tradeoff-table thead { background: var(--elevated); }
+.tradeoff-table th {
+  padding: 0.85rem 1.1rem;
+  font-size: 0.72rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--orange); text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.tradeoff-table td {
+  padding: 0.8rem 1.1rem;
+  font-size: 0.82rem; color: var(--text-2);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5; vertical-align: top;
+}
+.tradeoff-table tr:last-child td { border-bottom: none; }
+.tradeoff-table tr:hover td { background: var(--elevated); }
+.tradeoff-table td:first-child { font-weight: 700; color: var(--text-1); }
+.tradeoff-table td:nth-child(2) { color: var(--blue); font-family: var(--ff-mono); font-size: 0.78rem; }
+.tradeoff-table td:nth-child(3) { color: var(--orange); font-family: var(--ff-mono); font-size: 0.78rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CHEATSHEET
+═══════════════════════════════════════════════════════════════ */
+.cheat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin: 2rem 0;
+}
+.cheat-row {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.cheat-row:last-child { border: none; }
+.cheat-row:hover { background: var(--elevated); }
+.cheat-key {
+  font-family: var(--ff-mono);
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--orange); min-width: 115px;
+  padding-top: 0.05rem;
+}
+.cheat-val { font-size: 0.82rem; color: var(--text-2); line-height: 1.6; }
+.cheat-val strong { color: var(--text-1); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRIORITY TIERS
+═══════════════════════════════════════════════════════════════ */
+.tier { border-radius: var(--r-lg); padding: 1.5rem; margin: 1rem 0; }
+.tier-1 { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); }
+.tier-2 { background: rgba(249,115,22,0.05); border: 1px solid rgba(249,115,22,0.18); }
+.tier-3 { background: rgba(245,158,11,0.04); border: 1px solid rgba(245,158,11,0.14); }
+.tier-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  margin-bottom: 0.75rem;
+}
+.tier-1 .tier-badge { color: #ef4444; }
+.tier-2 .tier-badge { color: #f97316; }
+.tier-3 .tier-badge { color: #f59e0b; }
+.tier-items {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+  gap: 0.5rem;
+}
+.tier-item {
+  display: flex; gap: 0.6rem; align-items: flex-start;
+  font-size: 0.82rem; color: var(--text-2);
+}
+.tier-item::before {
+  content: '→'; color: var(--orange);
+  flex-shrink: 0; font-weight: 700;
+  margin-top: 0.05rem;
+}
+.tier-item strong { color: var(--text-1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   ARCH DIAGRAM BOX
+═══════════════════════════════════════════════════════════════ */
+.arch-box {
+  background: #020208;
+  border: 1px solid rgba(249,115,22,0.12);
+  border-radius: var(--r-lg);
+  padding: 1.5rem 1.75rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.arch-box pre {
+  font-family: var(--ff-mono);
+  font-size: 0.78rem; line-height: 1.75;
+  color: #c9d1d9; margin: 0;
+  white-space: pre;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   THE 5 PILLARS (bottom section)  
+═══════════════════════════════════════════════════════════════ */
+.pillars {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr));
+  gap: 1rem; margin: 2rem 0;
+}
+.pillar {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  transition: all 0.3s; cursor: default;
+}
+.pillar:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 0 20px rgba(249,115,22,0.08);
+  transform: translateY(-3px);
+}
+.pillar-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.pillar-title { font-weight: 800; font-size: 0.88rem; color: var(--text-1); margin-bottom: 0.3rem; }
+.pillar-sub { font-size: 0.72rem; color: var(--text-3); line-height: 1.4; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════════ */
+.footer {
+  margin-top: 5rem; padding: 3rem 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer-links { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; }
+.footer-link {
+  padding: 0.4rem 0.8rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-2); text-decoration: none;
+  font-size: 0.78rem; transition: all 0.2s;
+}
+.footer-link:hover { color: var(--orange); border-color: var(--border-glow); }
+.footer-link.current { color: var(--orange); border-color: var(--border-glow); font-weight: 700; }
+.footer-quote {
+  font-size: 0.88rem; font-style: italic;
+  color: var(--text-3); max-width: 500px; margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.4,0,0.2,1); }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  main { padding: 72px 1rem 4rem; }
+  .hero { padding: 2.5rem 0 2rem; }
+  .hero-stats { flex-direction: row; flex-wrap: wrap; }
+  .stat { min-width: 100px; }
+  .group-body { padding: 1.25rem; }
+  .group-header { padding: 1.25rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+  .tier-items { grid-template-columns: 1fr; }
+  .pillars { grid-template-columns: repeat(2,1fr); }
+  .flow-panel-body { font-size: 0.72rem; padding: 1rem; }
+  .nav-badge { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ── TOP NAV ── -->
+<nav class="nav">
+  <a href="library.html" class="nav-home">⬅ Library</a>
+  <div class="nav-title">FAANG System Design Masterclass</div>
+  <div class="nav-badge">Book VI · 70+ Problems</div>
+</nav>
+
+<!-- ── TOC TOGGLE ── -->
+<button class="toc-toggle" id="tocBtn" aria-label="Table of Contents">
+  <i></i><i></i><i></i>
+</button>
+<nav class="toc-wrap" id="toc">
+  <div class="toc-label">Table of Contents</div>
+  <div class="toc-section">
+    <div class="toc-section-label">Foundation</div>
+    <a href="#s-approach" class="toc-a">🧭 6-Step Approach</a>
+    <a href="#s-template" class="toc-a">🏗️ Universal Template</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">System Groups</div>
+    <a href="#g1" class="toc-a">📱 I · Social & Content</a>
+    <a href="#g2" class="toc-a">💬 II · Messaging</a>
+    <a href="#g3" class="toc-a">🚗 III · Ride & Location</a>
+    <a href="#g4" class="toc-a">🎟️ IV · Booking</a>
+    <a href="#g5" class="toc-a">💾 V · Storage</a>
+    <a href="#g6" class="toc-a">🔍 VI · Search</a>
+    <a href="#g7" class="toc-a">💳 VII · Payments</a>
+    <a href="#g8" class="toc-a">🚦 VIII · Rate Limiting</a>
+    <a href="#g9" class="toc-a">📊 IX · Analytics</a>
+    <a href="#g10" class="toc-a">🌐 X · IoT</a>
+    <a href="#g11" class="toc-a">⚙️ XI · LLD</a>
+    <a href="#g12" class="toc-a">🏗️ XII · Infrastructure</a>
+    <a href="#g13" class="toc-a">🛒 XIII · E-Commerce</a>
+    <a href="#g14" class="toc-a">📝 XIV · Collaborative Editing</a>
+    <a href="#g15" class="toc-a">📹 XV · Video Calling</a>
+    <a href="#g16" class="toc-a">🎮 XVI · Live Streaming</a>
+    <a href="#g17" class="toc-a">⏰ XVII · Task Scheduler</a>
+    <a href="#g18" class="toc-a">🏆 XVIII · Leaderboard</a>
+    <a href="#g19" class="toc-a">🔐 XIX · Auth & Feature Flags</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-section-label">Reference</div>
+    <a href="#s-cross" class="toc-a">🔗 Cross-Cutting</a>
+    <a href="#s-tradeoffs" class="toc-a">⚖️ Trade-Off Sheet</a>
+    <a href="#s-priority" class="toc-a">🎯 Study Priority</a>
+    <a href="#s-pillars" class="toc-a">🏆 Must-Know Pillars</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<main>
+
+<!-- ── HERO ── -->
+<header class="hero" id="top">
+  <div class="hero-eyebrow">📚 The Engineer's Library · Book VI · Special Edition</div>
+  <h1>
+    <span class="gradient">FAANG System Design</span>
+    <span class="sub">12 System Groups · 70+ Problems · Every Critical Flow · Every Trade-Off</span>
+  </h1>
+  <p class="hero-desc">
+    Built from real study files. Not theory — actual flows, actual decisions, actual patterns that appear in senior Google, Meta, Amazon, Apple, Netflix, and Microsoft interviews.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n" data-target="70">0</div><div class="stat-l">Problems</div></div>
+    <div class="stat"><div class="stat-n" data-target="12">0</div><div class="stat-l">System Groups</div></div>
+    <div class="stat"><div class="stat-n" data-target="40">0</div><div class="stat-l">Interview Qs</div></div>
+    <div class="stat"><div class="stat-n" data-target="14">0</div><div class="stat-l">Trade-offs</div></div>
+  </div>
+  <div class="hero-actions">
+    <a href="#s-approach" class="btn-primary">Start with the Approach →</a>
+    <a href="#s-priority" class="btn-ghost">Jump to Priority Plan</a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════
+   SECTION 1: 6-STEP APPROACH
+══════════════════════════════════════════════════════════ -->
+<section class="section reveal" id="s-approach">
+  <div class="section-divider"><div class="section-label">Before Every Problem</div></div>
+  <div class="section-title">The 6-Step Universal Approach</div>
+  <p class="section-sub">Use this structure every single time. Interviewers want to see structured thinking — not just answers. This is the framework senior engineers at FAANG use internally.</p>
+
+  <div class="approach-wrap" style="margin-top:1.75rem">
+    <div class="approach-step">
+      <div class="step-left">
+        <div class="step-circle">1</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-time">2–3 minutes</div>
+        <div class="step-title">Clarify Requirements</div>
+        <div class="step-detail">
+          <strong>Functional:</strong> What does the system do? Who are the users? What are key user journeys? What's explicitly out of scope?<br>
+          <strong>Non-Functional:</strong> Latency target (p99 < 200ms?). Availability (99.9% = 8.7hr/yr downtime, 99.99% = 52min/yr). Read-heavy or write-heavy? CAP trade-off needed?
+        </div>
+      </div>
+    </div>
+    <div class="approach-step">
+      <div class="step-left">
+        <div class="step-circle">2</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-time">2 minutes</div>
+        <div class="step-title">Estimate Scale — Do the Math Out Loud</div>
+        <div class="step-detail">
+          DAU → rps → storage/day → bandwidth.<br>
+          <strong>Formula:</strong> 1M DAU × 10 actions/day ÷ 86,400 = 115 rps. 100M DAU = 1,150 rps.<br>
+          <strong>Storage:</strong> 500B/message × 50M msgs/day = 25 GB/day = 9 TB/year.<br>
+          <strong>Bandwidth:</strong> 1MB avg video × 100K concurrent viewers = 100 GB/s — needs CDN.
+        </div>
+      </div>
+    </div>
+    <div class="approach-step">
+      <div class="step-left">
+        <div class="step-circle">3</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-time">5 minutes</div>
+        <div class="step-title">High-Level Design — Box Diagram First</div>
+        <div class="step-detail">
+          Draw: Client → CDN → API Gateway → Auth → Core Services → DB + Cache.<br>
+          Don't over-engineer. State your choices confidently: <em>"I'll use PostgreSQL for ACID guarantees here"</em>. Get the shape right; details come in step 4.
+        </div>
+      </div>
+    </div>
+    <div class="approach-step">
+      <div class="step-left">
+        <div class="step-circle">4</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-time">15 minutes — the meat</div>
+        <div class="step-title">Deep Dive — APIs, Schema, Critical Flow</div>
+        <div class="step-detail">
+          <strong>APIs:</strong> Define 2–3 critical endpoints (method, path, request/response).<br>
+          <strong>DB Schema:</strong> Key tables with columns, indexes, relationships.<br>
+          <strong>Critical Flow:</strong> Walk through the most complex user journey step-by-step.<br>
+          <strong>Bottlenecks:</strong> "This table gets 10K writes/sec — here's how I handle that."
+        </div>
+      </div>
+    </div>
+    <div class="approach-step">
+      <div class="step-left">
+        <div class="step-circle">5</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-time">5 minutes</div>
+        <div class="step-title">Trade-offs — Defend Your Choices</div>
+        <div class="step-detail">
+          SQL vs NoSQL, strong vs eventual consistency, push vs pull, sync vs async, sharding key choice, caching strategy.<br>
+          <strong>Format:</strong> "I chose X over Y because at this scale, [reason]. The downside is [trade-off], which I'd handle by [mitigation]."
+        </div>
+      </div>
+    </div>
+    <div class="approach-step">
+      <div class="step-left">
+        <div class="step-circle">6</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-body">
+        <div class="step-time">3 minutes</div>
+        <div class="step-title">Failure, Scaling & Observability</div>
+        <div class="step-detail">
+          SPOFs and circuit breakers, sharding strategy, CDN, rate limiting, blue-green deployments, disaster recovery (RTO/RPO).<br>
+          Mention: metrics you'd monitor, alerts you'd set, how you'd debug a production incident in this system.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Universal Template ── -->
+<section class="section reveal" id="s-template">
+  <div class="section-title" style="margin-bottom:0.75rem">Universal Architecture Template</div>
+  <p class="section-sub" style="margin-bottom:1.25rem">Draw this first for <em>any</em> system design problem, then specialise each layer.</p>
+  <div class="arch-box">
+    <pre>
+Mobile/Web Clients
+       │
+  [CDN] ◄── Static content: images, JS bundles, video chunks, fonts
+       │
+  [API Gateway] ◄── Rate limiting · Auth token validation · SSL termination · Routing · Logging
+       │
+  [Load Balancer] ◄── Layer 7 · Health checks · Round-robin / Least Connections
+       │
+┌──────┴──────┬──────────────┬──────────────┬─────────────┐
+[Auth Svc]  [Core Services]  [Notification]  [Worker Svcs]  [Search Svc]
+(JWT/OAuth2) (Business logic) (Push/Email)   (Kafka consumers) (Elasticsearch)
+       │           │               │               │
+  [Redis Cache] [Database Layer] [Message Queue] [Object Storage]
+  (Hot data)   [PG + Cassandra]  [Kafka/RabbitMQ] [S3/GCS]
+                    │                              │
+              [CDC / Debezium] ─────────────► [Elasticsearch Sync]
+                    │
+              [Data Warehouse] ◄── Analytics, reporting (BigQuery/Redshift)
+
+KEY DECISIONS PER LAYER:
+  CDN:      CloudFront / Akamai. Cache-Control headers. TTL strategy.
+  Gateway:  Kong / AWS APIGW / Nginx. Centralize cross-cutting concerns.
+  Auth:     JWT (stateless) for microservices. OAuth2 for social login.
+  DB:       PostgreSQL for ACID. Cassandra for high-write time-series.
+  Cache:    Redis. Cache-aside pattern. Eviction: LRU. TTL per use case.
+  Queue:    Kafka (high throughput, replay). RabbitMQ (routing, complex logic).
+  Storage:  S3 (objects). Pre-signed URLs for direct client uploads.
+</pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 1: SOCIAL MEDIA
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g1">
+  <div class="group-header">
+    <div class="group-emoji">📱</div>
+    <div class="group-meta">
+      <div class="group-num">Group I · Most Frequently Asked</div>
+      <div class="group-title">Social Media & Content Platforms</div>
+      <div class="group-tags">
+        <span class="gtag">Instagram</span><span class="gtag">TikTok</span><span class="gtag">YouTube</span>
+        <span class="gtag">Twitter/X</span><span class="gtag">Reddit</span><span class="gtag">Facebook</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Instagram / Twitter (feed, follow) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design TikTok — "For You" page <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design YouTube / Netflix streaming <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Facebook Newsfeed at scale <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Reddit (upvotes, subreddits) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design Medium / Quora (articles, voting) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: News Feed — Fan-out Strategy</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">PROBLEM:</span> 100M users. Each posts 2×/day. Each follows 500 people.
+Feed load: whose posts? In what order? In under 200ms?
+
+<span class="f-title">APPROACH 1 ── Fan-out on Write (Push)</span>
+User posts <span class="f-key">→</span> Write to Posts DB
+          <span class="f-key">→</span> Fetch all 500 followers (async Kafka job)
+          <span class="f-key">→</span> Write post_id to each follower's feed table (Redis ZSET)
+Feed load: <span class="f-ok">O(1)</span> — just ZRANGE user:feed:{userId} 0 49
+
+<span class="f-ok">✓</span> Ultra-fast reads  <span class="f-warn">✗</span> Celebrity problem: Cristiano (500M followers)
+  = 500M Redis writes per post. Kafka job takes hours. <span class="f-warn">NOT FEASIBLE.</span>
+
+<span class="f-title">APPROACH 2 ── Fan-out on Read (Pull)</span>
+User posts <span class="f-key">→</span> Only write to Posts DB
+Feed load: Fetch all followees <span class="f-key">→</span> JOIN their posts <span class="f-key">→</span> Sort by time
+<span class="f-ok">✓</span> Works for celebrities  <span class="f-warn">✗</span> Slow at scale (O(following × posts))
+
+<span class="f-title">APPROACH 3 ── HYBRID (What Instagram & Twitter actually use)</span>
+Regular users ( &lt; 1,000 followers):  <span class="f-key">→</span> Fan-out on Write (precomputed feed in Redis)
+Celebrity users ( &gt; 1,000 followers): <span class="f-key">→</span> Fan-out on Read (merged at query time)
+
+Feed load sequence:
+  1. ZRANGE user:feed:{userId} 0 49  <span class="f-dim">← precomputed Redis feed (regular users)</span>
+  2. Identify followed celebrities <span class="f-dim">← cached list, TTL 5min</span>
+  3. ZRANGE celebrity:{id}:posts 0 9 for each celebrity <span class="f-dim">← separate call</span>
+  4. Merge + deduplicate by post_id + rank by score
+  5. Return top 50 posts in &lt; 200ms
+
+<span class="f-title">FEED RANKING SCORE (not raw chronological):</span>
+  score = (w1 × recency) + (w2 × engagement_rate) + (w3 × affinity) + (w4 × content_type_pref)
+  <span class="f-dim">// Recency: exponential decay. Affinity: how often you interact with this person.</span>
+
+<span class="f-title">VIRAL POST PROBLEM (10M views in 5 minutes):</span>
+  Normal: post_id → cache fetch
+  Viral: 10M rps hit same Redis key <span class="f-warn">← Cache stampede</span>
+  Fix 1: Lazy locking — only 1 thread regenerates, others wait (Redisson)
+  Fix 2: Local L1 cache in each app server (10s TTL) to absorb burst
+  Fix 3: Pre-warm hot content cache before expected spike (known events)
+
+<span class="f-title">VIDEO PIPELINE (Netflix / YouTube):</span>
+  Upload <span class="f-key">→</span> S3 raw bucket <span class="f-key">→</span> Kafka event <span class="f-key">→</span> Transcoding farm (FFmpeg workers)
+  Transcode: [4K,1080p,720p,480p,360p,240p] × [H.264,H.265,VP9,AV1] = 24 variants
+  Chunk each variant into 2-10s segments (MPEG-DASH or HLS)
+  Store chunks in S3: /video/{id}/{quality}/{segment}.mp4
+  Netflix Open Connect: cache popular chunks on ISP-level CDN servers
+  ABR player: monitors bandwidth every 2s, switches quality segment-by-segment</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🌐</div><div class="concept-title">Social Graph DB</div><div class="concept-body">followers(user_id, follower_id) in PostgreSQL up to ~100M rows. At billion-scale: adjacency list in <strong>Cassandra</strong> (user_id → list of follower_ids). Graph DB (Neo4j) for friend-of-friend and recommendation queries. Redis ZSET for "people you may know".</div></div>
+      <div class="concept-card"><div class="concept-icon">📈</div><div class="concept-title">Trending Topics</div><div class="concept-body">Redis ZINCRBY trending:{window} 1 {hashtag} per event. Background job every 15min: ZREVRANGE top 20. At Twitter scale: <strong>Count-Min Sketch</strong> (probabilistic, ~1% error, 1000× less memory). Sliding window via two Redis ZSETs: current + previous window.</div></div>
+      <div class="concept-card"><div class="concept-icon">🎥</div><div class="concept-title">Adaptive Bitrate (ABR)</div><div class="concept-body">Player measures throughput every 2s. If >25Mbps → request 4K chunk. Falls to 1080p at 8Mbps, 720p at 4Mbps. Netflix uses <strong>VMAF</strong> quality metric — compares chunks perceptually, not just by bitrate. Proactively prefetches next 3 segments.</div></div>
+      <div class="concept-card"><div class="concept-icon">🤖</div><div class="concept-title">TikTok For You Algorithm</div><div class="concept-body">Signals: <strong>completion rate</strong> (3x weight), shares (2x), comments, likes (1x). Reinforcement learning: each user is a state, each served video is an action. Reward = engagement. Cold start: new users get top 7 trending per category, then personalize based on first 20 interactions.</div></div>
+      <div class="concept-card"><div class="concept-icon">🛡️</div><div class="concept-title">Content Moderation</div><div class="concept-body">Upload → AI pipeline: NSFW detector + violence classifier + copyright fingerprinting (Content ID). Confidence > 95%: auto-remove. 70–95%: human review queue. &lt;70%: publish. YouTube checks 500 hours of uploaded video per minute using ML models trained on 100M+ labeled samples.</div></div>
+      <div class="concept-card"><div class="concept-icon">💾</div><div class="concept-title">Image Storage at Scale</div><div class="concept-body">Original → S3. Resize on demand: 4 standard sizes (thumbnail, medium, large, original). CDN caches all variants. <strong>Content-addressed storage:</strong> SHA256(bytes) = filename → automatic deduplication. Instagram stores billions of photos in Cassandra with custom keys; hot photos in Memcached.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Social & Content</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you build a news feed for 100M users? Walk me through fan-out on write vs fan-out on read — when would you choose each?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How does Netflix transcode a 2-hour movie into 50+ bitrate variants? What is the complete pipeline from raw upload to user's screen?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">A post goes viral — 10M users hit it in 5 minutes. What exactly happens in your system? Where does it break first?</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">How do you detect trending hashtags in real-time when you have 100,000 tweets per second across the platform?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUP 2: MESSAGING ── -->
+<div class="group-card reveal" id="g2">
+  <div class="group-header">
+    <div class="group-emoji">💬</div>
+    <div class="group-meta">
+      <div class="group-num">Group II · Always Asked at Meta & Apple</div>
+      <div class="group-title">Messaging & Real-Time Communication</div>
+      <div class="group-tags">
+        <span class="gtag">WhatsApp</span><span class="gtag">Slack</span><span class="gtag">Discord</span><span class="gtag">iMessage</span><span class="gtag">Messenger</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design WhatsApp (1-1, groups, read receipts, E2EE) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Slack / Discord (channels, threads, voice) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Notification Service (push, email, SMS fan-out) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Live Chat / Comment System <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: WhatsApp — Exactly-Once Message Delivery</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">MESSAGE SEND — User A → User B:</span>
+
+1. A's app generates: messageId = UUID() <span class="f-dim">← Before sending. Critical for idempotency.</span>
+2. A's WebSocket <span class="f-key">→</span> Chat Server A
+3. Chat Server A:
+   a) Write to Message DB (Cassandra)
+      Key: (conversation_id, timestamp) — allows ordered reads per conversation
+   b) Check Redis: GET user:B:server <span class="f-dim">← Which WebSocket server is B on?</span>
+
+<span class="f-ok">→ B Online:</span>  Route to Chat Server B <span class="f-key">→</span> Push to B's WebSocket
+                  B's app sends ACK <span class="f-key">→</span> Server marks "delivered" <span class="f-dim">← double tick ✓✓</span>
+<span class="f-warn">→ B Offline:</span> Store in undelivered_msgs table (Cassandra)
+                  Send push notification via FCM (Android) / APNs (iOS)
+                  When B reconnects: fetch all msgs since last_sync_cursor
+
+4. B reads message <span class="f-key">→</span> App sends READ receipt <span class="f-key">→</span> Chat Server <span class="f-key">→</span> to A <span class="f-dim">← blue ticks ✓✓</span>
+
+<span class="f-title">EXACTLY-ONCE GUARANTEE:</span>
+  Client retries if no ACK within 5s (network failure). Same messageId sent.
+  Server: INSERT INTO messages WHERE messageId = ? ON CONFLICT IGNORE
+  <span class="f-ok">→</span> Idempotent: second insert with same messageId: no-op. No duplicate stored.
+
+<span class="f-title">PRESENCE SERVICE (Online/Offline):</span>
+  Heartbeat: Client pings every 10s <span class="f-key">→</span> Redis: SET user:{id}:online 1 EX 30
+  Status = online if key exists. "Last seen" = stored in DB when TTL expires (key gone).
+  Scale: 1B users × 1 Redis key × ~20 bytes = 20GB. Fits in Redis cluster.
+
+<span class="f-title">GROUP CHAT (1000 members):</span>
+  Naive: Push to 1000 WebSocket connections synchronously <span class="f-warn">← Too slow. Blocks.</span>
+  Solution: Kafka topic per group_id. Each online member's chat server subscribes.
+  Chat Server B is subscribed to groups B is in. Receives event, pushes to B's WebSocket.
+  Offline members: pulled in batch (last N messages) on reconnect.
+
+<span class="f-title">E2E ENCRYPTION (Signal Protocol):</span>
+  Key agreement: X3DH (Extended Triple Diffie-Hellman) — keys derived on first message
+  Each message encrypted with ephemeral key (ratcheting). Server stores only ciphertext.
+  Even WhatsApp cannot read your messages. Keys exist only on devices.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔌</div><div class="concept-title">WebSocket at Scale</div><div class="concept-body">Each WebSocket = 1 persistent TCP connection. 1 server holds ~65K connections. At 500M concurrent users: need 8M+ servers. Solution: <strong>stateful routing</strong> — user_id → server_id stored in Redis. When routing: look up server, forward via internal HTTP or gRPC.</div></div>
+      <div class="concept-card"><div class="concept-icon">📱</div><div class="concept-title">Multi-Device Sync</div><div class="concept-body">devices(user_id, device_id, push_token, last_sync_offset). Each device independently tracks its Kafka offset. On new device login: fetch all messages from offset 0 (or last 30 days). Kafka retention: 7 days default, configurable. All devices of one user are independent consumers.</div></div>
+      <div class="concept-card"><div class="concept-icon">📨</div><div class="concept-title">Notification Fan-out</div><div class="concept-body">Event → Kafka topic:notifications. Fan-out workers consume, look up user preferences (push enabled? email? SMS?). Route to FCM/APNs/Twilio. Priority queue: urgent (payment) = immediate, marketing = batched. Exponential backoff on delivery failure. DLQ for undeliverable.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Messaging</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you ensure a message is delivered exactly once — not zero times (lost) and not two times (duplicate)? Walk through a network failure scenario.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A user sends a message and the recipient is offline for 7 days. Walk through the complete flow — from send to eventual delivery.</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How do you scale a 1000-person group chat so that one new message doesn't require 1000 synchronous WebSocket pushes?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUP 3: RIDE SHARING ── -->
+<div class="group-card reveal" id="g3">
+  <div class="group-header">
+    <div class="group-emoji">🚗</div>
+    <div class="group-meta">
+      <div class="group-num">Group III · Core at Uber, Lyft, DoorDash</div>
+      <div class="group-title">Ride Sharing & Location-Based Services</div>
+      <div class="group-tags">
+        <span class="gtag">Uber</span><span class="gtag">Lyft</span><span class="gtag">Google Maps</span><span class="gtag">Zomato</span><span class="gtag">DoorDash</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Uber / Lyft (booking, matching, live tracking) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Google Maps (routing, ETA, turn-by-turn) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design DoorDash / Zomato (food delivery tracking) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Proximity Service (find nearby X) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Uber — from Tap "Book" to Driver Confirmed</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">PHASE 1: LOCATION TRACKING (background, continuous):</span>
+Driver app <span class="f-key">→</span> GPS update every 4s <span class="f-key">→</span> WebSocket <span class="f-key">→</span> Location Service
+Location Service: Redis GEOADD drivers:{city} {lon} {lat} {driver_id}
+Redis GEO: uses GeoHash internally. GEORADIUS: O(N + log M) where N = results, M = total
+
+<span class="f-title">PHASE 2: USER TAPS BOOK:</span>
+User <span class="f-key">→</span> POST /rides/request { pickup, dropoff, vehicleType }
+Booking Service: GEORADIUS drivers:{city} {user_lat} {user_lon} 3km ASC COUNT 20
+Filter: WHERE status = 'available' AND vehicle_type = 'UberX'
+Score: score = 0.6*(1/distance) + 0.4*driver_rating
+<span class="f-key">→</span> Top 5 candidates selected
+
+<span class="f-title">PHASE 3: DRIVER MATCHING (SAGA Pattern):</span>
+Saga Step 1: Reserve driver atomically:
+  SET driver:{driverId}:status "matched" EX 35 NX  <span class="f-dim">← NX = Only if not exists. Distributed lock.</span>
+  <span class="f-ok">Returns 1:</span> lock acquired. Proceed.  <span class="f-warn">Returns nil:</span> driver taken. Try next.
+
+Saga Step 2: Notification Service <span class="f-key">→</span> Push to driver app: "New ride request"
+Saga Step 3: Wait for driver ACCEPT (30s timeout)
+  <span class="f-ok">→ Accepts:</span> Confirm ride, insert into trips table, start billing, release lock with "matched" state
+  <span class="f-warn">→ Rejects/Timeout:</span> DEL driver:{id}:status, try next candidate
+
+<span class="f-title">PHASE 4: LIVE TRACKING (ride in progress):</span>
+Driver GPS updates <span class="f-key">→</span> Location Service <span class="f-key">→</span> Kafka: topic rides/{city}
+Fanout Service: subscribes to topic <span class="f-key">→</span> looks up user's WebSocket server <span class="f-key">→</span> pushes update
+Adaptive frequency: every 1s while moving, every 10s stationary, every 30s at traffic light
+
+<span class="f-title">SURGE PRICING SYSTEM:</span>
+Kafka Streams: consume driver location + ride request events
+Compute per GeoHash cell (400m × 400m) every 60s:
+  demand_supply_ratio = pending_requests / available_drivers
+  ratio > 1.5 → surge 1.2x, > 2.0 → 1.5x, > 3.0 → 2.0x
+Write to Redis: SET surge:{geohash} 1.5 EX 120
+User app reads surge multiplier before showing estimated price</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🗺️</div><div class="concept-title">GeoHash Indexing</div><div class="concept-body">World divided into hierarchical grid. Cell = base32 string: "u4pruyd". Nearby cells share long prefix. Precision: 7 chars = 153m × 153m cell. Redis GEO uses sorted set with score = 52-bit GeoHash integer. Range query: decode prefix, find neighboring cells, union results.</div></div>
+      <div class="concept-card"><div class="concept-icon">📍</div><div class="concept-title">GPS Drift Handling</div><div class="concept-body"><strong>Kalman filter</strong> smooths noisy GPS. If driver shows 200m jump in 1s (impossible): discard, use dead reckoning (last_pos + speed + heading × Δt). If offline &gt;30s: freeze map position, show "Locating..." UI. Resume tracking when ping received. Never show stale coordinates as current.</div></div>
+      <div class="concept-card"><div class="concept-icon">🧭</div><div class="concept-title">Google Maps Routing</div><div class="concept-body">Road graph: 30M+ segments. Nodes = intersections, edges = road segments (with weights = travel time). <strong>A* algorithm:</strong> heuristic = straight-line distance. Hierarchical: first route on highways, then zoom in. Real-time: Flink updates edge weights every 30s from millions of GPS probes. ETA = predicted travel time (ML model).</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Ride Sharing</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you find the nearest available driver within 3km in under 100ms when there are 10,000 active drivers in a city?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How do you prevent two different users from being matched to the same driver at the exact same millisecond?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How does surge pricing actually work at the systems level? What data flows trigger the price change?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUP 4: BOOKING ── -->
+<div class="group-card reveal" id="g4">
+  <div class="group-header">
+    <div class="group-emoji">🎟️</div>
+    <div class="group-meta">
+      <div class="group-num">Group IV · Concurrency & ACID</div>
+      <div class="group-title">Booking & Reservation Systems</div>
+      <div class="group-tags">
+        <span class="gtag">BookMyShow</span><span class="gtag">Airbnb</span><span class="gtag">Parking Systems</span><span class="gtag">Hotel Booking</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design BookMyShow (seat selection, SAGA) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Airbnb (availability calendar, double-booking) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Parking Booking System <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Flight Booking System (distributed transactions) <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: BookMyShow — 100K Users, 200 Seats, 9:00 AM</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SCENARIO:</span> Avengers 5. 200 seats. At exactly 9:00:00 AM, 100,000 users hit "Book Now".
+Your system MUST NOT double-book a single seat.
+
+<span class="f-title">STEP 1: PRE-SALE WARM-UP (before 9 AM):</span>
+  Pre-load seat map into Redis: HSET show:{showId}:seats A1 "AVAILABLE" A2 "AVAILABLE" ...
+  Pre-populate cache with show metadata (movie, theatre, timing)
+  Prepare rate limiting: SET show:{showId}:concurrent 0
+
+<span class="f-title">STEP 2: USER SELECTS SEATS — LOCKING STRATEGY:</span>
+
+Off-peak (low contention) → <span class="f-blue">Optimistic Locking</span>:
+  SELECT id, version FROM seats WHERE id IN (A1,A2) AND status='AVAILABLE'
+  UPDATE seats SET status='LOCKED', version=version+1, locked_until=now()+5min
+  WHERE id IN (A1,A2) AND version=5  <span class="f-dim">← CAS: fails if version changed by someone else</span>
+  IF rows_affected == 0: seat taken → return 409 Conflict
+
+9 AM rush (high contention) → <span class="f-blue">Redis Distributed Lock (most scalable)</span>:
+  MULTI
+    GET seat:A1:lock      <span class="f-dim">← Nil means available</span>
+    SET seat:A1:lock {userId} NX EX 300  <span class="f-dim">← NX=only if not exists, EX=5min TTL</span>
+    SET seat:A2:lock {userId} NX EX 300
+  EXEC
+  If any SET returned nil: someone else locked it → fail
+  <span class="f-ok">→ All succeed:</span> seats temporarily held for this user
+
+<span class="f-title">STEP 3: SAGA PAYMENT FLOW:</span>
+  T1: Lock seats (done above)
+  T2: POST /payments → Payment Service → Stripe
+  T3: Confirm booking → Generate ticket → Kafka: "booking.confirmed"
+  T4: Notification Service → Email + SMS confirmation
+
+  COMPENSATION (if T2 fails: payment declined):
+    Publish "booking.failed" event
+    Seat Service: DEL seat:A1:lock → seats return to AVAILABLE
+    Notification Service: send failure email
+
+<span class="f-title">STEP 4: HANDLE 100K CONCURRENT USERS:</span>
+  Rate limit per show: Redis INCR show:{showId}:concurrent &gt; 1000 → HTTP 429, "Please wait"
+  Virtual queue: WebSocket feedback "Position 847 in queue"
+  Seat lock expiry: Redis TTL handles it automatically. No cleanup job needed.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔐</div><div class="concept-title">Optimistic vs Pessimistic Lock</div><div class="concept-body"><strong>Optimistic:</strong> Assume no conflict. Read → update → fail if version changed. No blocking. Good for low contention (Tuesday matinee). <strong>Pessimistic:</strong> Acquire lock before read. Guaranteed exclusivity. Use for high contention (Avengers opening night). DB-level: SELECT FOR UPDATE.</div></div>
+      <div class="concept-card"><div class="concept-icon">🗓️</div><div class="concept-title">Airbnb Availability</div><div class="concept-body">calendar(property_id, date, status, booking_id). Check: SELECT COUNT(*) WHERE property_id=X AND date BETWEEN checkin AND checkout AND status='AVAILABLE'. Book: UPDATE calendar SET status='BOOKED', booking_id=? WHERE status='AVAILABLE' AND version=?. Atomic with optimistic lock.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔑</div><div class="concept-title">Idempotency Key</div><div class="concept-body">Client generates <strong>UUID before first request</strong>. Sends same key on all retries. Server: UNIQUE constraint on idempotency_key column. INSERT ON CONFLICT(key) DO NOTHING — return saved result. If retried: Stripe returns same charge result. Prevents any duplicate transaction.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Booking</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you prevent two users from booking the exact same seat when 100,000 users hit the system simultaneously at 9 AM?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A user locks seats A1 and A2, but the payment fails after 4 minutes. The user abandons the page. What happens to those seat locks?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">When should you use optimistic locking vs pessimistic locking? Give me a concrete example for each in a booking system.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUP 5: STORAGE ── -->
+<div class="group-card reveal" id="g5">
+  <div class="group-header">
+    <div class="group-emoji">💾</div>
+    <div class="group-meta">
+      <div class="group-num">Group V · Distributed Storage</div>
+      <div class="group-title">Storage & File Systems</div>
+      <div class="group-tags"><span class="gtag">Google Drive</span><span class="gtag">Dropbox</span><span class="gtag">Amazon S3</span><span class="gtag">GitHub</span><span class="gtag">CDN</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Google Drive / Dropbox (sync, dedup) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Amazon S3 (11 nines durability) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a CDN (edge caching, purge) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design GitHub (version control, webhooks) <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Dropbox — 10GB Upload, Interrupted, Resumed</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">UPLOAD FLOW:</span>
+
+Step 1: CLIENT CHUNKING
+  Split file into 4MB chunks. Hash each: chunkHash = SHA256(chunk_bytes)
+  10GB file = 2,500 chunks. fileHash = SHA256(all bytes concatenated)
+
+Step 2: DEDUPLICATION CHECK
+  POST /upload/init
+  Body: { fileHash: "a3f9...", chunkHashes: ["b22d...","c71e...", ...] }
+  Server checks each chunkHash against chunk_store table:
+  Response: { "b22d...": "EXISTS", "c71e...": "NEEDED", ... }
+  <span class="f-ok">→ "EXISTS" chunks: skip upload entirely</span> (same file uploaded by another user!)
+  <span class="f-key">→</span> Only "NEEDED" chunks are uploaded. Can save 60-80% of bandwidth.
+
+Step 3: PARALLEL UPLOAD
+  Upload "NEEDED" chunks in parallel (5 concurrent connections)
+  Each chunk: PUT /chunks/{chunkHash}  <span class="f-key">→</span> Storage Service <span class="f-key">→</span> S3 (key = chunkHash)
+
+Step 4: NETWORK DROPPED AT CHUNK 1,500 (6GB)
+  Client tracks acked_chunk_hashes set. On resume (2 days later):
+  GET /upload/{fileHash}/status
+  Server returns: { committed: ["b22d...","c71e...", ...1498 hashes] }
+  Client uploads only the missing 1,000 chunks. Perfect resume from interruption.
+
+Step 5: FINALIZE
+  POST /upload/complete
+  Body: { fileHash, orderedChunkHashes: [...] }
+  Server creates: file → [chunk_hash_1, chunk_hash_2, ..., chunk_hash_2500]
+  No data duplication. Chunks shared across all users who have the same content.
+
+<span class="f-title">SYNC DELTA (only changed chunks travel the network):</span>
+  File modified on Device A → compute new chunk hashes → diff with stored hashes
+  Upload only changed chunks (e.g., 3 chunks changed out of 2500 = 12MB instead of 10GB)
+  Sync Service <span class="f-key">→</span> Kafka: "file.updated" event for all user's other devices
+  Device B pulls manifest, downloads only changed chunks, reassembles file
+
+<span class="f-title">S3 DURABILITY — 11 NINES (99.999999999%):</span>
+  Erasure coding (not plain 3× replication):
+  Object split into k=6 data blocks + m=4 parity blocks (Reed-Solomon)
+  Any 6 of 10 blocks can reconstruct the full object
+  10 blocks stored across 3+ Availability Zones
+  Annual data loss probability: 0.00000000001% — 1 object per trillion per year</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">📦</div><div class="concept-title">Block vs Object vs File</div><div class="concept-body"><strong>Block (EBS):</strong> Raw device access, lowest level. For DBs needing fast random I/O. <strong>Object (S3):</strong> Key-value, unlimited scale, no file hierarchy, eventual consistency. Best for unstructured data (media, backups). <strong>File (EFS/NFS):</strong> POSIX hierarchy, concurrent access from multiple instances.</div></div>
+      <div class="concept-card"><div class="concept-icon">☁️</div><div class="concept-title">CDN Cache Invalidation</div><div class="concept-body"><strong>TTL:</strong> Cache-Control: max-age=86400. Content expires, CDN re-fetches. <strong>Purge API:</strong> Explicit DELETE by URL. Instant. Use for security or major updates. <strong>Versioned URLs:</strong> /img.v3.jpg — change URL = new cache entry. Zero invalidation needed. Best practice for static assets.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔀</div><div class="concept-title">Conflict Resolution</div><div class="concept-body"><strong>Last-Write-Wins:</strong> Simplest, loses data. <strong>Vector clocks:</strong> Track causality, detect concurrent edits. <strong>OT (Google Docs):</strong> Transform operations mathematically so both concurrent edits merge correctly. <strong>CRDT:</strong> Convergent structures that auto-merge without coordination. Best for offline-first apps.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Storage</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you handle a 10GB file upload that gets interrupted at 60%? The user returns 2 days later and resumes on a different network.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How does Dropbox deduplicate a video file uploaded by 10 million different users? What is the actual technical mechanism?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How does S3 achieve 11 nines of durability? What is erasure coding and why is it better than 3× replication?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUP 6: SEARCH ── -->
+<div class="group-card reveal" id="g6">
+  <div class="group-header">
+    <div class="group-emoji">🔍</div>
+    <div class="group-meta">
+      <div class="group-num">Group VI · Google's Core Domain</div>
+      <div class="group-title">Search & Discovery Systems</div>
+      <div class="group-tags"><span class="gtag">Google Search</span><span class="gtag">Typeahead</span><span class="gtag">Elasticsearch</span><span class="gtag">Web Crawler</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Google Search Engine <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Typeahead / Autocomplete <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design Elasticsearch-like System <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Web Crawler at Scale <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL ARCHITECTURE: Inverted Index + Autocomplete</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">INVERTED INDEX — &lt;200ms search across billions of docs:</span>
+
+Corpus:
+  Doc 1: "Kafka handles distributed message streaming efficiently"
+  Doc 2: "Kafka is a distributed commit log"
+  Doc 3: "Redis is fast in-memory storage"
+
+Build inverted index at indexing time:
+  "kafka"       <span class="f-key">→</span> [ {doc:1, tf:1, pos:[0]}, {doc:2, tf:1, pos:[0]} ]
+  "distributed" <span class="f-key">→</span> [ {doc:1, tf:1}, {doc:2, tf:1} ]
+  "redis"       <span class="f-key">→</span> [ {doc:3, tf:1} ]
+  "fast"        <span class="f-key">→</span> [ {doc:3, tf:1} ]
+
+Query: "kafka distributed"
+  1. Fetch posting lists for "kafka" and "distributed"
+  2. Intersect: docs that contain BOTH = [doc1, doc2]
+  3. Score via BM25 (better than TF-IDF for varying doc lengths):
+     BM25(t,d) = IDF(t) × (tf × (k+1)) / (tf + k × (1 - b + b × docLen/avgDocLen))
+  4. Rank by score, return top 10
+
+<span class="f-title">HORIZONTAL SCALING (Elasticsearch):</span>
+  Index → shards (e.g., 6 primary shards based on doc_id hash)
+  Each shard = independent Lucene index with its own inverted index
+  Query fan-out: coordinator broadcasts query to all 6 shards
+  Each shard returns its local top-K results
+  Coordinator merges + re-ranks global top-K → return to client
+  Replicas: each shard has 1+ replicas for HA and read scaling
+
+<span class="f-title">TYPEAHEAD — response in &lt;50ms:</span>
+
+Option A: TRIE (in-memory)
+  children["g"]["o"]["o"]["g"]["l"]["e"] → search_node{frequency:10M, top_suggestions:["google","google maps",...]}
+  Problem: at Google scale = 100GB+ of trie. Can't fit in single machine.
+
+Option B: REDIS SORTED SET (production — what most companies use)
+  For each prefix "go":  ZADD prefix:go 10000 "google" 8000 "good" 6000 "gopro"
+  Query: ZREVRANGE prefix:go 0 9  <span class="f-key">→</span> top 10 in O(log N)
+  Background job: update scores hourly from query logs
+  Storage: ~50 bytes per prefix×suggestion. For 1M top queries = manageable.
+
+<span class="f-title">WEB CRAWLER:</span>
+  URL Frontier (priority queue + politeness) <span class="f-key">→</span> Fetcher (HTTP client)
+  <span class="f-key">→</span> Parser (DOM, link extractor) <span class="f-key">→</span> URL Normalizer
+  <span class="f-key">→</span> Bloom Filter (seen_urls ~100B bits for 10B URLs, 1% FP rate)
+  <span class="f-key">→</span> if not seen: URL Frontier (with priority = PageRank score)
+  Politeness: per-domain rate limiting (1 req/sec), respect robots.txt, crawl-delay header
+  Anti-trap: max depth=20, cycle detection, SimHash for near-duplicate content</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Search</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does Google index billions of web pages and return results in under 200ms? What data structure makes this possible?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How do you build autocomplete for 1 billion queries that responds in under 50ms? Compare trie vs Redis sorted set approaches.</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How do you prevent your web crawler from getting stuck in an infinite loop generated by a malicious or broken website?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUP 7: PAYMENTS ── -->
+<div class="group-card reveal" id="g7">
+  <div class="group-header">
+    <div class="group-emoji">💳</div>
+    <div class="group-meta">
+      <div class="group-num">Group VII · Zero Tolerance for Errors</div>
+      <div class="group-title">Payment & Financial Systems</div>
+      <div class="group-tags"><span class="gtag">Stripe</span><span class="gtag">Paytm</span><span class="gtag">UPI</span><span class="gtag">Digital Wallet</span><span class="gtag">Fraud Detection</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Paytm / Stripe Payment Gateway <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Digital Wallet (double-entry ledger) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Fraud Detection System (100ms) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design UPI Payment System <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Exactly-Once Payment + Double-Entry Ledger</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">THE NIGHTMARE SCENARIO:</span>
+  Client calls Stripe <span class="f-key">→</span> Stripe charges user ✓ <span class="f-key">→</span> Network timeout
+  Server never received Stripe's 200 OK. DB has no payment record.
+  Client retries. Stripe charges user AGAIN. <span class="f-warn">← Double charge. Disaster.</span>
+
+<span class="f-title">SOLUTION: IDEMPOTENCY KEY + TRANSACTIONAL OUTBOX PATTERN:</span>
+
+Step 1: CLIENT generates idempotencyKey = UUID() BEFORE any network call
+Step 2: Client <span class="f-key">→</span> POST /payments { amount, userId, idempotencyKey: "ix-44821-abc" }
+
+Step 3: SERVER — SINGLE ATOMIC TRANSACTION (Outbox Pattern):
+  BEGIN TRANSACTION;
+  INSERT INTO payments (id, amount, idempotency_key, status)
+    VALUES (uuid, 100.00, 'ix-44821-abc', 'PENDING')
+    ON CONFLICT (idempotency_key) DO NOTHING;  <span class="f-dim">← UNIQUE constraint + dedup</span>
+  
+  INSERT INTO outbox_events (event_type, payload, status)
+    VALUES ('PAYMENT_INIT', '{"paymentId":"...","amount":100}', 'PENDING');
+  COMMIT;  <span class="f-dim">← Both writes atomic. One transaction. Both or neither.</span>
+
+Step 4: OUTBOX RELAY SERVICE (separate process, runs every 100ms):
+  SELECT * FROM outbox_events WHERE status='PENDING' LIMIT 100
+  For each event: Call Stripe API WITH idempotencyKey as Stripe's idempotency key
+  <span class="f-ok">→ Stripe success:</span> UPDATE payment status='COMPLETED', UPDATE outbox status='SENT'
+  <span class="f-warn">→ Server crash:</span> Relay restarts, re-reads PENDING events, retries Stripe
+  <span class="f-ok">→ Retry after crash:</span> Stripe's idempotency key: "already processed, here's same result"
+
+<span class="f-title">DOUBLE-ENTRY LEDGER (Wallet — IMMUTABLE accounting):</span>
+  account_ledger table (append-only, NEVER UPDATE/DELETE):
+  ┌──────────┬────────────┬──────────┬────────┬────────────────┐
+  │ entry_id │ account_id │ amount   │ type   │ ref_payment_id │
+  ├──────────┼────────────┼──────────┼────────┼────────────────┤
+  │ 1        │ user_A     │ -100.00  │ DEBIT  │ pay_001        │
+  │ 2        │ user_B     │ +100.00  │ CREDIT │ pay_001        │
+  └──────────┴────────────┴──────────┴────────┴────────────────┘
+  Balance = SUM(amount) WHERE account_id = ?  (credits positive, debits negative)
+  Every transaction = 2 rows. Audit log built in.
+
+<span class="f-title">FRAUD DETECTION — must decide in &lt;100ms:</span>
+  Payment event <span class="f-key">→</span> Kafka <span class="f-key">→</span> Flink (stateful real-time processing)
+  Feature extraction (per event): device_fingerprint, IP_geolocation, velocity (txns in 1hr),
+    amount_vs_avg_30day, is_new_merchant, time_since_last_txn
+  Rules engine (fast, first gate):
+    IF amount &gt; 5× avg_30day AND new_device AND new_location → HOLD
+  ML model (XGBoost, 200 features, pre-trained):
+    score = model.predict(features_vector)
+    score &gt; 0.85 → BLOCK, score 0.5–0.85 → 3DS challenge, score &lt; 0.5 → APPROVE</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Payments</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Your server calls Stripe to charge a user. Stripe succeeds but then your server crashes before saving the record. The user calls support. What happened to their money? How would your design have prevented this?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How do you design a wallet system where two concurrent transfers can never result in a negative balance — even under race conditions at 50K transactions/second?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How do you detect and block fraud in under 100ms on a 50,000 transactions/second stream without blocking legitimate users?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROUPS 8–12 (condensed but complete) ── -->
+<div class="group-card reveal" id="g8">
+  <div class="group-header">
+    <div class="group-emoji">🚦</div>
+    <div class="group-meta">
+      <div class="group-num">Group VIII · Infrastructure Primitives</div>
+      <div class="group-title">Rate Limiting · API Gateway · Circuit Breaker · Distributed Cache</div>
+      <div class="group-tags"><span class="gtag">Token Bucket</span><span class="gtag">Leaky Bucket</span><span class="gtag">Redis Atomic</span><span class="gtag">Circuit Breaker</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design a Rate Limiter (per user / per IP / per endpoint) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design an API Gateway <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Distributed Cache (Redis-like system) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Circuit Breaker <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL: 4 Rate Limiting Algorithms + Distributed Consistency</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">ALGORITHM 1: TOKEN BUCKET (Stripe, AWS use this)</span>
+  Bucket max capacity: N tokens. Refills at: R tokens/second continuously.
+  Request arrives: take 1 token. Bucket empty: reject (HTTP 429).
+  <span class="f-ok">✓</span> Allows bursts up to N.  <span class="f-ok">✓</span> Smooth on average.
+  Redis Lua script (atomic):
+    local tokens = tonumber(redis.call('GET', key) or maxTokens)
+    if tokens >= 1 then redis.call('SET', key, tokens-1) return 1
+    else return 0 end
+
+<span class="f-title">ALGORITHM 2: LEAKY BUCKET</span>
+  Requests enter a queue. Queue drains at fixed rate R/sec.
+  <span class="f-ok">✓</span> Smooth constant output — never spikes backend.
+  <span class="f-warn">✗</span> Bursty legitimate traffic gets delayed. Bad for real-time APIs.
+
+<span class="f-title">ALGORITHM 3: SLIDING WINDOW LOG (Accurate, expensive)</span>
+  Redis ZSET: store timestamp of each request.
+  On new request: ZREMRANGEBYSCORE key 0 (now-window). Count = ZCARD.
+  If count &lt; limit: ZADD key now uuid, allow. Else reject.
+  <span class="f-ok">✓</span> Per-millisecond accuracy.  <span class="f-warn">✗</span> High memory: 1 entry per request.
+
+<span class="f-title">ALGORITHM 4: SLIDING WINDOW COUNTER (Best: accurate + memory efficient)</span>
+  Fixed windows (60s each). Track count for current + previous window.
+  Estimated requests in last 60s:
+    estimate = prev_count × (1 - elapsed_in_current/window) + current_count
+  Example: prev=80, elapsed=45s in current minute, current=30:
+    estimate = 80 × 0.25 + 30 = 50. Under limit of 100.
+
+<span class="f-title">DISTRIBUTED RATE LIMITING (10 API Gateway instances):</span>
+  Problem: Each gateway has local counter = 10× limit allowed globally.
+  Solution 1 (Simple): Centralized Redis INCR with 1s TTL. One atomic op.
+    INCR hits Redis: 50K ops/sec (adequate for most cases)
+  Solution 2 (Scale): Local counter + periodic sync every 100ms.
+    Accept ±10% inaccuracy. 10× faster. No Redis bottleneck.
+  Solution 3 (Best): Dedicated rate limiting sidecar (Kong, Envoy) per pod.
+
+<span class="f-title">CIRCUIT BREAKER STATES:</span>
+  CLOSED (normal): count failures. If &gt; threshold within window <span class="f-key">→</span> OPEN
+  OPEN (failing): reject ALL requests immediately. No backend calls.
+    After timeout (30s) <span class="f-key">→</span> HALF-OPEN
+  HALF-OPEN: allow 1 probe request. Success <span class="f-key">→</span> CLOSED. Failure <span class="f-key">→</span> OPEN.
+  Prevents cascade failures. Required for every inter-service call.</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Rate Limiting</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you implement a rate limiter that works correctly across 10 API gateway instances without any gateway allowing 10× the intended rate?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is the difference between a token bucket and a leaky bucket? Give me a concrete use case for choosing each one.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="group-card reveal" id="g9">
+  <div class="group-header">
+    <div class="group-emoji">📊</div>
+    <div class="group-meta">
+      <div class="group-num">Group IX · Big Data & Streaming</div>
+      <div class="group-title">Analytics & Data Processing Systems</div>
+      <div class="group-tags"><span class="gtag">Ad Click Counter</span><span class="gtag">Real-Time Analytics</span><span class="gtag">Prometheus</span><span class="gtag">Trending</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design an Ad Click Counter (exactly-once at billions/day) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Real-Time Analytics Dashboard <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Prometheus / Datadog (metrics system) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Trending System (Twitter Trends) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL: Lambda vs Kappa + Counting at Massive Scale</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">LAMBDA ARCHITECTURE (traditional — two code paths):</span>
+  Raw Events → Batch Layer (Spark) <span class="f-key">→</span> Accurate batch views (6-12hr latency)
+            → Speed Layer (Flink) <span class="f-key">→</span> Approximate real-time views (&lt;1s latency)
+  Serving Layer: merge batch + speed views for queries
+  <span class="f-warn">Problem:</span> Two codebases. Complex sync. Hard to maintain.
+
+<span class="f-title">KAPPA ARCHITECTURE (modern — one code path):</span>
+  All events <span class="f-key">→</span> Kafka (with long retention) <span class="f-key">→</span> Flink streaming processors
+  Historical recompute: replay Kafka from beginning (separate consumer group, offset=0)
+  Single codebase. Kafka = source of truth.
+  <span class="f-ok">✓</span> Simpler.  <span class="f-ok">✓</span> Accurate.  <span class="f-ok">✓</span> Replayable.  Used by Uber, LinkedIn, Netflix.
+
+<span class="f-title">AD CLICK COUNTING — billions of clicks/day, exactly-once:</span>
+  Click event <span class="f-key">→</span> Kafka (partitioned by ad_id for ordering)
+  Flink consumer (stateful, exactly-once mode with Kafka transactions):
+    Tumbling window: count clicks per ad_id per 1-min window
+    State stores: RocksDB on local disk (fault-tolerant via checkpoints)
+    On window close: write to ClickHouse (column store, OLAP DB)
+    ClickHouse: aggregates per minute, hour, day. Billion rows in seconds.
+  Dashboard queries ClickHouse for pre-aggregated rollups.
+
+<span class="f-title">UNIQUE VISITORS — HyperLogLog (probabilistic counting):</span>
+  100M unique visitors → exact count needs 100M stored IDs = ~800MB per day
+  HyperLogLog: probabilistic, ~1.5KB for any cardinality, &lt;1% error
+  Redis: PFADD visitors:2024-04-19 {userId} → O(1) per add
+          PFCOUNT visitors:2024-04-19 → approximate unique count
+  Works for: unique visitors, unique ad impressions, distinct IPs
+
+<span class="f-title">LATE-ARRIVING EVENTS (Flink watermarks):</span>
+  Event at 8:00 PM arrives at system at 8:07 PM (7 min late due to mobile network)
+  Watermark = current_max_event_time - max_allowed_lateness (e.g., 10 minutes)
+  Flink keeps window open until watermark passes window_end_time
+  Events arriving within 10 min: counted in correct window
+  Events arriving after 10 min: sent to DLQ → batch reprocessing pipeline</div>
+    </div>
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Analytics</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How do you count ad clicks across billions of events per day without losing any click and without double-counting on failure?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is the difference between Lambda and Kappa architecture? Which would you choose for a new analytics system and why?</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="group-card reveal" id="g10">
+  <div class="group-header">
+    <div class="group-emoji">🌐</div>
+    <div class="group-meta">
+      <div class="group-num">Group X · Specialized Domains</div>
+      <div class="group-title">IoT, Fleet Tracking & Industrial Systems</div>
+      <div class="group-tags"><span class="gtag">MQTT</span><span class="gtag">InfluxDB</span><span class="gtag">Solar Plant Monitor</span><span class="gtag">Fleet Tracking</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design an IoT Platform (1M devices → cloud → dashboard) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Fleet Tracking System (GPS, real-time, time-series) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Smart Home System (Alexa/Google Home) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+    <div class="arch-box">
+      <pre>
+IoT Devices → MQTT (lightweight pub/sub, QoS 1)
+  └─ EMQX Broker Cluster (clustered for HA)
+       ├─ Kafka Bridge → Kafka Topics (partition by device_type)
+       │   ├─ Partition 0: solar-panels
+       │   ├─ Partition 1: inverters
+       │   └─ Partition 2: motors
+       │
+       ├─ Flink Anomaly Detection:
+       │   IF voltage > 240V: alert + MQTT command → shutdown inverter
+       │   IF power < 50% avg (sliding 10min window): degradation alert
+       │
+       ├─ InfluxDB (Time-Series, raw data, 90-day retention)
+       │   └─ measurement: sensor_data, tags: {device_id, type, location}
+       │
+       ├─ PostgreSQL (aggregated_stats, alert_history, maintenance schedule)
+       │
+       └─ Redis (current device state, TTL=30s → offline detection)
+
+Dashboard ← REST API (historical) + WebSocket (live readings)
+Device Control: Admin → API → MQTT Publish → device/cmd → IoT device ACK
+
+MQTT QoS LEVELS:
+  QoS 0: Fire and forget. No guarantee. Maximum throughput.
+  QoS 1: At-least-once. ACK required. Sensor telemetry. (Recomm.)
+  QoS 2: Exactly-once. 4-way handshake. For critical commands only.</pre>
+    </div>
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — IoT</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">You have 1 million IoT devices sending 1 reading per second. How do you ingest, process, and store this without losing data?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How do you reliably send a command back to an IoT device that may be offline for 3 days?</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="group-card reveal" id="g11">
+  <div class="group-header">
+    <div class="group-emoji">⚙️</div>
+    <div class="group-meta">
+      <div class="group-num">Group XI · Object-Oriented Design (OOD / LLD)</div>
+      <div class="group-title">Low-Level Design Interviews</div>
+      <div class="group-tags"><span class="gtag">ATM</span><span class="gtag">Chess</span><span class="gtag">Vending Machine</span><span class="gtag">Parking Lot</span><span class="gtag">LRU Cache</span><span class="gtag">Elevator</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Parking Lot (Factory, Strategy, Observer) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design Chess Game (Factory, Command, State) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design LRU Cache (O(1) get + put) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design ATM Machine (State Machine) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design Elevator System (Strategy scheduling) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design Vending Machine (State + Strategy) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL: LRU Cache O(1) + ATM State Machine</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">LRU CACHE — O(1) get AND O(1) put:</span>
+Data structures: HashMap&lt;Key, Node&gt; + Doubly Linked List
+
+get(key):
+  node = map.get(key)              // O(1) HashMap lookup
+  move node to head of DLL         // O(1) pointer updates (4 pointer changes)
+  return node.value
+
+put(key, value):
+  if map.containsKey(key):
+    update node.value, move to head // O(1)
+  else:
+    if map.size() == capacity:
+      remove tail node from DLL     // O(1) — LRU element
+      map.remove(tail.key)          // O(1)
+    create new node, add to head    // O(1)
+    map.put(key, new_node)          // O(1)
+
+Why DLL: O(1) removal from middle (no traversal needed, just pointer updates)
+This is exactly how Redis implements its LRU eviction policy internally.
+
+<span class="f-title">ATM STATE MACHINE:</span>
+States: IDLE → CARD_INSERTED → PIN_VALIDATED → MENU → DISPENSING → IDLE
+
+State Pattern implementation:
+  interface ATMState {
+    insertCard() → transition to CARD_INSERTED (only valid from IDLE)
+    validatePIN() → transition to PIN_VALIDATED (only valid from CARD_INSERTED)
+    selectAmount() → transition to MENU
+    dispense()   → transition to DISPENSING
+    ejectCard()  → always returns to IDLE (cancel from any state)
+  }
+
+  class IdleState implements ATMState {
+    insertCard() { atm.setState(new CardInsertedState(atm)); }
+    other methods: throw InvalidOperationException("Insert card first");
+  }
+  
+<span class="f-title">CHESS DESIGN:</span>
+  Board: 8×8 grid of Square[]. Each Square has Piece (nullable).
+  Piece hierarchy: abstract Piece → King, Queen, Rook, Bishop, Knight, Pawn
+  Factory: PieceFactory.create(PieceType, Color) → correct subclass
+  move validation: piece.getValidMoves(board) → List&lt;Position&gt;
+    Each piece implements own movement rules
+  Check detection: after every move, simulate: isKingInCheck(board, color)?
+  Command Pattern: Move implements Command { execute(), undo() } → enables take-back</div>
+    </div>
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — LLD</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Design an LRU Cache with O(1) get and O(1) put. What two data structures do you need, and why is each necessary?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Model the states and transitions for an ATM machine. How do you prevent invalid operations like dispensing cash before PIN validation?</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="group-card reveal" id="g12">
+  <div class="group-header">
+    <div class="group-emoji">🏗️</div>
+    <div class="group-meta">
+      <div class="group-num">Group XII · Infrastructure Classics — Know These Cold</div>
+      <div class="group-title">URL Shortener · Kafka Internals · Distributed ID · Key-Value Store</div>
+      <div class="group-tags"><span class="gtag">Bit.ly</span><span class="gtag">Kafka</span><span class="gtag">Snowflake ID</span><span class="gtag">Redis/DynamoDB internals</span></div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design URL Shortener / Pastebin (Bit.ly) <span class="diff diff-e">EASY-MED</span></div>
+      <div class="problem priority">Design Distributed Message Queue (Kafka) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Key-Value Store (Redis/DynamoDB internal) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Distributed ID Generator (Twitter Snowflake) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Load Balancer <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design an Auction & Bidding Service <span class="diff diff-h">HARD</span></div>
+    </div>
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL: Snowflake ID + Kafka Durability Internals</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">SNOWFLAKE ID — 64-bit, globally unique, time-sortable, no coordination:</span>
+  Bit layout:
+  [ 1 sign ] [ 41 timestamp_ms ] [ 5 datacenter_id ] [ 5 worker_id ] [ 12 sequence ]
+
+  41 bits timestamp: ms since custom epoch (Jan 1, 2010)
+    2^41 = 2.2 trillion ms = 69 years of IDs
+  10 bits machine: 2^10 = 1,024 machines (datacenter 5 + worker 5)
+  12 bits sequence: 0-4095 IDs per millisecond per machine
+    1,024 machines × 4,096 IDs/ms = 4.2M IDs/ms globally. No coordination.
+
+  Clock drift issue: If system clock jumps backward (NTP correction):
+    → NEVER generate ID with timestamp in the past (will collide with past IDs)
+    → Wait until current_time ≥ last_used_time, then proceed
+    → Or: throw exception and let caller retry (safer for payments)
+
+<span class="f-title">URL SHORTENER (Bit.ly design):</span>
+  URL → SHA256 → take first 7 chars of base62(hash) → short code
+  Base62: [a-z A-Z 0-9] = 62 chars. 62^7 = 3.5 trillion unique short URLs.
+  At 100M new URLs/day: won't exhaust for 95 years.
+
+  Collision handling: INSERT ... ON CONFLICT(short_code) DO NOTHING
+  If conflict AND long_url differs: append counter, regenerate
+
+  Redirect flow:  
+  https://bit.ly/x7K2mDf
+    → API Gateway → Redis GET short:x7K2mDf  (cache hit 95%+ after warmup)
+    → DB lookup if cache miss → 301 Redirect (permanent, client caches too)
+
+<span class="f-title">KAFKA INTERNALS — what makes it durable:</span>
+  Write-Ahead Log: all messages written to disk segment files sequentially (O(1) append)
+  Partition: logical unit of parallelism. Each partition = ordered, immutable log.
+  Replication: leader accepts writes. Followers pull and replicate.
+  ISR (In-Sync Replicas): followers within max.replica.lag.bytes of leader.
+  acks=all: producer waits for ALL ISR to persist → guaranteed no data loss
+  Consumer offset: consumer tracks its own position per partition
+    → consumers are stateless (can crash and resume from committed offset)
+  Log compaction: keeps only latest value per key → enables event sourcing / rebuilding state
+
+<span class="f-title">CONSISTENT HASHING (Distributed Cache / DB):</span>
+  Hash ring 0..2^32. Nodes placed at hash(node_id) positions.
+  Key → hash → walk ring clockwise → first node = responsible node.
+  Add node: only keys between new and previous node move. Minimal reshuffling.
+  Virtual nodes: each physical node = 150 virtual positions → even distribution.
+  Used by: Cassandra, DynamoDB, Redis Cluster.</div>
+    </div>
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Infrastructure</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does Twitter Snowflake generate globally unique IDs across 1,000 machines without any central coordination or clock synchronization?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">How does Kafka guarantee message durability and ordering at the same time — and what happens when a broker goes down?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How does consistent hashing minimize data migration when you add or remove a node from a distributed cache?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 13: E-COMMERCE
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g13">
+  <div class="group-header">
+    <div class="group-emoji">🛒</div>
+    <div class="group-meta">
+      <div class="group-num">Group XIII · Asked Everywhere — Amazon, Flipkart, Shopify</div>
+      <div class="group-title">E-Commerce & Marketplace Systems</div>
+      <div class="group-tags">
+        <span class="gtag">Amazon</span><span class="gtag">Flipkart</span><span class="gtag">Shopify</span><span class="gtag">Flash Sale</span><span class="gtag">Inventory</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Amazon (product catalog, cart, checkout, orders) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Flash Sale System (limited stock, 1M users, 10s) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design an Inventory Management System <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design a Shopping Cart Service <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design an Order Management System (OMS) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Product Search & Recommendation Engine <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Coupon / Discount System <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Flash Sale — 1M Users, 1000 Items, T=0</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">THE PROBLEM:</span> iPhone 16 flash sale. 1,000 units. 1,000,000 users hit Buy at exactly 12:00:00 PM.
+System must: sell exactly 1,000 units, charge no one twice, not oversell by even 1.
+
+<span class="f-title">PHASE 1: PRE-SALE WARM-UP (11:55 AM):</span>
+  Redis: SET inventory:product:iphone16 1000  <span class="f-dim">← Load stock into Redis before sale opens</span>
+  Pre-warm product page in CDN (static HTML, no DB reads)
+  Rate limit landing page: max 50K concurrent sessions
+  Queue system warm-up: spin up 200 order worker pods
+
+<span class="f-title">PHASE 2: "BUY" CLICK (atomic inventory deduction):</span>
+  User clicks Buy <span class="f-key">→</span> POST /flash-sale/reserve { productId, userId }
+  
+  Server-side Lua script (runs atomically in Redis):
+    local stock = redis.call('GET', 'inventory:product:iphone16')
+    if tonumber(stock) &gt;= 1 then
+      redis.call('DECR', 'inventory:product:iphone16')
+      redis.call('SADD', 'reserved:iphone16', userId)
+      return 1   <span class="f-ok">← reservation granted</span>
+    else
+      return 0   <span class="f-warn">← sold out</span>
+    end
+  
+  <span class="f-ok">→ Returns 1:</span> Place in order processing queue (Kafka: topic=flash-sale-orders)
+  <span class="f-warn">→ Returns 0:</span> HTTP 409 — "Sold Out" immediately, no queue entry
+
+<span class="f-title">PHASE 3: ORDER PROCESSING (async, decoupled from click):</span>
+  Kafka consumer → Order Service:
+    1. INSERT INTO orders (userId, productId, status='PENDING', idempotencyKey)
+    2. Reserve inventory in DB (atomic: UPDATE inventory SET reserved=reserved+1 WHERE available&gt;0)
+    3. Call Payment Service (Outbox Pattern — charge after DB write)
+    4. On payment success: UPDATE order SET status='CONFIRMED'
+       PUBLISH Kafka: order.confirmed → Fulfillment, Notification, Warehouse
+    5. On payment failure: INCR inventory:product:iphone16 back (rollback Redis + DB)
+
+<span class="f-title">INVENTORY CONSISTENCY — TWO LAYERS:</span>
+  Layer 1: Redis (atomic DECR — gate keeper, immediate response to user)
+    Risk: Redis restart loses count. Always back with DB.
+  Layer 2: DB inventory table with ACID transaction
+    UPDATE inventory SET available = available - 1
+    WHERE product_id = ? AND available &gt; 0  <span class="f-dim">← Never go below 0</span>
+  Sync: CDC (Debezium) keeps Redis in sync with DB on Redis restart
+
+<span class="f-title">HANDLING 1M CONCURRENT USERS:</span>
+  Waiting room queue: users get a virtual queue position via WebSocket
+  Only 5K users/second pass through to reservation step
+  Token bucket: 5000 tokens refilled per second
+  Everyone else: "Position 47,823 — estimated wait 9 min" (progressive disclosure)
+
+<span class="f-title">CHECKOUT FLOW (non-flash, normal order):</span>
+  Cart Service (Redis HASH per user) <span class="f-key">→</span> Checkout Service
+  <span class="f-key">→</span> Price Calculation (apply coupons, taxes, shipping)
+  <span class="f-key">→</span> Inventory Reserve (soft reservation, 15 min TTL)
+  <span class="f-key">→</span> Payment Gateway (Stripe / Razorpay)
+  <span class="f-key">→</span> Order Confirmation <span class="f-key">→</span> Kafka: order.placed
+  <span class="f-key">→</span> Warehouse picks + ships → Kafka: shipment.dispatched → Tracking Service</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🛍️</div><div class="concept-title">Shopping Cart Design</div><div class="concept-body">Redis HASH: <code>HSET cart:{userId} product:123 2 product:456 1</code>. TTL: 7 days for guest, no expiry for logged-in. On checkout: move to DB. Merge carts on login (guest + user). Price not stored in cart — fetched fresh at checkout to prevent stale price abuse.</div></div>
+      <div class="concept-card"><div class="concept-icon">📦</div><div class="concept-title">Inventory @ Scale</div><div class="concept-body">Separate inventory service. inventory table: (product_id, warehouse_id, available, reserved). Soft reservation on add-to-cart (15 min TTL). Hard deduction on payment. Multi-warehouse: pick nearest warehouse with stock. CDC syncs to Redis for fast reads.</div></div>
+      <div class="concept-card"><div class="concept-icon">🏷️</div><div class="concept-title">Catalog & Search</div><div class="concept-body">Product catalog in PostgreSQL (structured data). Sync to Elasticsearch for search (CQRS). Faceted search: filter by price, brand, rating simultaneously. Autocomplete via Redis ZSET prefix. Recommendation: collaborative filtering — "people who bought X also bought Y."</div></div>
+      <div class="concept-card"><div class="concept-icon">🎫</div><div class="concept-title">Coupon System</div><div class="concept-body">coupons(code, discount_type, value, max_uses, current_uses, expiry). Atomic use: UPDATE coupons SET current_uses = current_uses + 1 WHERE code=? AND current_uses &lt; max_uses AND expiry &gt; now(). One-time use per user: user_coupons(user_id, coupon_id) UNIQUE constraint.</div></div>
+      <div class="concept-card"><div class="concept-icon">🚚</div><div class="concept-title">Order State Machine</div><div class="concept-body">PENDING → PAYMENT_PROCESSING → CONFIRMED → WAREHOUSE_PICKED → SHIPPED → OUT_FOR_DELIVERY → DELIVERED. Each transition: event published to Kafka. Any service subscribes to relevant events. Retry with exponential backoff on failure. Dead letter queue for stuck orders.</div></div>
+      <div class="concept-card"><div class="concept-icon">⭐</div><div class="concept-title">Reviews & Ratings</div><div class="concept-body">reviews(product_id, user_id, rating, text, helpful_votes). Verified purchase flag: JOIN with orders table. Aggregate: avg_rating in denormalized product table, updated asynchronously via Kafka consumer. Abuse detection: one review per (user_id, product_id) UNIQUE constraint.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — E-Commerce</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Design a flash sale for 1,000 iPhones with 1 million users hitting Buy simultaneously. How do you ensure exactly 1,000 are sold — not 1,001, not 999?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A user adds an item to cart, goes to checkout, and between "Place Order" and payment confirmation, the item goes out of stock. What does your system do?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How do you prevent a $500 coupon from being applied by the same user 10,000 times across retried requests?</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">Amazon has 500M products. How do you search them with filters (price range, brand, rating) in under 200ms?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 14: COLLABORATIVE EDITING (Google Docs)
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g14">
+  <div class="group-header">
+    <div class="group-emoji">📝</div>
+    <div class="group-meta">
+      <div class="group-num">Group XIV · Google's Hardest Design Problem</div>
+      <div class="group-title">Collaborative Real-Time Editing</div>
+      <div class="group-tags">
+        <span class="gtag">Google Docs</span><span class="gtag">Notion</span><span class="gtag">Figma</span><span class="gtag">OT</span><span class="gtag">CRDT</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Google Docs (real-time collaborative text editor) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design Figma (collaborative design canvas) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Notion (collaborative notes + database) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Code Collaboration Tool (like CodePair) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Two Users Edit Same Document at Same Millisecond</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">THE PROBLEM:</span> Document: "Hello World"
+  User A (cursor at pos 5): inserts " Beautiful" → expects: "Hello Beautiful World"
+  User B (cursor at pos 6): inserts " Cruel"    → expects: "Hello Cruel World"
+  Both edits happen at T=100ms. Server receives A first, then B.
+  Naive merge: "Hello Beautiful Cruel World" ← WRONG. Positions shift after A's insert.
+
+<span class="f-title">SOLUTION 1: OPERATIONAL TRANSFORMATION (OT) — Google Docs approach:</span>
+
+Each edit = Operation { type: Insert|Delete, position: int, char: string, revision: int }
+
+User A sends: Op_A = { Insert, pos=5, text=" Beautiful", rev=7 }
+User B sends: Op_B = { Insert, pos=6, text=" Cruel", rev=7 }  <span class="f-dim">← same revision, concurrent</span>
+
+Server applies Op_A first (received first). Doc now at rev=8.
+Server must TRANSFORM Op_B against Op_A before applying:
+  transform(Op_B, Op_A):
+    Op_A inserted 10 chars BEFORE position 6
+    → Op_B.position += 10  (shift right past A's insertion)
+    → transformed Op_B = { Insert, pos=16, text=" Cruel", rev=8 }
+Apply transformed Op_B. Final: "Hello Beautiful World Cruel" ← correct merge.
+
+Push transformed Op_B back to User A so their local doc converges.
+
+<span class="f-title">SOLUTION 2: CRDT (Conflict-free Replicated Data Type) — Figma/Notion approach:</span>
+
+Each character gets a globally unique ID:
+  char_id = (userId, logicalTimestamp, position)
+  Ordering: by logicalTimestamp, break ties by userId (deterministic)
+
+"Hello World" becomes:
+  [H:A1, e:A2, l:A3, l:A4, o:A5, ' ':A6, W:A7, o:A8, r:A9, l:A10, d:A11]
+
+User A inserts " Beautiful" after char_id A5 (the 'o'):
+  New chars: [' ':A12, B:A13, e:A14, ...] all linked to A5
+
+User B inserts " Cruel" after char_id A6 (the ' '):
+  New chars: [' ':B1, C:B2, r:B3, ...] all linked to A6
+
+Merge: sort by linked position, break ties by logical clock.
+Result is deterministic regardless of network order. No server coordination needed.
+
+<span class="f-ok">OT vs CRDT:</span>
+  OT:   Central server required. Lower memory. Google Docs production choice.
+  CRDT: Serverless merge. Works offline. Higher memory (char metadata). Figma's choice.
+
+<span class="f-title">PRESENCE: Seeing where others' cursors are:</span>
+  Each keystroke: User A's cursor position broadcast via WebSocket → all connected peers
+  Server: maintains presence map { userId → {cursor_pos, color, name} }
+  TTL: if no heartbeat in 5s → remove from presence map → cursor disappears
+  Efficient: cursor broadcasts are NOT stored in DB. Pure ephemeral WebSocket state.
+
+<span class="f-title">PERSISTENCE & VERSIONING:</span>
+  Full document snapshot every 30 mins → S3
+  Operation log: all ops stored in order (Kafka, then Cassandra) → enables undo/redo
+  Version history: rewind by replaying ops from snapshot
+  Autosave: ops flushed to DB every 2s. User never loses more than 2s of work.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔄</div><div class="concept-title">Operational Transform (OT)</div><div class="concept-body">Every operation has a revision number. Concurrent ops at same revision must be transformed before applying. Server is single source of truth for operation ordering. Requires a central server — no pure P2P. Used by: Google Docs, Apache Wave, Etherpad.</div></div>
+      <div class="concept-card"><div class="concept-icon">🧩</div><div class="concept-title">CRDT Properties</div><div class="concept-body">Commutative: order of merge doesn't matter. Associative: grouping of merges doesn't matter. Idempotent: applying same op twice = same result. These 3 properties guarantee convergence without coordination. Types: G-Counter, OR-Set, RGA (Replicated Growable Array) for text.</div></div>
+      <div class="concept-card"><div class="concept-icon">💾</div><div class="concept-title">Document Storage</div><div class="concept-body">Rich text not stored as raw HTML. Stored as a document model (Prosemirror/Quill format): JSON tree of nodes. Operations are deltas on this tree. Snapshots: full JSON every N minutes in S3. Efficient: each op is tiny (single char + metadata). Replay ops onto snapshot = any revision.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Collaborative Editing</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Two users edit the same document at the exact same millisecond. How do you ensure both their changes are preserved and the document converges to the same state for both users?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">What is the difference between Operational Transformation and CRDT? When would you choose one over the other?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">A user is editing a Google Doc offline for 20 minutes. They reconnect. How do you merge their offline changes with the 47 changes other users made during that time?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 15: VIDEO CALLING (Zoom)
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g15">
+  <div class="group-header">
+    <div class="group-emoji">📹</div>
+    <div class="group-meta">
+      <div class="group-num">Group XV · Apple, Meta, Google Interview Staple</div>
+      <div class="group-title">Video Calling & WebRTC Systems</div>
+      <div class="group-tags">
+        <span class="gtag">Zoom</span><span class="gtag">Google Meet</span><span class="gtag">FaceTime</span><span class="gtag">WebRTC</span><span class="gtag">SFU</span><span class="gtag">MCU</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Zoom / Google Meet (video call, 100 participants) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design WhatsApp / FaceTime 1-on-1 Video Call <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Webinar Platform (1 host, 10,000 viewers) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Screen Sharing over WebRTC <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: WebRTC Call Setup + SFU vs MCU Architecture</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WEBRTC CALL SETUP (Signaling + ICE):</span>
+
+Step 1: SIGNALING (WebSocket via your server — NOT peer-to-peer):
+  User A creates Offer SDP (Session Description Protocol):
+    Offer = { audioCodec: Opus, videoCodec: VP8/H.264, bandwidth: 2Mbps }
+  Server relays Offer to User B via WebSocket
+  User B creates Answer SDP, relays back via Server
+  <span class="f-dim">← Signaling server only used for setup. NOT in media path.</span>
+
+Step 2: ICE (Interactive Connectivity Establishment) — finding network path:
+  Gather ICE candidates (possible network paths):
+    a) Host candidate: local IP (works on same LAN)
+    b) Server-reflexive: public IP from STUN server (works most of the time)
+    c) Relay candidate: via TURN server (works always, even behind strict NAT)
+  Exchange candidates via signaling server.
+  ICE agent tests candidates in priority order, selects best working path.
+
+Step 3: DTLS Handshake → encrypted media channel established
+Step 4: Media flows peer-to-peer (if ICE succeeds) or via TURN relay
+
+<span class="f-title">TOPOLOGY COMPARISON — GROUP CALLS:</span>
+
+<span class="f-blue">MESH (P2P, up to ~4 users):</span>
+  Each user sends video stream to every other user directly.
+  5 users: each sends 4 streams × 5 = 20 streams total.
+  <span class="f-ok">✓</span> No media server. <span class="f-warn">✗</span> Scales as N². CPU/bandwidth explodes at 5+ users.
+
+<span class="f-blue">SFU — Selective Forwarding Unit (Zoom's approach, 5–500 users):</span>
+  Each user sends 1 stream to SFU server.
+  SFU forwards selected streams to each user (not all — just active speaker + pinned).
+  <span class="f-ok">✓</span> Low CPU (no re-encoding). <span class="f-ok">✓</span> Scales to hundreds. <span class="f-ok">✓</span> Adaptive quality per receiver.
+  <span class="f-warn">✗</span> Each receiver still decodes N streams. Bandwidth cost on receiver side.
+  Simulcast: sender sends 3 quality layers (1080p, 720p, 360p). SFU picks per-receiver.
+
+<span class="f-blue">MCU — Multipoint Control Unit (legacy, simple receivers):</span>
+  All streams → MCU → MCU re-mixes into 1 composite stream → each receiver.
+  <span class="f-ok">✓</span> Receiver only decodes 1 stream. <span class="f-ok">✓</span> Works on weak devices (old phones).
+  <span class="f-warn">✗</span> Massive server CPU (re-encoding all streams). <span class="f-warn">✗</span> High latency (encode + decode).
+  Used when: legacy PSTN integration, very low-bandwidth receivers.
+
+<span class="f-title">ACTIVE SPEAKER DETECTION:</span>
+  WebRTC audio level API: measure RMS audio level per stream every 200ms.
+  Score = 0.7 × current_level + 0.3 × smoothed_level  <span class="f-dim">← exponential smoothing</span>
+  Highest score for &gt;500ms → set as active speaker.
+  SFU: prioritize forwarding active speaker's HD stream. Others: reduce to 180p.
+
+<span class="f-title">POOR NETWORK HANDLING:</span>
+  FEC (Forward Error Correction): send redundant packets so receiver can reconstruct lost ones.
+  NACK: receiver requests retransmit for critical lost packets (key frames).
+  PLI (Picture Loss Indication): request new keyframe if stream state corrupted.
+  Congestion Control: WebRTC REMB / GCC — reduce bitrate when packet loss detected.
+  Min 50ms jitter buffer: smooth out packets arriving out of order.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🌐</div><div class="concept-title">STUN vs TURN Servers</div><div class="concept-body"><strong>STUN:</strong> Tells you your public IP/port behind NAT. Cheap — just a lookup. 80% of calls use STUN. <strong>TURN:</strong> Full relay — all media routed via TURN server. Used when symmetric NAT blocks direct peer connection. 20% of calls. 10–20× more bandwidth than STUN. Always provision TURN for reliability.</div></div>
+      <div class="concept-card"><div class="concept-icon">🎙️</div><div class="concept-title">Audio/Video Codecs</div><div class="concept-body"><strong>Opus:</strong> Gold standard audio codec. 6–510 kbps. Adaptive bitrate. Built into WebRTC. <strong>VP8/VP9:</strong> Open video codecs, royalty-free, Google's choice. <strong>H.264:</strong> Hardware-accelerated on most devices, used by Zoom. <strong>AV1:</strong> 50% better than H.264 at same quality — emerging standard.</div></div>
+      <div class="concept-card"><div class="concept-icon">📡</div><div class="concept-title">Recording & Transcription</div><div class="concept-body">Cloud recording: server-side SFU records raw streams → FFmpeg mix to MP4 → S3. Live transcription: audio stream → speech-to-text API (Google Speech/Whisper) in real-time. Closed captions: WebVTT format, synced with video. Processing: separate recording pod, doesn't affect call quality.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Video Calling</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How does a Zoom call with 50 participants work? Is media sent peer-to-peer or through a server? Explain SFU vs MCU and which Zoom uses.</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">Two users are on different corporate networks behind strict NAT firewalls. How does WebRTC establish a media connection between them?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Participant A has a 100Mbps fiber connection. Participant B has a 1Mbps mobile connection. How does your video call system handle this disparity without ruining the call for B?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 16: LIVE STREAMING (Twitch)
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g16">
+  <div class="group-header">
+    <div class="group-emoji">🎮</div>
+    <div class="group-meta">
+      <div class="group-num">Group XVI · Distinct from VOD — Latency is Everything</div>
+      <div class="group-title">Live Streaming Platforms</div>
+      <div class="group-tags">
+        <span class="gtag">Twitch</span><span class="gtag">YouTube Live</span><span class="gtag">Instagram Live</span><span class="gtag">RTMP</span><span class="gtag">HLS</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design Twitch (live video, chat, 100K concurrent viewers per stream) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design YouTube Live <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design Instagram / Facebook Live <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Streamer to 100,000 Live Viewers in &lt;5s</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">KEY DIFFERENCE FROM VOD (Netflix):</span>
+  Netflix: pre-encoded, stored, served from CDN. Latency = seconds. Acceptable.
+  Twitch: live — content doesn't exist until now. Every second of delay = reaction lag.
+  Twitch target latency: 3–5 seconds (normal), 1s (low-latency mode).
+
+<span class="f-title">INGEST PIPELINE:</span>
+  Streamer's OBS/Streamlabs <span class="f-key">→</span> RTMP (Real-Time Messaging Protocol, TCP)
+  <span class="f-key">→</span> Nearest Ingest Server (by geographical routing, anycast IP)
+  <span class="f-key">→</span> Ingest Server: receives H.264/H.265 video + AAC audio stream
+  <span class="f-key">→</span> Transcoder (FFmpeg cluster): create multiple quality variants in real-time
+      Variants: [Source, 1080p60, 720p60, 480p30, 360p30, 160p]
+      Each variant: ~ 2s behind source stream (transcoding latency)
+  <span class="f-key">→</span> Segmenter: splits each variant into 2-second HLS segments (.ts files)
+  <span class="f-key">→</span> Origin servers (Twitch's internal CDN origin)
+  <span class="f-key">→</span> Edge CDN (Akamai / custom): 100K viewers pull from nearest edge PoP
+
+<span class="f-title">VIEWER PLAYBACK (HLS Pull):</span>
+  Viewer's player fetches: GET /live/{streamId}/playlist.m3u8 every 2s
+  Playlist contains: last 3 segment URLs + EXT-X-TARGETDURATION
+  Player downloads segment 1 while player buffers, requests segment 2 in parallel
+  Player has: 2-4 segments in buffer = 4-8s of playback buffer
+  
+  Adaptive bitrate: if segment download &gt; 1.5s → drop to lower quality variant
+  If download &lt; 0.5s for 3 consecutive segments → try higher quality
+
+<span class="f-title">LIVE CHAT AT 100K VIEWERS (the real scaling challenge):</span>
+  100K viewers watching same stream. Each sends 0.1 messages/min = 167 msgs/sec.
+  Naive: 167 msgs/sec → 100K WebSocket pushes each = 16.7M pushes/sec. <span class="f-warn">IMPOSSIBLE.</span>
+
+  Solution — Chat Fan-out with Sharded Pub/Sub:
+    Chat message <span class="f-key">→</span> Chat Service
+    <span class="f-key">→</span> Redis Pub/Sub: PUBLISH channel:stream:{streamId} message
+    Chat servers (multiple instances) each subscribe to stream channel
+    Each chat server holds subset of viewer WebSocket connections
+    Each chat server receives message once, fans out to its local connections
+    Scale: 1,000 chat servers × 100 connections each = 100K viewers
+    Redis Pub/Sub: single PUBLISH → all 1,000 chat servers receive it → 1,000 fan-outs.
+
+<span class="f-title">STREAM DISCOVERY & RECOMMENDATIONS:</span>
+  Hot streams: Redis ZSET, score = concurrent_viewer_count, updated every 30s
+  Category browsing: pre-computed top-N per category (cached 60s)
+  Personalized: ML model offline, recommendations served from Redis per user
+  Search: Elasticsearch index updated when stream goes live (low latency index update)</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">📡</div><div class="concept-title">RTMP vs HLS vs WebRTC</div><div class="concept-body"><strong>RTMP:</strong> Ingest protocol (streamer → server). TCP, low latency, widely supported. <strong>HLS:</strong> Playback protocol (server → viewer). HTTP-based, CDN-native, 5–30s latency. <strong>WebRTC:</strong> Ultra-low latency (&lt;1s) playback. Used by Google Stadia-style interactive streams. WHIP/WHEP emerging as WebRTC-based live standards.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔥</div><div class="concept-title">Hot Streamer Problem</div><div class="concept-body">Top Twitch streamer: 500K concurrent viewers. One origin segment → 500K downloads. CDN edge caches segment after first viewer request. Subsequent 499,999 requests served from cache. Cache-Control: max-age=2 (HLS segment duration). No origin hit after first request per edge node.</div></div>
+      <div class="concept-card"><div class="concept-icon">📊</div><div class="concept-title">Stream Health Monitoring</div><div class="concept-body">Ingest server collects: bitrate, dropped frames, keyframe interval, audio sync. Alerts if bitrate drops 30%+ for 10s → streamer notification. Viewer side: playback events → analytics pipeline → rebuffering rate, startup time, quality switches. SLA: &lt;1% rebuffering rate target.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Live Streaming</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">How is designing Twitch different from designing Netflix? What makes live streaming architecturally harder?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A Twitch stream has 100,000 concurrent viewers all sending chat messages. How do you fan-out each message to all viewers in under 1 second?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">How do you transcode a live video stream into 6 quality variants in real-time with only 2–3 seconds of added latency?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 17: TASK SCHEDULER
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g17">
+  <div class="group-header">
+    <div class="group-emoji">⏰</div>
+    <div class="group-meta">
+      <div class="group-num">Group XVII · Airbnb, Uber, Meta Interview Staple</div>
+      <div class="group-title">Distributed Task Scheduler & Job Queue</div>
+      <div class="group-tags">
+        <span class="gtag">Cron</span><span class="gtag">Celery</span><span class="gtag">Airflow</span><span class="gtag">AWS Lambda</span><span class="gtag">Delayed Jobs</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design a Distributed Task Scheduler (run-once, recurring, delayed) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Job Queue System (Celery / Sidekiq equivalent) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design Apache Airflow (DAG-based workflow orchestration) <span class="diff diff-h">HARD</span></div>
+      <div class="problem">Design a Delayed Notification System <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: Exactly-Once Task Execution + Recurring Jobs</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">CORE REQUIREMENTS:</span>
+  1. At-least-once execution (no missed jobs) — must handle worker crashes
+  2. Exactly-once semantics (no duplicate billing emails)
+  3. Recurring jobs (cron expressions: "0 9 * * MON")
+  4. Delayed execution (send email in 30 minutes)
+  5. Horizontal scaling (10 workers handle 10,000 jobs/min)
+  6. Job priority (critical jobs run before batch jobs)
+
+<span class="f-title">DATABASE SCHEMA — Core Tables:</span>
+  tasks(
+    id UUID PRIMARY KEY,
+    type VARCHAR,           <span class="f-dim">← "send_email", "generate_report", "charge_subscription"</span>
+    payload JSONB,          <span class="f-dim">← arbitrary job data</span>
+    status ENUM(PENDING, RUNNING, DONE, FAILED, DEAD),
+    scheduled_at TIMESTAMP, <span class="f-dim">← when to run (past = run now, future = delayed)</span>
+    run_at TIMESTAMP,       <span class="f-dim">← actual execution start time</span>
+    attempts INT DEFAULT 0,
+    max_attempts INT DEFAULT 3,
+    locked_by VARCHAR,      <span class="f-dim">← worker ID that claimed this task</span>
+    locked_until TIMESTAMP, <span class="f-dim">← heartbeat expiry: if worker dies, lock expires</span>
+    idempotency_key VARCHAR UNIQUE
+  )
+
+<span class="f-title">POLLING LOOP (Worker — with distributed locking):</span>
+  Every 1s, each worker runs:
+    BEGIN TRANSACTION;
+    SELECT id FROM tasks
+      WHERE status = 'PENDING'
+        AND scheduled_at &lt;= NOW()       <span class="f-dim">← due for execution</span>
+        AND (locked_until IS NULL OR locked_until &lt; NOW())  <span class="f-dim">← not locked (or lock expired)</span>
+      ORDER BY scheduled_at ASC
+      LIMIT 1
+      FOR UPDATE SKIP LOCKED;            <span class="f-dim">← skip rows locked by other workers (no blocking)</span>
+    
+    UPDATE tasks SET
+      status = 'RUNNING',
+      locked_by = 'worker-7',
+      locked_until = NOW() + INTERVAL '30 seconds'  <span class="f-dim">← heartbeat window</span>
+      WHERE id = ?;
+    COMMIT;
+    <span class="f-ok">→</span> Worker executes task. Heartbeat: UPDATE locked_until every 10s.
+    <span class="f-ok">→</span> On success: UPDATE status='DONE'
+    <span class="f-warn">→</span> On failure: UPDATE status='FAILED', attempts=attempts+1
+       If attempts &gt;= max_attempts: status='DEAD' → DLQ notification
+
+<span class="f-title">WORKER CRASH RECOVERY:</span>
+  Worker 7 dies at second 8 of a 30s locked_until window.
+  At second 30: locked_until expires. Lock is gone.
+  Next polling worker: sees status='RUNNING', locked_until &lt; NOW() → picks it up.
+  <span class="f-ok">→</span> Task is retried. If idempotent: safe. If not: need idempotency key check.
+
+<span class="f-title">RECURRING JOBS:</span>
+  cron_jobs(id, cron_expression, task_type, payload, last_run_at, next_run_at)
+  Scheduler service (single leader via distributed lock):
+    Every 60s: SELECT * FROM cron_jobs WHERE next_run_at &lt;= NOW()
+    For each due job: INSERT INTO tasks (scheduled_at=NOW(), ...)
+    UPDATE cron_jobs SET next_run_at = calculate_next(cron_expr, NOW())
+  Leader election: Redis SETNX scheduler:leader {instanceId} EX 90
+    Only one instance runs scheduler. Others are hot standbys.
+
+<span class="f-title">DELAYED TASKS ("send welcome email in 1 hour"):</span>
+  Redis ZSET: ZADD delayed_tasks {timestamp_to_run} {task_id}
+  Watcher process: every second: ZRANGEBYSCORE delayed_tasks 0 NOW()
+  For each ready task: move from ZSET to tasks table with scheduled_at=NOW()
+  Redis persistence: AOF enabled — delayed tasks survive Redis restart.</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🔒</div><div class="concept-title">FOR UPDATE SKIP LOCKED</div><div class="concept-body">PostgreSQL's secret weapon for job queues. SELECT ... FOR UPDATE locks promising rows. SKIP LOCKED skips already-locked rows instead of waiting. 10 workers query simultaneously: each picks a different row. No contention, no blocking. This alone handles most job queue scaling needs up to 50K jobs/min.</div></div>
+      <div class="concept-card"><div class="concept-icon">📊</div><div class="concept-title">Priority Queues</div><div class="concept-body">Add priority column (1=critical, 5=batch). ORDER BY priority ASC, scheduled_at ASC. Or: separate tables per priority tier — workers always drain critical table first. Or: Kafka topics per priority: critical-jobs, normal-jobs, batch-jobs — consumers poll in priority order.</div></div>
+      <div class="concept-card"><div class="concept-icon">💀</div><div class="concept-title">Dead Letter Queue</div><div class="concept-body">Tasks that fail max_attempts times go to dead_tasks (DLQ). Never silently dropped. Alert: PagerDuty notification on DLQ insertion. Dashboard: operations team reviews DLQ daily. Retry: manual trigger or automated backoff (1hr, 6hr, 24hr) depending on task type criticality.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Task Scheduler</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Worker 7 picks up a job, starts executing it, and then crashes mid-way. How does your system detect this and ensure the job runs to completion exactly once?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">You have 10 workers all polling the same task table. How do you prevent two workers from picking up the same task without a central lock manager?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Design a system that sends a welcome email exactly 24 hours after user registration — reliably, even if the service restarts 10 times in those 24 hours.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 18: LEADERBOARD
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g18">
+  <div class="group-header">
+    <div class="group-emoji">🏆</div>
+    <div class="group-meta">
+      <div class="group-num">Group XVIII · Small Problem, Deep Redis Knowledge Test</div>
+      <div class="group-title">Leaderboard & Ranking Systems</div>
+      <div class="group-tags">
+        <span class="gtag">Gaming Leaderboard</span><span class="gtag">Redis ZSET</span><span class="gtag">Top-K</span><span class="gtag">Rank & Score</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design a Real-Time Gaming Leaderboard (10M players, global) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Relative Rank System ("You're in top 5% of users") <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Weekly/Monthly Leaderboard (resets periodically) <span class="diff diff-m">MEDIUM</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL: Redis ZSET Leaderboard — O(log N) Everything</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">WHY REDIS SORTED SET IS PERFECT FOR LEADERBOARDS:</span>
+  ZSET: each member has a float score. Auto-sorted by score. O(log N) add/update.
+  10M players × ~100 bytes per entry = 1GB. Fits in Redis memory easily.
+
+<span class="f-title">CORE OPERATIONS:</span>
+  Score update (player scores 500 points):
+    ZADD leaderboard:global NX 500 "player:u123"             <span class="f-dim">← NX: insert only if not exists</span>
+    ZINCRBY leaderboard:global 500 "player:u123"             <span class="f-dim">← increment existing score by 500</span>
+
+  Get player's rank (1-indexed from top):
+    rank = ZREVRANK leaderboard:global "player:u123"          <span class="f-dim">← O(log N)</span>
+    rank + 1  <span class="f-dim">← ZREVRANK is 0-indexed, 0 = #1</span>
+
+  Get top 10 players with scores:
+    ZREVRANGE leaderboard:global 0 9 WITHSCORES              <span class="f-dim">← O(log N + 10)</span>
+
+  Get players around me (my neighbourhood):
+    my_rank = ZREVRANK leaderboard:global "player:u123"
+    ZREVRANGE leaderboard:global (my_rank-5) (my_rank+5) WITHSCORES
+    <span class="f-ok">→</span> "You are #1,247. Players ranked #1242–#1252:"
+
+<span class="f-title">PERIODIC LEADERBOARDS (Weekly/Monthly Reset):</span>
+  Key: leaderboard:weekly:2024-W16  <span class="f-dim">← ISO week number in key</span>
+  Write to BOTH: leaderboard:global AND leaderboard:weekly:{current_week}
+  Weekly reset: new key = instant reset. Old key: TTL 7 days → auto-expire.
+  Monthly: leaderboard:monthly:2024-04. Same pattern.
+
+<span class="f-title">SHARDING FOR EXTREME SCALE (1B players):</span>
+  Single Redis ZSET: 1B × 100 bytes = 100GB. Doesn't fit in one Redis node.
+  Solution: hash players into N shards = leaderboard:shard:{0..99}
+    shard = CRC32(userId) % 100
+    ZINCRBY leaderboard:shard:{shard} score userId
+  Read top-K global:
+    Query all 100 shards in parallel → get top-K from each
+    Merge (K-way merge heap) → true global top-K
+    Cache result (Redis or Memcached): global top 100 updated every 60s
+    Individual rank: exact shard query + estimate offset from other shards.
+
+<span class="f-title">"RELATIVE PERCENTILE RANK" ("Top 3% of users"):</span>
+  exact_rank = ZREVRANK leaderboard:global userId
+  total_players = ZCARD leaderboard:global
+  percentile = (1 - exact_rank / total_players) × 100
+  → "You're in the top 3.2% of all players globally"</div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Leaderboard</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Design a global gaming leaderboard for 10 million players. How do you get a player's exact rank in under 10ms at any time?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">The leaderboard resets every Monday. How do you implement this without any downtime or data loss of the historical all-time leaderboard?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Your leaderboard grows to 1 billion entries — too large for a single Redis node. How do you shard it while still being able to compute the global top 100?</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+   GROUP 19: AUTH, SSO & FEATURE FLAGS
+══════════════════════════════════════════════════════════ -->
+<div class="group-card reveal" id="g19">
+  <div class="group-header">
+    <div class="group-emoji">🔐</div>
+    <div class="group-meta">
+      <div class="group-num">Group XIX · Security-Focused & Platform Engineering Roles</div>
+      <div class="group-title">Auth, SSO, Feature Flags & Config Systems</div>
+      <div class="group-tags">
+        <span class="gtag">OAuth 2.0</span><span class="gtag">JWT</span><span class="gtag">SSO</span><span class="gtag">RBAC</span><span class="gtag">Feature Flags</span><span class="gtag">LaunchDarkly</span>
+      </div>
+    </div>
+  </div>
+  <div class="group-body">
+    <div class="problems">
+      <div class="problem priority">Design an OAuth 2.0 / SSO System (Login with Google) <span class="diff diff-h">HARD</span></div>
+      <div class="problem priority">Design a Feature Flag System (LaunchDarkly) <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem priority">Design a Permission / RBAC System <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design an API Key Management System <span class="diff diff-m">MEDIUM</span></div>
+      <div class="problem">Design a Distributed Config Service (etcd-like) <span class="diff diff-h">HARD</span></div>
+    </div>
+
+    <div class="flow-panel">
+      <div class="flow-panel-header">
+        <div class="flow-panel-dots"><div class="flow-panel-dot dot-red"></div><div class="flow-panel-dot dot-blue"></div><div class="flow-panel-dot dot-green"></div></div>
+        <div class="flow-panel-title">CRITICAL FLOW: OAuth 2.0 PKCE + JWT Session + Feature Flag Evaluation</div>
+      </div>
+      <div class="flow-panel-body"><span class="f-title">OAUTH 2.0 — "LOGIN WITH GOOGLE" FLOW (Authorization Code + PKCE):</span>
+
+Step 1: User clicks "Login with Google"
+  Client generates: code_verifier = random_256_bit_string
+                    code_challenge = BASE64(SHA256(code_verifier))
+  Redirect to: accounts.google.com/o/oauth2/auth
+    ?client_id=YOUR_APP
+    &redirect_uri=https://yourapp.com/callback
+    &response_type=code
+    &scope=openid email profile
+    &code_challenge={code_challenge}
+    &code_challenge_method=S256
+
+Step 2: User authenticates with Google, grants permission
+  Google redirects: https://yourapp.com/callback?code=AUTH_CODE
+
+Step 3: Backend exchanges code for tokens (server-side, never in browser)
+  POST accounts.google.com/token
+  Body: { code: AUTH_CODE, code_verifier: secret, client_id, client_secret }
+  Response: { access_token, refresh_token, id_token (JWT) }
+
+Step 4: Parse id_token (JWT) → get { sub, email, name, picture }
+  Create/update user in your DB
+  Issue YOUR OWN session JWT:
+    payload = { userId, email, roles, exp: now+1h }
+    sign with RS256 (asymmetric — your private key)
+
+Step 5: Client stores your JWT. All subsequent requests: Authorization: Bearer {jwt}
+  Microservices validate JWT signature with your PUBLIC key (no DB lookup needed).
+
+<span class="f-title">JWT vs SESSION TOKENS:</span>
+  JWT: stateless. No DB lookup per request. Can't revoke before expiry.
+    Fix: short expiry (15min) + refresh token (7 days, single-use, stored in DB)
+    On logout: invalidate refresh token in DB. JWT expires in &lt;15min.
+  Session cookie: stateful. Every request hits Redis for session lookup.
+    Pro: instant revocation. Con: Redis becomes bottleneck at &gt;1M concurrent sessions.
+
+<span class="f-title">RBAC — ROLE-BASED ACCESS CONTROL:</span>
+  Tables: users → user_roles → roles → role_permissions → permissions
+  Permission check: SELECT 1 FROM role_permissions rp
+    JOIN user_roles ur ON ur.role_id = rp.role_id
+    WHERE ur.user_id = ? AND rp.permission = 'article:publish'
+  Cache in JWT: roles array in token payload. Check locally. 0 DB calls per request.
+  Cache in Redis: user:{id}:permissions SET, TTL 5min. Invalidate on role change.
+
+<span class="f-title">FEATURE FLAG SYSTEM (LaunchDarkly pattern):</span>
+  flags table: (flag_key, enabled, rollout_percentage, targeting_rules, environments)
+  
+  Evaluation (happens in-process, NOT via network call):
+    SDK downloads ALL flags for environment → local memory (hash map)
+    isEnabled('new-checkout', userId):
+      1. Check if flag exists + enabled globally
+      2. Check targeting rules: userId in ['beta-users'] → return true
+      3. Hash-based rollout: CRC32(userId + flagKey) % 100 &lt; rollout_percentage
+         <span class="f-dim">← hash ensures same user always gets same experience (sticky)</span>
+      4. Return true/false
+  
+  Streaming updates (flag changes go live in &lt;100ms):
+    Flag config changes → Server-Sent Events (SSE) stream to all SDK clients
+    SDK updates in-memory flag map. Zero downtime. No restart needed.
+    <span class="f-ok">→</span> Kill switch: set enabled=false → propagates to all servers in &lt;100ms via SSE
+
+<span class="f-title">API KEY MANAGEMENT:</span>
+  Generate: key = "sk_live_" + base64(32_random_bytes)
+  Store: api_keys table with SHA256(key) only — NEVER store raw key
+  Validate: hash incoming key, look up hash in DB (or Redis cache)
+  Scoped: key has permission set { read:data, write:data } — check per endpoint
+  Rotation: never delete old key immediately → grace period 24hrs (old + new both valid)</div>
+    </div>
+
+    <div class="concept-grid">
+      <div class="concept-card"><div class="concept-icon">🎫</div><div class="concept-title">JWT Anatomy</div><div class="concept-body">Three parts: HEADER.PAYLOAD.SIGNATURE. Header: alg (RS256/HS256), typ=JWT. Payload: iss, sub (userId), exp, iat, custom claims (roles, tenantId). Signature: HMAC-SHA256 or RSA. Verify: decode header → check alg → verify signature with key. Never trust payload without verified signature.</div></div>
+      <div class="concept-card"><div class="concept-icon">🔑</div><div class="concept-title">Token Refresh Flow</div><div class="concept-body">Access token: short-lived (15min). Refresh token: long-lived (7d), stored in DB, single-use. On expiry: POST /auth/refresh { refreshToken } → server validates in DB, issues new access token + rotating refresh token. Invalidate old refresh token immediately. Logout: delete refresh token from DB.</div></div>
+      <div class="concept-card"><div class="concept-icon">🌍</div><div class="concept-title">Multi-Tenancy (SaaS)</div><div class="concept-body">Three models: <strong>Shared DB, shared schema</strong> (tenant_id column everywhere — simplest, cheapest). <strong>Shared DB, separate schema</strong> (switch schema per tenant). <strong>Separate DB per tenant</strong> (strongest isolation, expensive). Row-level security in PostgreSQL: SET row_security ON; CREATE POLICY per tenant_id.</div></div>
+    </div>
+
+    <div class="iq-section">
+      <div class="iq-label">Critical Interview Questions — Auth & Feature Flags</div>
+      <div class="iq"><div class="iq-num">Q1</div><div class="iq-text">Walk me through the complete "Login with Google" OAuth flow — from the user clicking the button to your backend issuing a session. Where does PKCE fit in and why does it matter?</div></div>
+      <div class="iq"><div class="iq-num">Q2</div><div class="iq-text">A user's JWT is stolen. They report it immediately. How do you invalidate that token before its 1-hour expiry without adding a DB lookup to every API request?</div></div>
+      <div class="iq"><div class="iq-num">Q3</div><div class="iq-text">Design a feature flag system that can roll out a feature to exactly 5% of users, always showing the same experience to the same user, and can kill-switch in under 100ms.</div></div>
+      <div class="iq"><div class="iq-num">Q4</div><div class="iq-text">How do you store API keys securely? A junior engineer suggests storing them in plaintext for fast lookup. What do you say?</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+   CROSS-CUTTING CONCEPTS
+══════════════════════════════════════════════════════════ -->
+<section class="section reveal" id="s-cross">
+  <div class="section-divider"><div class="section-label">Applied to Every System</div></div>
+  <div class="section-title">Cross-Cutting Concepts</div>
+  <p class="section-sub">These show up in every system design. Mention them proactively — interviewers expect you to bring these up without being asked.</p>
+
+  <div class="cheat" style="margin-top:1.5rem">
+    <div class="cheat-row"><div class="cheat-key">Redis Cache</div><div class="cheat-val"><strong>Hot data:</strong> user sessions, feed items, rate limits, presence, feature flags, leaderboards. Cache-aside pattern. TTL per use case. <strong>Warning: not a primary store.</strong> Can lose data on restart without AOF/RDB persistence.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Kafka</div><div class="cheat-val"><strong>Async streaming:</strong> service decoupling, analytics pipelines, event replay, fan-out (notifications). High throughput (millions/sec). Durable. Use when: order matters, need replay, high fan-out, or eventual consistency is acceptable.</div></div>
+    <div class="cheat-row"><div class="cheat-key">PostgreSQL</div><div class="cheat-val"><strong>ACID critical:</strong> payments, bookings, user accounts, inventory. Foreign keys, transactions, complex joins. Single-leader replication. Read replicas for scaling reads. Shard with Citus for write scale.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Cassandra</div><div class="cheat-val"><strong>High write throughput + time-series:</strong> messages, events, IoT sensor data, activity logs. Design by access pattern (no joins). Consistent hashing + replication factor 3. Tunable consistency (QUORUM for balance).</div></div>
+    <div class="cheat-row"><div class="cheat-key">Elasticsearch</div><div class="cheat-val"><strong>Full-text search + aggregations:</strong> log analytics, user search, complex filters. Always a secondary index — sync from primary DB via CDC (Debezium → Kafka → Elastic). Never your source of truth.</div></div>
+    <div class="cheat-row"><div class="cheat-key">CDN</div><div class="cheat-val"><strong>Static + media content:</strong> images, video chunks, JS/CSS bundles. TTL via Cache-Control headers. Reduce origin load by 90%+. Versioned URLs for instant invalidation without purge calls.</div></div>
+    <div class="cheat-row"><div class="cheat-key">SAGA Pattern</div><div class="cheat-val"><strong>Distributed transactions:</strong> any multi-service operation (booking, order, payment). <strong>Choreography</strong> (events, decentralized) for simple flows. <strong>Orchestration</strong> (central coordinator) for complex flows needing visibility. Always define compensation steps.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Outbox Pattern</div><div class="cheat-val"><strong>Atomic DB write + event publish:</strong> prevents dual-write inconsistency. Write DB record + event to outbox table in one transaction. Outbox relay publishes to Kafka asynchronously. Required for: any state change that must also publish an event reliably.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Circuit Breaker</div><div class="cheat-val"><strong>Prevent cascade failures:</strong> every inter-service call needs a circuit breaker. Closed → Open after N failures. Half-Open on timeout probe. Resilience4j in Java. Measure: failure rate in rolling time window.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Idempotency Key</div><div class="cheat-val"><strong>Safe retries:</strong> client generates UUID before first request. Sends same key on all retries. Server: UNIQUE constraint → skip if already processed, return stored result. Required for: all payment, booking, and mutation endpoints.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Consistent Hashing</div><div class="cheat-val"><strong>Distribute across nodes:</strong> minimal reshuffling when nodes join/leave. Virtual nodes for even distribution. Used by: Redis Cluster, Cassandra, DynamoDB. Key → hash position → first node clockwise on ring.</div></div>
+    <div class="cheat-row"><div class="cheat-key">CQRS</div><div class="cheat-val"><strong>Separate read/write models:</strong> write to PostgreSQL, sync to Elasticsearch for search, sync to Redis for fast reads. Sync via Kafka. Use when read/write scaling requirements diverge significantly, or when read shape ≠ write shape.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Bloom Filter</div><div class="cheat-val"><strong>Probabilistic membership:</strong> "Is this URL already crawled?", "Has this user seen this notification?". False positives OK. No false negatives. 10 bits/element → 1% FP rate. 100B items = 125GB — still feasible.</div></div>
+    <div class="cheat-row"><div class="cheat-key">Observability</div><div class="cheat-val"><strong>Always mention all 3 pillars:</strong> <strong>Metrics</strong> (Prometheus/Grafana: latency p95/p99, error rate, saturation), <strong>Logs</strong> (structured JSON → ELK), <strong>Traces</strong> (OpenTelemetry → Jaeger: correlation_id through all services). SLO/SLA definitions.</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+   TRADE-OFF MASTER SHEET
+══════════════════════════════════════════════════════════ -->
+<section class="section reveal" id="s-tradeoffs">
+  <div class="section-divider"><div class="section-label">Every System Design Decision</div></div>
+  <div class="section-title">⚖️ The Master Trade-Off Sheet</div>
+  <p class="section-sub">For every key decision, know <em>what</em> to choose and <em>why</em>. State the trade-off clearly — that's what senior-level answers look like.</p>
+
+  <div class="tradeoff-wrap" style="margin-top:1.5rem">
+    <table class="tradeoff-table">
+      <thead>
+        <tr><th>Decision</th><th>Option A</th><th>Option B</th><th>Rule of Thumb</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Database Engine</td><td>PostgreSQL (SQL)</td><td>Cassandra (NoSQL)</td><td>ACID needed, JOINs → SQL. High-write throughput, no JOINs → Cassandra.</td></tr>
+        <tr><td>Feed Architecture</td><td>Fan-out on Write (push)</td><td>Fan-out on Read (pull)</td><td>&lt;1K followers → push. Celebrity (millions) → pull. Hybrid for most.</td></tr>
+        <tr><td>Consistency</td><td>Strong / ACID</td><td>Eventual / BASE</td><td>Money, inventory, bookings → Strong. Likes, views, analytics → Eventual.</td></tr>
+        <tr><td>Message Queue</td><td>Kafka</td><td>RabbitMQ</td><td>High throughput, replay, analytics → Kafka. Complex routing, RPC-style → RabbitMQ.</td></tr>
+        <tr><td>Real-time Comms</td><td>WebSocket</td><td>HTTP Polling / SSE</td><td>&gt;1 update/sec, bidirectional → WebSocket. Server-only push, infrequent → SSE.</td></tr>
+        <tr><td>Locking Strategy</td><td>Optimistic (versioning)</td><td>Pessimistic (FOR UPDATE)</td><td>Low contention, read-heavy → Optimistic. High contention, must not fail → Pessimistic.</td></tr>
+        <tr><td>API Protocol</td><td>REST (HTTP/JSON)</td><td>gRPC (Protobuf/HTTP2)</td><td>Public API, browser → REST. Internal microservices, performance → gRPC.</td></tr>
+        <tr><td>Search Backend</td><td>DB LIKE query</td><td>Elasticsearch</td><td>&lt;1M rows, simple → DB. Full-text, millions of docs, fuzzy → Elasticsearch.</td></tr>
+        <tr><td>Distributed TX</td><td>SAGA Choreography</td><td>SAGA Orchestration</td><td>&lt;4 steps, simple → Choreography. Complex, need central visibility → Orchestration.</td></tr>
+        <tr><td>Rate Limiting Algo</td><td>Token Bucket</td><td>Leaky Bucket</td><td>Allow bursts, flexible → Token Bucket. Smooth constant output required → Leaky Bucket.</td></tr>
+        <tr><td>Cache Pattern</td><td>Cache-Aside (lazy)</td><td>Write-Through (eager)</td><td>Read-heavy, tolerate miss → Cache-Aside. Must always have fresh cache → Write-Through.</td></tr>
+        <tr><td>Analytics Arch</td><td>Kappa (stream only)</td><td>Lambda (batch + stream)</td><td>Most modern systems → Kappa. Need batch logic different from stream logic → Lambda.</td></tr>
+        <tr><td>ID Generation</td><td>Snowflake (distributed)</td><td>DB Auto-increment</td><td>Distributed system, need sortable IDs, no central DB → Snowflake. Single DB → auto-increment.</td></tr>
+        <tr><td>Unique Counting</td><td>Exact Count (DB)</td><td>HyperLogLog (~1% error)</td><td>Billing, inventory (exact required) → DB. Analytics dashboards (approximate OK) → HLL.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+   PRIORITY STUDY PLAN
+══════════════════════════════════════════════════════════ -->
+<section class="section reveal" id="s-priority">
+  <div class="section-divider"><div class="section-label">Your Preparation Roadmap</div></div>
+  <div class="section-title">🎯 Priority-Based Study Plan</div>
+  <p class="section-sub">Build depth in this order. Tier 1 problems appear in 80%+ of senior FAANG system design interviews. Don't skip ahead.</p>
+
+  <div class="tier tier-1" style="margin-top:1.5rem">
+    <div class="tier-badge">🔥 Tier 1 — Master These First (appear in 80%+ of interviews)</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Instagram / Twitter feed</strong> — fan-out, social graph, CDN</div>
+      <div class="tier-item"><strong>WhatsApp messaging</strong> — exactly-once, WebSocket, offline</div>
+      <div class="tier-item"><strong>Uber ride sharing</strong> — GeoHash, Saga, matching algorithm</div>
+      <div class="tier-item"><strong>BookMyShow booking</strong> — seat locking, SAGA, concurrency</div>
+      <div class="tier-item"><strong>Netflix / YouTube streaming</strong> — ABR, transcoding pipeline</div>
+      <div class="tier-item"><strong>Google Drive / Dropbox</strong> — chunking, deduplication, sync</div>
+      <div class="tier-item"><strong>Rate Limiter</strong> — token bucket, Redis, distributed</div>
+      <div class="tier-item"><strong>URL Shortener</strong> — Base62, hashing, collision handling</div>
+      <div class="tier-item"><strong>Key-Value Store</strong> — consistent hashing, LRU, replication</div>
+      <div class="tier-item"><strong>Snowflake ID Generator</strong> — 64-bit layout, clock skew</div>
+    </div>
+  </div>
+
+  <div class="tier tier-2">
+    <div class="tier-badge">🟠 Tier 2 — Solve Next (common at senior/staff level)</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>TikTok "For You" page</strong> — recommendation, ML pipeline</div>
+      <div class="tier-item"><strong>Slack / Discord</strong> — channel fan-out, voice/WebRTC</div>
+      <div class="tier-item"><strong>Google Maps</strong> — graph, A* routing, real-time traffic</div>
+      <div class="tier-item"><strong>Stripe / Paytm</strong> — Outbox, idempotency, double-entry ledger</div>
+      <div class="tier-item"><strong>Web Crawler</strong> — URL frontier, politeness, deduplication</div>
+      <div class="tier-item"><strong>Typeahead / Autocomplete</strong> — Trie vs Redis ZSET</div>
+      <div class="tier-item"><strong>Ad Click Counter</strong> — Lambda vs Kappa, HyperLogLog</div>
+      <div class="tier-item"><strong>Notification Service</strong> — fan-out, priority queues</div>
+      <div class="tier-item"><strong>Amazon S3</strong> — erasure coding, eventual consistency</div>
+      <div class="tier-item"><strong>Load Balancer</strong> — L4 vs L7, algorithms, health checks</div>
+    </div>
+  </div>
+
+  <div class="tier tier-3">
+    <div class="tier-badge">🟡 Tier 3 — Depth Topics (senior+ and specialised roles)</div>
+    <div class="tier-items">
+      <div class="tier-item"><strong>Kafka internals</strong> — WAL, ISR, log compaction, exactly-once</div>
+      <div class="tier-item"><strong>Google Search Engine</strong> — inverted index, PageRank, crawling</div>
+      <div class="tier-item"><strong>IoT Platform</strong> — MQTT, time-series, device management</div>
+      <div class="tier-item"><strong>Fraud Detection</strong> — real-time ML, feature stores, Flink</div>
+      <div class="tier-item"><strong>LLD: ATM, Chess, LRU Cache, Elevator</strong> — OOD patterns</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+   5 PILLARS
+══════════════════════════════════════════════════════════ -->
+<section class="section reveal" id="s-pillars">
+  <div class="section-divider"><div class="section-label">The Non-Negotiables</div></div>
+  <div class="section-title">🏆 The 5 Pillars — Apply to Every System</div>
+  <p class="section-sub">These 5 concepts appear in every well-designed FAANG-level system. If you mention them proactively and correctly, you signal senior-level thinking.</p>
+
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-icon">🔑</div>
+      <div class="pillar-title">Idempotency</div>
+      <div class="pillar-sub">Every mutation endpoint needs an idempotency key. No exceptions for payments or bookings.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🔄</div>
+      <div class="pillar-title">SAGA Pattern</div>
+      <div class="pillar-sub">Any multi-service transaction: Booking → Payment → Notification. Define compensation steps.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">⚡</div>
+      <div class="pillar-title">Kafka + Redis</div>
+      <div class="pillar-sub">Async decoupling via Kafka. Fast-access hot layer via Redis. These two work together in almost every system.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">🔭</div>
+      <div class="pillar-title">Observability</div>
+      <div class="pillar-sub">Always mention: Metrics (Prometheus), Logs (ELK), Traces (OpenTelemetry/Jaeger). All 3 pillars.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-icon">💥</div>
+      <div class="pillar-title">Circuit Breaker</div>
+      <div class="pillar-sub">Every inter-service call needs one. Prevents cascade failures that take down the whole system.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-links">
+    <a href="library.html" class="footer-link">🏛️ Library</a>
+    <a href="book-1.html" class="footer-link">I · The City</a>
+    <a href="book-2.html" class="footer-link">II · The Codex</a>
+    <a href="book-3.html" class="footer-link">III · Foundations</a>
+    <a href="book-4.html" class="footer-link">IV · The Hall</a>
+    <a href="book-5.html" class="footer-link">V · The River</a>
+    <a href="book-6-systems.html" class="footer-link current">VI · Systems ✓</a>
+  </div>
+  <p class="footer-quote">"A FAANG system design interview is not a knowledge test. It is a thinking test. Structure your thoughts. Make trade-offs explicit. Defend your choices. And always — always — mention idempotency."</p>
+</footer>
+
+</main><!-- /main -->
+
+<script>
+/* Reading progress */
+const prog = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  prog.style.width = (window.scrollY / h * 100) + '%';
+});
+
+/* TOC toggle */
+const tocBtn = document.getElementById('tocBtn');
+const toc = document.getElementById('toc');
+tocBtn.addEventListener('click', () => {
+  tocBtn.classList.toggle('open');
+  toc.classList.toggle('open');
+});
+
+/* Close TOC on link click */
+toc.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  tocBtn.classList.remove('open');
+  toc.classList.remove('open');
+}));
+
+/* Active TOC item */
+const tocLinks = document.querySelectorAll('.toc-a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      tocLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.toc-a[href="#${en.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-10% 0px -80% 0px' });
+document.querySelectorAll('[id]').forEach(el => io.observe(el));
+
+/* Reveal on scroll */
+const revealIO = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) { en.target.classList.add('in'); revealIO.unobserve(en.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+
+/* Counter animation */
+function animateCount(el) {
+  const target = +el.dataset.target;
+  const dur = 1600;
+  const start = performance.now();
+  (function tick(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(ease * target) + (t >= 1 ? '+' : '');
+    if (t < 1) requestAnimationFrame(tick);
+  })(start);
+}
+const countIO = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (en.isIntersecting) {
+      en.target.querySelectorAll('[data-target]').forEach(animateCount);
+      countIO.unobserve(en.target);
+    }
+  });
+}, { threshold: 0.5 });
+const statsEl = document.querySelector('.hero-stats');
+if (statsEl) countIO.observe(statsEl);
+</script>
+</body>
+</html>
