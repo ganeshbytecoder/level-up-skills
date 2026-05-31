@@ -15,6 +15,21 @@
     .feature-card { background: var(--bg-card); border: 1px solid rgba(59,130,246,0.2); border-radius: var(--radius-md); padding: 1.25rem; margin: 0.75rem 0; }
     .feature-card h4 { font-family: var(--font-story); font-size: 1.1rem; color: var(--book-color); margin-bottom: 0.5rem; }
     .feature-card p { font-family: var(--font-ui); font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+    
+    .nav-split-badge {
+      display: flex; gap: 0.5rem; margin-left: 1rem; background: var(--bg-card); 
+      border: 1px solid var(--border-subtle); padding: 0.25rem 0.5rem; border-radius: 100px;
+    }
+    .split-btn {
+      padding: 0.2rem 0.6rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; border-radius: 100px; text-decoration: none; color: var(--text-muted);
+    }
+    .split-btn.active {
+      background: var(--book-color); color: #fff;
+    }
+    .split-btn:hover:not(.active) {
+      color: var(--text-primary); background: var(--bg-elevated);
+    }
   </style>
 </head>
 <body>
@@ -22,6 +37,10 @@
 <nav class="site-nav">
   <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
   <div class="nav-title">Hardware Communication Protocols</div>
+  <div class="nav-split-badge">
+    <a href="book-8-protocols.html" class="split-btn active">Hardware (A)</a>
+    <a href="book-8-app-protocols.html" class="split-btn">Application (B)</a>
+  </div>
   <div class="nav-actions">
     <a href="book-7-devops.html" class="nav-btn">← Book VII</a>
   </div>
@@ -336,9 +355,9 @@ print(response)</code></pre>
   <footer class="book-footer">
     <div class="nav-books">
       <a href="library.html" class="book-nav-link">🏛️ Library</a>
-      <a href="book-6-systems.html" class="book-nav-link">VI · Systems</a>
-      <a href="book-7-devops.html" class="book-nav-link">VII · DevOps</a>
-      <a href="book-8-protocols.html" class="book-nav-link current">VIII · Protocols</a>
+      <a href="book-8-protocols.html" class="book-nav-link current">VIII-A · Hardware</a>
+      <a href="book-8-app-protocols.html" class="book-nav-link">VIII-B · Application</a>
+      <a href="book-9-databases.html" class="book-nav-link">IX · Databases</a>
     </div>
     <p class="footer-credit">"Protocols are just rules for moving bits. Understand the rules, and you understand the machine."</p>
   </footer>

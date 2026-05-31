@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book VIII-B · Software &amp; Security Protocols — The Engineer's Library</title>
+  <meta name="description" content="HTTP/3, WebSockets, Server-Sent Events (SSE), Binary Encodings, TLS/SSL, Cryptography, TCP/UDP, DNS, and BGP protocols decoded.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --book-color: #2563eb;
+      --book-color-glow: rgba(37, 99, 235, 0.15);
+    }
+    
+    .nav-split-badge {
+      display: flex; gap: 0.5rem; margin-left: 1rem; background: var(--bg-card); 
+      border: 1px solid var(--border-subtle); padding: 0.25rem 0.5rem; border-radius: 100px;
+    }
+    .split-btn {
+      padding: 0.2rem 0.6rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; border-radius: 100px; text-decoration: none; color: var(--text-muted);
+    }
+    .split-btn.active {
+      background: var(--book-color); color: #fff;
+    }
+    .split-btn:hover:not(.active) {
+      color: var(--text-primary); background: var(--bg-elevated);
+    }
+
+    /* Handshake simulator styling */
+    .simulator-container {
+      background: var(--bg-card); border: 1px solid rgba(37, 99, 235, 0.2);
+      border-radius: var(--radius-md); padding: 1.5rem; margin: 2rem 0;
+      position: relative; overflow: hidden;
+    }
+    .simulator-tabs { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem; }
+    .sim-tab {
+      padding: 0.4rem 0.8rem; background: none; border: 1px solid transparent; border-radius: var(--radius-sm);
+      color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+    }
+    .sim-tab.active { border-color: var(--book-color); color: var(--book-color); background: var(--book-color-glow); }
+    
+    .sim-view { display: none; min-height: 250px; flex-direction: column; justify-content: space-between; }
+    .sim-view.active { display: flex; }
+    
+    .sim-playground { display: flex; justify-content: space-between; align-items: stretch; margin: 1.5rem 0; position: relative; min-height: 150px; }
+    .sim-actor {
+      width: 80px; background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1rem 0; font-weight: 700; font-size: 0.85rem; z-index: 2;
+    }
+    .sim-actor.client { border-left: 3px solid var(--book-color); }
+    .sim-actor.server { border-right: 3px solid var(--book-color); }
+    .actor-icon { font-size: 1.5rem; margin-bottom: 0.3rem; }
+    
+    .sim-timeline-line {
+      position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.05); z-index: 1;
+    }
+    .sim-timeline-line.c-line { left: 39px; }
+    .sim-timeline-line.s-line { right: 39px; }
+    
+    .sim-arrows-wrap { flex: 1; position: relative; margin: 0 1rem; }
+    .sim-arrow {
+      position: absolute; left: 0; right: 0; height: 32px; display: flex; align-items: center;
+      justify-content: center; font-size: 0.78rem; font-family: var(--ff-mono); font-weight: 500;
+      opacity: 0; transform: translateY(20px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .sim-arrow::before {
+      content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+      background: var(--text-muted); z-index: 0;
+    }
+    .sim-arrow::after {
+      content: '▶'; position: absolute; top: calc(50% - 7px); font-size: 10px; color: var(--text-muted); z-index: 1;
+    }
+    
+    .sim-arrow.c-to-s::after { right: 0; }
+    .sim-arrow.s-to-c::after { left: 0; transform: rotate(180deg); }
+    
+    .sim-arrow-label {
+      padding: 0.2rem 0.5rem; background: var(--bg-card); border: 1px solid var(--border-subtle);
+      border-radius: 4px; z-index: 2; font-size: 0.74rem; font-family: var(--font-mono); color: var(--text-primary);
+    }
+    .sim-arrow.active { opacity: 1; transform: translateY(0); }
+    .sim-arrow.active::before { background: var(--book-color); }
+    .sim-arrow.active::after { color: var(--book-color); }
+    .sim-arrow.active .sim-arrow-label { border-color: var(--book-color); box-shadow: 0 0 10px rgba(37,99,235,0.15); }
+    
+    .sim-status {
+      font-size: 0.85rem; font-style: italic; color: var(--text-secondary); text-align: center;
+      padding: 0.5rem; background: var(--bg-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);
+    }
+    
+    .sim-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    .sim-btn {
+      padding: 0.4rem 1rem; background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.3s;
+    }
+    .sim-btn:hover:not(:disabled) { border-color: var(--book-color); color: var(--text-primary); }
+    .sim-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Live encoding calculator styling */
+    .encoding-calculator {
+      background: var(--bg-card); border: 1px solid rgba(37, 99, 235, 0.2);
+      border-radius: var(--radius-md); padding: 1.5rem; margin: 2rem 0;
+    }
+    .enc-input-wrap { margin-bottom: 1.2rem; }
+    .enc-textarea {
+      width: 100%; height: 60px; background: #070714; border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm); padding: 0.6rem; color: var(--text-primary); font-size: 0.9rem;
+      outline: none; transition: border-color 0.3s; resize: none;
+    }
+    .enc-textarea:focus { border-color: var(--book-color); }
+    
+    .enc-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .enc-card {
+      background: var(--bg-deep); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+      padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .enc-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .enc-title { font-size: 0.76rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+    .enc-badge { font-size: 0.68rem; padding: 0.1rem 0.4rem; background: var(--bg-elevated); border-radius: 4px; font-weight: 600; color: var(--book-color); }
+    
+    .enc-output-scroll {
+      font-family: var(--font-mono); font-size: 0.8rem; word-break: break-all; background: #05050f;
+      padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.02);
+      max-height: 80px; overflow-y: auto; color: var(--text-primary);
+    }
+    .enc-overhead { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem; display: block; }
+  </style>
+</head>
+<body>
+<div id="reading-progress"></div>
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">Application &amp; Security Protocols</div>
+  <div class="nav-split-badge">
+    <a href="book-8-protocols.html" class="split-btn">Hardware (A)</a>
+    <a href="book-8-app-protocols.html" class="split-btn active">Application (B)</a>
+  </div>
+  <div class="nav-actions">
+    <a href="book-8-protocols.html" class="nav-btn">← Book VIII-A</a>
+  </div>
+</nav>
+
+<button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">🌐 Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — The Software Layer</a>
+  <a href="#push" class="toc-item">I — Push Systems (WebSockets &amp; SSE)</a>
+  <a href="#encoding" class="toc-item">II — Encodings (Binary vs Text)</a>
+  <a href="#cryptography" class="toc-item">III — Cryptography &amp; TLS</a>
+  <a href="#rpc" class="toc-item">IV — High-Performance gRPC</a>
+  <a href="#iot" class="toc-item">V — Low-Power IoT (MQTT)</a>
+  <a href="#streaming" class="toc-item">VI — Media Streaming</a>
+  <a href="#network" class="toc-item">VII — Transport Layers</a>
+  <a href="#backbone" class="toc-item">VIII — Internet Backbone</a>
+  <a href="#playbook" class="toc-item">IX — Playbook Comparison</a>
+</nav>
+
+<main class="book-main">
+  <header class="book-hero" style="--book-color:#2563eb">
+    <div class="book-number" style="color:#2563eb">Book VIII-B</div>
+    <h1>Application &amp; Security Protocols</h1>
+    <p class="subtitle">Decoding the digital nervous system of the web — push technologies, binary serialization, secure TLS handshakes, and internet routing.</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot" style="background:#2563eb"></span> HTTP/3, WebSockets, SSE</span>
+      <span class="meta-badge"><span class="dot" style="background:#2563eb"></span> TLS 1.3, Protobuf, gRPC</span>
+    </div>
+  </header>
+
+  <div class="epigraph" style="border-left-color:#2563eb">
+    "Hardware protocols tell you how bits travel across copper paths on a single board. Application protocols tell you how those bits carry meaning, secure themselves against bad actors, and coordinate across the vast expanse of the global web."
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label" style="color:#2563eb">Prologue</div>
+    <h2>The Software Layer & Core Structures</h2>
+    
+    <div class="story-content">
+      <p>While devices communicate physically using voltages over pins, software services interact using structured abstractions called **Application Layer Protocols**. These protocols govern how web browsers fetch resources, how mobile apps sync data in real time, and how distributed microservices securely authenticate remote commands.</p>
+      <p>Every transaction, whether a JSON REST request or a video packet stream, relies on three pillars:</p>
+      <ul>
+        <li><strong>Payload Formatting (Encoding):</strong> The data layout, turning structural models into transportable characters or binary sequences.</li>
+        <li><strong>Channel Integrity (Security):</strong> Enclosing the data inside cryptographic containers to prevent unauthorized snooping or tampering.</li>
+        <li><strong>Delivery Mechanics (Transport):</strong> Controlling connections, throttling flows, and re-assembling fragmented streams safely.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PUSH SYSTEMS -->
+  <section class="chapter" id="push">
+    <div class="chapter-label" style="color:#2563eb">Lesson I</div>
+    <h2>Push Systems — WebSockets vs. Server-Sent Events</h2>
+    <p class="chapter-subtitle">Persistent tunnels vs. lightweight unidirectional streams</p>
+    
+    <div class="story-content">
+      <p>Standard HTTP is **pull-based**: the client sends a request, and the server responds. If the server has new data (like a chat message or stock price), the client cannot know until it requests it again. To build real-time systems, we use **push architectures**.</p>
+      
+      <h3>1. WebSockets</h3>
+      <p>WebSockets start as a standard HTTP request. The client asks to "Upgrade" the connection. If the server agrees, the standard HTTP connection transforms into a **persistent, bi-directional, full-duplex TCP tunnel**.</p>
+      <p><strong>Mental Model:</strong> A phone call. Both parties have their phones off the hook and can speak and listen at the exact same millisecond. Perfect for chats, multiplayer games, and collaborative tools.</p>
+      
+      <h3>2. Server-Sent Events (SSE)</h3>
+      <p>SSE is a lightweight alternative that runs over standard HTTP channels. Instead of upgrading to a complex bi-directional socket, the server keeps the HTTP response stream open indefinitely by setting `Content-Type: text/event-stream`. Data is pushed in simple, plain-text blocks.</p>
+      <p><strong>Mental Model:</strong> A megaphone or a radio broadcast. The server pushes data continuously to the client, but the client cannot talk back over this channel. Crucially, SSE has built-in auto-reconnection and runs seamlessly over standard HTTP/2 multiplexed streams.</p>
+
+      <div class="callout" style="border-left-color:#2563eb">
+        <div class="callout-header"><span class="callout-icon">💡</span><span class="callout-title" style="color:#2563eb">When to use which?</span></div>
+        <div class="callout-body">
+          • Choose **WebSockets** when you need true low-latency, two-way communication (e.g., collaborative text editors, live multiplayer games).<br>
+          • Choose **SSE** when you only need to push data from server to client (e.g., live stock feeds, system log monitoring, push notifications, or streaming LLM completions like ChatGPT). It is simpler, supports native reconnection, and bypasses firewall issues that block WebSockets.
+        </div>
+      </div>
+    </div>
+
+    <!-- Handshake Simulator Widget -->
+    <div class="simulator-container">
+      <div class="simulator-tabs">
+        <button class="sim-tab active" data-sim="tcp">TCP 3-Way Handshake</button>
+        <button class="sim-tab" data-sim="tls">TLS 1.3 Negotiation</button>
+        <button class="sim-tab" data-sim="ws">WebSocket Upgrade</button>
+      </div>
+      
+      <!-- TCP Handshake -->
+      <div class="sim-view active" id="sim-tcp">
+        <div class="sim-playground">
+          <div class="sim-timeline-line c-line"></div>
+          <div class="sim-timeline-line s-line"></div>
+          
+          <div class="sim-actor client"><span class="actor-icon">💻</span>Client</div>
+          <div class="sim-arrows-wrap">
+            <div class="sim-arrow c-to-s" style="top: 15px;" data-step="1">
+              <span class="sim-arrow-label">SYN (Seq = X)</span>
+            </div>
+            <div class="sim-arrow s-to-c" style="top: 55px;" data-step="2">
+              <span class="sim-arrow-label">SYN-ACK (Ack = X+1, Seq = Y)</span>
+            </div>
+            <div class="sim-arrow c-to-s" style="top: 95px;" data-step="3">
+              <span class="sim-arrow-label">ACK (Ack = Y+1)</span>
+            </div>
+          </div>
+          <div class="sim-actor server"><span class="actor-icon">🗄️</span>Server</div>
+        </div>
+        <div class="sim-status" id="tcp-status">Click "Next Step" to start establishing the raw TCP connection...</div>
+      </div>
+
+      <!-- TLS Handshake -->
+      <div class="sim-view" id="sim-tls">
+        <div class="sim-playground">
+          <div class="sim-timeline-line c-line"></div>
+          <div class="sim-timeline-line s-line"></div>
+          
+          <div class="sim-actor client"><span class="actor-icon">💻</span>Client</div>
+          <div class="sim-arrows-wrap">
+            <div class="sim-arrow c-to-s" style="top: 15px;" data-step="1">
+              <span class="sim-arrow-label">ClientHello (Cipher Suites, Key Share)</span>
+            </div>
+            <div class="sim-arrow s-to-c" style="top: 55px;" data-step="2">
+              <span class="sim-arrow-label">ServerHello + Cert + Server Key Share</span>
+            </div>
+            <div class="sim-arrow c-to-s" style="top: 95px;" data-step="3">
+              <span class="sim-arrow-label">Finished (Encrypted Session Active)</span>
+            </div>
+          </div>
+          <div class="sim-actor server"><span class="actor-icon">🗄️</span>Server</div>
+        </div>
+        <div class="sim-status" id="tls-status">Ensure connection security with cryptographic handshakes...</div>
+      </div>
+
+      <!-- WebSocket Upgrade -->
+      <div class="sim-view" id="sim-ws">
+        <div class="sim-playground">
+          <div class="sim-timeline-line c-line"></div>
+          <div class="sim-timeline-line s-line"></div>
+          
+          <div class="sim-actor client"><span class="actor-icon">💻</span>Client</div>
+          <div class="sim-arrows-wrap">
+            <div class="sim-arrow c-to-s" style="top: 15px;" data-step="1">
+              <span class="sim-arrow-label">GET /chat (Upgrade: websocket)</span>
+            </div>
+            <div class="sim-arrow s-to-c" style="top: 55px;" data-step="2">
+              <span class="sim-arrow-label">101 Switching Protocols (Connection Upgraded)</span>
+            </div>
+            <div class="sim-arrow c-to-s" style="top: 95px;" data-step="3" style="display:flex; justify-content:space-around;">
+              <span class="sim-arrow-label">⚡ Full-Duplex Bidirectional Tunnel ⚡</span>
+            </div>
+          </div>
+          <div class="sim-actor server"><span class="actor-icon">🗄️</span>Server</div>
+        </div>
+        <div class="sim-status" id="ws-status">Requesting upgrade from HTTP standard to persistent socket...</div>
+      </div>
+
+      <div class="sim-controls">
+        <button class="sim-btn" id="btnPrev" disabled>← Previous</button>
+        <button class="sim-btn" id="btnNext">Next Step →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENCODING -->
+  <section class="chapter" id="encoding">
+    <div class="chapter-label" style="color:#2563eb">Lesson II</div>
+    <h2>Data Encoding — Binary vs. Textual Formats</h2>
+    <p class="chapter-subtitle">Visualizing parsing overhead and payload metrics</p>
+    
+    <div class="story-content">
+      <p>Data encoding is the way we serialize in-memory data structures into bytes to send over the wire.</p>
+      
+      <h3>1. Textual Encodings (JSON &amp; XML)</h3>
+      <p>Highly readable, easy to debug, but severely inefficient. A JSON string like `{"id": 4821}` takes up 12 characters (12 bytes) on the wire. The parser must scan character by character to read it, incurring significant CPU and memory allocation overhead at scale.</p>
+      
+      <h3>2. Binary Encodings (Protobuf &amp; Avro)</h3>
+      <p>Instead of strings, binary protocols use **schemas** to pack data into raw binary segments. In Google's **Protocol Buffers**, the field names (`"id"`) are replaced with numeric IDs. The target value `4821` is compressed into a variable-length integer requiring only 2 bytes! The binary layout is fast to compile and requires zero textual parsing overhead.</p>
+
+      <h3>3. Base64 Encoding</h3>
+      <p>HTTP and SMTP channels were historically built for plain ASCII text. If you try to send raw binary data (like an image file), the channels might drop special control bytes, corrupting the file. **Base64** takes blocks of 3 binary bytes and converts them into 4 safe ASCII characters, allowing binary files to travel securely over textual channels, though increasing payload size by **33%**.</p>
+    </div>
+
+    <!-- Live Encoding Calculator -->
+    <div class="encoding-calculator">
+      <div class="enc-input-wrap">
+        <label class="topic-tags-label" style="display:block; margin-bottom: 0.5rem;">Interactive Sandbox: Enter string input</label>
+        <textarea class="enc-textarea" id="encInput" placeholder="Type characters here to see the serialization sizes..."></textarea>
+      </div>
+      
+      <div class="enc-results">
+        <!-- JSON -->
+        <div class="enc-card">
+          <div class="enc-card-header">
+            <span class="enc-title">JSON Payload</span>
+            <span class="enc-badge" id="json-size">0 B</span>
+          </div>
+          <div class="enc-output-scroll" id="json-out">{"data": ""}</div>
+          <span class="enc-overhead">Contains structural character overhead.</span>
+        </div>
+        
+        <!-- Base64 -->
+        <div class="enc-card">
+          <div class="enc-card-header">
+            <span class="enc-title">Base64 Encoding</span>
+            <span class="enc-badge" id="b64-size">0 B</span>
+          </div>
+          <div class="enc-output-scroll" id="b64-out">-</div>
+          <span class="enc-overhead">Safe ASCII text; adds 33% overhead.</span>
+        </div>
+
+        <!-- Protobuf (Mocked) -->
+        <div class="enc-card">
+          <div class="enc-card-header">
+            <span class="enc-title">Protobuf Binary Size</span>
+            <span class="enc-badge" id="proto-size">0 B</span>
+          </div>
+          <div class="enc-output-scroll" id="proto-out">00 00 00</div>
+          <span class="enc-overhead" style="color:var(--emerald);">Ultra-compact; zero parsing overhead.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRYPTOGRAPHY -->
+  <section class="chapter" id="cryptography">
+    <div class="chapter-label" style="color:#2563eb">Lesson III</div>
+    <h2>Cryptography &amp; TLS — The Security Protocol</h2>
+    <p class="chapter-subtitle">Transport Layer Security (TLS 1.3)</p>
+    
+    <div class="story-content">
+      <p>Data traveling across the internet hops through many public routers. Security protocols ensure that even if an attacker intercepts packets, they can neither read nor alter them.</p>
+      
+      <h3>1. Symmetric vs. Asymmetric Encryption</h3>
+      <ul>
+        <li><strong>Symmetric Encryption (e.g., AES-256):</strong> Uses the exact same secret key to encrypt and decrypt the message. It is incredibly fast, but both parties must safely share the key in advance.</li>
+        <li><strong>Asymmetric Encryption (e.g., RSA, Elliptic Curve):</strong> Uses a mathematical pair of keys: a public key (shareable with anyone) and a private key (kept secret). If a message is encrypted with your public key, only your private key can decrypt it. It is mathematically secure but CPU-intensive.</li>
+      </ul>
+
+      <h3>2. The Master Stroke: TLS 1.3</h3>
+      <p>When you visit `https://`, your browser and the server use both encryption types combined to get the best of both worlds:</p>
+      <ol>
+        <li>They use **Asymmetric Cryptography (ECDHE)** for a safe key-exchange handshake. This allows them to securely agree on a shared secret key *over a public channel* without sending the key itself!</li>
+        <li>Once they agree on the session key, they transition immediately to **Symmetric Encryption (AES)** to encrypt all subsequent communication at high speeds.</li>
+      </ol>
+
+      <p><strong>Certificate Authority (CA):</strong> How do you know the public key belongs to the real bank, and not an attacker? The bank's public key is signed by a trusted CA certificate (e.g., Let's Encrypt). Your browser has a built-in trust store of CA public keys, validating signatures locally in milliseconds.</p>
+    </div>
+  </section>
+
+  <!-- RPC -->
+  <section class="chapter" id="rpc">
+    <div class="chapter-label" style="color:#2563eb">Lesson IV</div>
+    <h2>gRPC — High-Performance Microservice Communication</h2>
+    <p class="chapter-subtitle">RPC over HTTP/2 and Protocol Buffers</p>
+    
+    <div class="story-content">
+      <p>While REST APIs over HTTP/1.1 are the standard for web endpoints, they are too slow for high-performance microservices inside data centers.</p>
+      <p><strong>gRPC</strong> is a framework designed by Google to optimize service-to-service communication:</p>
+      <ul>
+        <li><strong>HTTP/2:</strong> Uses a single TCP connection to send multiple parallel requests (multiplexing), eliminating TCP handshake overhead.</li>
+        <li><strong>Protocol Buffers:</strong> Serializes data into ultra-compact binary chunks instead of bulky JSON.</li>
+        <li><strong>Streaming:</strong> Supports bi-directional streaming natively. The server can push streams of events, and the client can stream requests back concurrently over the same socket.</li>
+      </ul>
+      
+      <pre><code>syntax = "proto3";
+// Protocol Buffer Definition
+message UserRequest {
+  int32 id = 1;
+}
+
+service UserService {
+  rpc GetUserProfile(UserRequest) returns (UserProfileResponse);
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- IOT -->
+  <section class="chapter" id="iot">
+    <div class="chapter-label" style="color:#2563eb">Lesson V</div>
+    <h2>MQTT — The Lightweight IoT Messenger</h2>
+    <p class="chapter-subtitle">Message Queuing Telemetry Transport</p>
+    
+    <div class="story-content">
+      <p>In low-bandwidth, unreliable networks (like a weather sensor on a mountain or a smart utility meter), standard HTTP has too much overhead. We use **MQTT**.</p>
+      <p><strong>Key Mechanics:</strong>
+        - **Publish-Subscribe (Pub-Sub):** Devices don't talk directly. They talk to a central **Broker**. A sensor publishes to `sensors/temp/room1`. Handlers subscribe to the same topic.
+        - **Quality of Service (QoS):** 
+          • `QoS 0` (At most once): Fire and forget. No confirmation. Lowest overhead.
+          • `QoS 1` (At least once): Guaranteed delivery; might be duplicated.
+          • `QoS 2` (Exactly once): Uses a 4-step handshake to guarantee exactly one delivery.
+      </p>
+    </div>
+  </section>
+
+  <!-- STREAMING -->
+  <section class="chapter" id="streaming">
+    <div class="chapter-label" style="color:#2563eb">Lesson VI</div>
+    <h2>Media &amp; Video Streaming — RTSP, RTMP, WebRTC &amp; HLS</h2>
+    <p class="chapter-subtitle">From broadcast latency to real-time interactions</p>
+    
+    <div class="story-content">
+      <p>Streaming high-definition video is a massive data challenge. We choose the protocol based on our target **latency** threshold:</p>
+      
+      <h3>1. WebRTC (Real-Time Communication)</h3>
+      <p>Perfect for video calls or drone controllers. It uses peer-to-peer UDP channels to stream frames directly between browsers, bringing latency down to **under 200 milliseconds**.</p>
+      
+      <h3>2. RTSP (Real-Time Streaming Protocol)</h3>
+      <p>The standard for IP security cameras. It acts like a remote control (Play, Pause, Record) for video streams running over UDP/TCP. High local performance but hard to scale to public web pages natively without transcoding.</p>
+
+      <h3>3. HLS (HTTP Live Streaming)</h3>
+      <p>The standard for Netflix, Twitch, and public broadcasts. It cuts the video file into small segments (e.g., 2-second chunks) and hosts them on standard HTTP servers using a playlist file (`.m3u8`). Extremely scalable using standard CDNs, but has a latency penalty of **2 to 10 seconds**.</p>
+    </div>
+  </section>
+
+  <!-- NETWORK -->
+  <section class="chapter" id="network">
+    <div class="chapter-label" style="color:#2563eb">Lesson VII</div>
+    <h2>Transport Layer Fundamentals — TCP vs. UDP</h2>
+    <p class="chapter-subtitle">The reliable engine vs. the rapid datagram</p>
+    
+    <div class="story-content">
+      <p>Application protocols sit directly on top of the two transport giants: TCP and UDP.</p>
+      
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>TCP (Transmission Control Protocol)</th><th>UDP (User Datagram Protocol)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Connection</strong></td><td>Connection-oriented (Requires 3-way handshake)</td><td>Connectionless (Fire and forget)</td></tr>
+            <tr><td><strong>Reliability</strong></td><td>100% Guaranteed (Retries lost packets)</td><td>Unreliable (Packets can be lost/dropped)</td></tr>
+            <tr><td><strong>Ordering</strong></td><td>Guaranteed sequence order</td><td>No sequence guarantees</td></tr>
+            <tr><td><strong>Flow Control</strong></td><td>Yes (Throttles sender if receiver is slow)</td><td>No (Sends as fast as possible)</td></tr>
+            <tr><td><strong>Use Case</strong></td><td>HTTP, SSH, Databases, Files, Email</td><td>Gaming, Voice, DNS, WebRTC, Video streams</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKBONE -->
+  <section class="chapter" id="backbone">
+    <div class="chapter-label" style="color:#2563eb">Lesson VIII</div>
+    <h2>Internet Backbone — DNS &amp; BGP</h2>
+    <p class="chapter-subtitle">Addressing and routing the global web</p>
+    
+    <div class="story-content">
+      <p>How does the internet actualize routing? Two fundamental protocols act as the atlas and map:</p>
+      <ul>
+        <li><strong>DNS (Domain Name System):</strong> Resolves human-readable domain names (`google.com`) to computer-readable IP addresses (`142.250.190.46`). It functions as a hierarchical, globally cached distributed database.</li>
+        <li><strong>BGP (Border Gateway Protocol):</strong> The routing protocol of the internet backbone. It coordinates pathways between massive autonomous network systems (ISPs, Google, AWS), continually mapping the shortest, most efficient route for packets to travel globally.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PLAYBOOK COMPARISON -->
+  <section class="chapter" id="playbook">
+    <div class="chapter-label" style="color:#2563eb">Lesson IX</div>
+    <h2>The Protocols Playbook Comparison</h2>
+    <p class="chapter-subtitle">Quick-reference architectural guide</p>
+    
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Protocol</th><th>Transport</th><th>Format</th><th>Connection Type</th><th>Typical Latency</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td><strong>HTTP/1.1</strong></td><td>TCP</td><td>Textual</td><td>Stateless Request-Response</td><td>High</td><td>Static web assets, basic APIs</td></tr>
+          <tr><td><strong>HTTP/3</strong></td><td>UDP (QUIC)</td><td>Binary</td><td>Stateless Request-Response</td><td>Medium</td><td>Modern fast web, mobile API calls</td></tr>
+          <tr><td><strong>WebSocket</strong></td><td>TCP</td><td>Text/Binary</td><td>Persistent Full-Duplex</td><td>Very Low</td><td>Chat, multiplayer games</td></tr>
+          <tr><td><strong>SSE</strong></td><td>TCP</td><td>Plain Text</td><td>Persistent Server-Push</td><td>Low</td><td>Notifications, Stock ticker, LLM stream</td></tr>
+          <tr><td><strong>gRPC</strong></td><td>TCP (HTTP/2)</td><td>Binary (Proto)</td><td>Multiplexed RPC / Streams</td><td>Very Low</td><td>High-speed microservices, internal data</td></tr>
+          <tr><td><strong>MQTT</strong></td><td>TCP</td><td>Binary</td><td>Pub-Sub Broker Broker</td><td>Low</td><td>IoT Sensors, Smart home controls</td></tr>
+          <tr><td><strong>WebRTC</strong></td><td>UDP</td><td>Binary</td><td>Peer-to-Peer Stream</td><td>Ultra Low</td><td>Video conferencing, remote robotics</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library</a>
+      <a href="book-8-protocols.html" class="book-nav-link">VIII-A · Hardware</a>
+      <a href="book-8-app-protocols.html" class="book-nav-link current">VIII-B · Application</a>
+      <a href="book-9-databases.html" class="book-nav-link">IX · Databases</a>
+    </div>
+    <p class="footer-credit">"The machines talk over copper. The apps talk over protocols. Master both, and you build the world."</p>
+  </footer>
+</main>
+
+<script>
+  // Reading progress scroll listener
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => { 
+    const h = document.documentElement.scrollHeight - window.innerHeight; 
+    bar.style.width = (window.scrollY / h * 100) + '%'; 
+  });
+  
+  // TOC toggle
+  const toggle = document.getElementById('tocToggle'), sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => { 
+    toggle.classList.toggle('open'); 
+    sidebar.classList.toggle('open'); 
+  });
+  
+  const io = new IntersectionObserver((e) => { 
+    e.forEach(en => { 
+      if (en.isIntersecting) { 
+        document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active')); 
+        const a = document.querySelector(`.toc-item[href="#${en.target.id}"]`); 
+        if (a) a.classList.add('active'); 
+      } 
+    }); 
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(s => io.observe(s));
+
+  // --- Handshake Simulator Logic ---
+  const simData = {
+    tcp: {
+      steps: 3,
+      status: [
+        "Raw TCP ready to connect. Click 'Next Step' to initiate...",
+        "<strong>Step 1 (SYN)</strong>: Client sends a SYN (Synchronize) packet to the server with a random sequence number X. This tells the server: <em>'I want to open a connection with you.'</em>",
+        "<strong>Step 2 (SYN-ACK)</strong>: Server receives SYN and responds with SYN-ACK. It acknowledges the client's sequence (X+1) and sends its own sequence Y. Server: <em>'I hear you, let's connect!'</em>",
+        "<strong>Step 3 (ACK)</strong>: Client receives SYN-ACK and sends a final ACK (Acknowledge) packet. Both sequence metrics are synced. <strong>TCP Connection established!</strong>"
+      ]
+    },
+    tls: {
+      steps: 3,
+      status: [
+        "TCP established. Security handshake ready to negotiate TLS 1.3...",
+        "<strong>Step 1 (ClientHello)</strong>: Client sends supported cipher suites and a key share (using Diffie-Hellman). Attacker can see this, but it reveals no secrets.",
+        "<strong>Step 2 (ServerHello)</strong>: Server replies, choosing the strongest cipher suite and sending its own key share, along with its CA certificate and a digital signature. Both parties now compute a shared symmetric session key *locally* without ever transmitting it over the wire!",
+        "<strong>Step 3 (Finished)</strong>: Client validates the server's certificate. Both send encrypted confirmation messages. <strong>TLS 1.3 session is active and 100% encrypted!</strong>"
+      ]
+    },
+    ws: {
+      steps: 2,
+      status: [
+        "WebSockets require an upgrade handshake. Ready to upgrade standard HTTP connection...",
+        "<strong>Step 1 (Upgrade Request)</strong>: Client sends a standard HTTP GET request with upgrade headers: <br><code>Upgrade: websocket</code><br><code>Connection: Upgrade</code><br><code>Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==</code>",
+        "<strong>Step 2 (Upgrade Response)</strong>: Server agrees and responds with code <code>101 Switching Protocols</code> and matching headers. <strong>HTTP upgraded! Connection is now a persistent, bi-directional, full-duplex TCP tunnel.</strong>"
+      ]
+    }
+  };
+
+  let currSim = 'tcp';
+  let currStep = 0;
+
+  function updateSimView() {
+    const data = simData[currSim];
+    const view = document.getElementById(`sim-${currSim}`);
+    const statusEl = document.getElementById(`${currSim}-status`);
+    
+    // Reset all steps visibility in current playground
+    view.querySelectorAll('.sim-arrow').forEach(arr => arr.classList.remove('active'));
+    
+    // Activate current steps
+    for (let i = 1; i <= currStep; i++) {
+      const stepEl = view.querySelector(`.sim-arrow[data-step="${i}"]`);
+      if (stepEl) stepEl.classList.add('active');
+    }
+    
+    statusEl.innerHTML = data.status[currStep];
+    
+    // Enable/disable buttons
+    document.getElementById('btnPrev').disabled = (currStep === 0);
+    document.getElementById('btnNext').disabled = (currStep === data.steps);
+  }
+
+  // Bind sim buttons
+  document.getElementById('btnNext').addEventListener('click', () => {
+    if (currStep < simData[currSim].steps) {
+      currStep++;
+      updateSimView();
+    }
+  });
+
+  document.getElementById('btnPrev').addEventListener('click', () => {
+    if (currStep > 0) {
+      currStep--;
+      updateSimView();
+    }
+  });
+
+  // Bind sim tabs
+  document.querySelectorAll('.sim-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sim-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.sim-view').forEach(v => v.classList.remove('active'));
+      
+      tab.classList.add('active');
+      currSim = tab.dataset.sim;
+      currStep = 0;
+      
+      document.getElementById(`sim-${currSim}`).classList.add('active');
+      updateSimView();
+    });
+  });
+
+  // --- Live Encoding Calculator Logic ---
+  const encInput = document.getElementById('encInput');
+  const jsonSize = document.getElementById('json-size');
+  const jsonOut = document.getElementById('json-out');
+  const b64Size = document.getElementById('b64-size');
+  const b64Out = document.getElementById('b64-out');
+  const protoSize = document.getElementById('proto-size');
+  const protoOut = document.getElementById('proto-out');
+
+  encInput.addEventListener('input', () => {
+    const val = encInput.value;
+    
+    // 1. JSON
+    const jsonString = JSON.stringify({ data: val });
+    const jsonBytes = new Blob([jsonString]).size;
+    jsonSize.textContent = `${jsonBytes} B`;
+    jsonOut.textContent = jsonString;
+    
+    // 2. Base64
+    if (val.length === 0) {
+      b64Size.textContent = "0 B";
+      b64Out.textContent = "-";
+      protoSize.textContent = "0 B";
+      protoOut.textContent = "00";
+      return;
+    }
+    
+    try {
+      const b64String = btoa(unescape(encodeURIComponent(val)));
+      const b64Bytes = new Blob([b64String]).size;
+      b64Size.textContent = `${b64Bytes} B`;
+      b64Out.textContent = b64String;
+    } catch(e) {
+      b64Size.textContent = "Error";
+      b64Out.textContent = "Unencodable characters";
+    }
+    
+    // 3. Protobuf (Mocked binary packing: tag ID + length indicator + raw utf-8 bytes)
+    const utf8Bytes = new Blob([val]).size;
+    const protoBytesCount = 1 + (utf8Bytes > 127 ? 2 : 1) + utf8Bytes; // Tag field (1 byte) + Varint length + actual payload bytes
+    protoSize.textContent = `${protoBytesCount} B`;
+    
+    // Hex string simulation
+    let hex = "0A " + protoBytesCount.toString(16).toUpperCase().padStart(2, '0') + " ";
+    for (let i = 0; i < Math.min(val.length, 10); i++) {
+      hex += val.charCodeAt(i).toString(16).toUpperCase().padStart(2, '0') + " ";
+    }
+    if (val.length > 10) hex += "...";
+    protoOut.textContent = hex;
+  });
+</script>
+</body>
+</html>
