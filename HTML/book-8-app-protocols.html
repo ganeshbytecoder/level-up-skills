@@ -139,6 +139,7 @@
   <div class="nav-split-badge">
     <a href="book-8-protocols.html" class="split-btn">Hardware (A)</a>
     <a href="book-8-app-protocols.html" class="split-btn active">Application (B)</a>
+    <a href="book-8-net-protocols.html" class="split-btn">Networking (C)</a>
   </div>
   <div class="nav-actions">
     <a href="book-8-protocols.html" class="nav-btn">← Book VIII-A</a>
@@ -146,19 +147,18 @@
 </nav>
 
 <button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
-<nav class="toc-sidebar" id="tocSidebar">
-  <div class="toc-header">🌐 Contents</div>
-  <a href="#prologue" class="toc-item">Prologue — The Software Layer</a>
-  <a href="#push" class="toc-item">I — Push Systems (WebSockets &amp; SSE)</a>
-  <a href="#encoding" class="toc-item">II — Encodings (Binary vs Text)</a>
-  <a href="#cryptography" class="toc-item">III — Cryptography &amp; TLS</a>
-  <a href="#rpc" class="toc-item">IV — High-Performance gRPC</a>
-  <a href="#iot" class="toc-item">V — Low-Power IoT (MQTT)</a>
-  <a href="#streaming" class="toc-item">VI — Media Streaming</a>
-  <a href="#network" class="toc-item">VII — Transport Layers</a>
-  <a href="#backbone" class="toc-item">VIII — Internet Backbone</a>
-  <a href="#playbook" class="toc-item">IX — Playbook Comparison</a>
-</nav>
+  <nav class="toc-sidebar" id="tocSidebar">
+    <div class="toc-header">🌐 Contents</div>
+    <a href="#prologue" class="toc-item">Prologue — The Software Layer</a>
+    <a href="#push" class="toc-item">I — Push Systems</a>
+    <a href="#encoding" class="toc-item">II — Encodings (Binary vs Text)</a>
+    <a href="#cryptography" class="toc-item">III — Cryptography &amp; TLS</a>
+    <a href="#rpc" class="toc-item">IV — High-Performance gRPC</a>
+    <a href="#iot" class="toc-item">V — Low-Power IoT (MQTT)</a>
+    <a href="#streaming" class="toc-item">VI — Media Streaming</a>
+    <a href="#network" class="toc-item">VII — Transport Layer (TCP/UDP)</a>
+    <a href="#playbook" class="toc-item">VIII — Playbook Comparison</a>
+  </nav>
 
 <main class="book-main">
   <header class="book-hero" style="--book-color:#2563eb">
@@ -455,12 +455,13 @@ service UserService {
   <!-- NETWORK -->
   <section class="chapter" id="network">
     <div class="chapter-label" style="color:#2563eb">Lesson VII</div>
-    <h2>Transport Layer Fundamentals — TCP vs. UDP</h2>
-    <p class="chapter-subtitle">The reliable engine vs. the rapid datagram</p>
+    <h2>Transport Layer Protocols — TCP vs. UDP</h2>
+    <p class="chapter-subtitle">Reliable ordered flows vs. fire-and-forget speed ciphers</p>
     
     <div class="story-content">
-      <p>Application protocols sit directly on top of the two transport giants: TCP and UDP.</p>
-      
+      <p>Before application layer data (like HTTP, WebSocket payloads, or Protobuf frames) can be processed by software, they must travel across physical and logical subnets. The **Transport Layer (Layer 4)** governs how this raw data is organized into packets and delivered between specific software sockets.</p>
+      <p>Almost all application-level traffic relies on the trade-offs of two fundamental transport protocols:</p>
+
       <div class="table-wrap">
         <table>
           <thead><tr><th>Feature</th><th>TCP (Transmission Control Protocol)</th><th>UDP (User Datagram Protocol)</th></tr></thead>
@@ -468,32 +469,37 @@ service UserService {
             <tr><td><strong>Connection</strong></td><td>Connection-oriented (Requires 3-way handshake)</td><td>Connectionless (Fire and forget)</td></tr>
             <tr><td><strong>Reliability</strong></td><td>100% Guaranteed (Retries lost packets)</td><td>Unreliable (Packets can be lost/dropped)</td></tr>
             <tr><td><strong>Ordering</strong></td><td>Guaranteed sequence order</td><td>No sequence guarantees</td></tr>
-            <tr><td><strong>Flow Control</strong></td><td>Yes (Throttles sender if receiver is slow)</td><td>No (Sends as fast as possible)</td></tr>
-            <tr><td><strong>Use Case</strong></td><td>HTTP, SSH, Databases, Files, Email</td><td>Gaming, Voice, DNS, WebRTC, Video streams</td></tr>
+            <tr><td><strong>Flow &amp; Congestion</strong></td><td>Yes (Throttles sender dynamically)</td><td>No (Sends as fast as possible)</td></tr>
+            <tr><td><strong>Use Case</strong></td><td>HTTP/1.1, HTTP/2, gRPC, SSH, Databases, Files</td><td>HTTP/3 (QUIC), DNS, WebRTC, RTSP Video</td></tr>
           </tbody>
         </table>
       </div>
-    </div>
-  </section>
 
-  <!-- BACKBONE -->
-  <section class="chapter" id="backbone">
-    <div class="chapter-label" style="color:#2563eb">Lesson VIII</div>
-    <h2>Internet Backbone — DNS &amp; BGP</h2>
-    <p class="chapter-subtitle">Addressing and routing the global web</p>
-    
-    <div class="story-content">
-      <p>How does the internet actualize routing? Two fundamental protocols act as the atlas and map:</p>
-      <ul>
-        <li><strong>DNS (Domain Name System):</strong> Resolves human-readable domain names (`google.com`) to computer-readable IP addresses (`142.250.190.46`). It functions as a hierarchical, globally cached distributed database.</li>
-        <li><strong>BGP (Border Gateway Protocol):</strong> The routing protocol of the internet backbone. It coordinates pathways between massive autonomous network systems (ISPs, Google, AWS), continually mapping the shortest, most efficient route for packets to travel globally.</li>
-      </ul>
+      <h3>1. TCP: The Reliable Stream</h3>
+      <p>TCP views data as a continuous stream of bytes. To guarantee reliability, it uses a **sliding window** mechanism: the sender transmits a batch of packets, then waits for the receiver to respond with an Acknowledge (ACK). If a packet is lost in route, the sender detects the gap and re-transmits, preventing subsequent packets from resolving (**Head-of-Line Blocking**).</p>
+      
+      <h3>2. UDP: The High-Speed Datagram</h3>
+      <p>UDP views data as independent packets (datagrams). There is no handshake, no session management, no ACK validation, and no ordering check. It streams packets at maximum speed, relying on the application layer to manage gaps or packet duplication.</p>
+    </div>
+
+    <!-- Premium Callout to Book VIII-C -->
+    <div class="callout" style="border-left-color:#14b8a6; background: rgba(20, 184, 166, 0.04); margin-top: 2rem;">
+      <div class="callout-header">
+        <span class="callout-icon">🌐</span>
+        <span class="callout-title" style="color:#14b8a6; font-weight:700;">Infrastructure &amp; Routing Companion Volume</span>
+      </div>
+      <div class="callout-body" style="font-family: var(--font-story); font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary);">
+        <p style="margin: 0 0 1rem 0;">Are you looking to master physical subnets, dotted-decimal binary conversions, CIDR usable host math, default gateway NAT structures, and border gateway backbone routing (DNS &amp; BGP)?</p>
+        <a href="book-8-net-protocols.html" class="nav-btn" style="display: inline-block; background: #14b8a6; color: #000; padding: 0.5rem 1.2rem; border-radius: 100px; text-decoration: none; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s;">
+          Explore Book VIII-C · Networking &amp; Routing →
+        </a>
+      </div>
     </div>
   </section>
 
   <!-- PLAYBOOK COMPARISON -->
   <section class="chapter" id="playbook">
-    <div class="chapter-label" style="color:#2563eb">Lesson IX</div>
+    <div class="chapter-label" style="color:#2563eb">Lesson VIII</div>
     <h2>The Protocols Playbook Comparison</h2>
     <p class="chapter-subtitle">Quick-reference architectural guide</p>
     
@@ -518,6 +524,7 @@ service UserService {
       <a href="library.html" class="book-nav-link">🏛️ Library</a>
       <a href="book-8-protocols.html" class="book-nav-link">VIII-A · Hardware</a>
       <a href="book-8-app-protocols.html" class="book-nav-link current">VIII-B · Application</a>
+      <a href="book-8-net-protocols.html" class="book-nav-link">VIII-C · Networking</a>
       <a href="book-9-databases.html" class="book-nav-link">IX · Databases</a>
     </div>
     <p class="footer-credit">"The machines talk over copper. The apps talk over protocols. Master both, and you build the world."</p>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book VIII-C · Networking &amp; Routing Protocols — The Engineer's Library</title>
+  <meta name="description" content="IPv4/IPv6, subnet masking, CIDR prefix calculations, default gateways, NAT/PAT translation, ARP, DHCP, ICMP, DNS, and BGP protocols decoded.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --book-color: #14b8a6;
+      --book-color-glow: rgba(20, 184, 166, 0.15);
+    }
+    
+    .nav-split-badge {
+      display: flex; gap: 0.5rem; margin-left: 1rem; background: var(--bg-card); 
+      border: 1px solid var(--border-subtle); padding: 0.25rem 0.5rem; border-radius: 100px;
+    }
+    .split-btn {
+      padding: 0.2rem 0.6rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; border-radius: 100px; text-decoration: none; color: var(--text-muted);
+    }
+    .split-btn.active {
+      background: var(--book-color); color: #fff;
+    }
+    .split-btn:hover:not(.active) {
+      color: var(--text-primary); background: var(--bg-elevated);
+    }
+
+    /* Subnet Calculator styles */
+    .subnet-calculator-container {
+      background: var(--bg-card); border: 1px solid rgba(20, 184, 166, 0.2);
+      border-radius: var(--radius-md); padding: 2rem; margin: 2rem 0;
+    }
+    .calc-inputs-row {
+      display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .calc-input-group {
+      flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .calc-input-group label {
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600;
+    }
+    .calc-text-input {
+      background: #070714; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+      padding: 0.6rem; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; outline: none;
+    }
+    .calc-text-input:focus { border-color: var(--book-color); }
+    .calc-select {
+      background: #070714; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
+      padding: 0.6rem; color: var(--text-primary); font-family: var(--font-mono); font-size: 0.9rem; outline: none;
+      cursor: pointer;
+    }
+    .calc-select:focus { border-color: var(--book-color); }
+
+    .calc-results-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 2rem;
+    }
+    .calc-res-card {
+      background: var(--bg-deep); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.25rem;
+    }
+    .calc-res-label {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.4rem; display: block;
+    }
+    .calc-res-val {
+      font-family: var(--font-mono); font-size: 1.15rem; color: var(--text-primary); font-weight: 600;
+    }
+    .calc-res-bin {
+      font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; word-break: break-all;
+    }
+
+    .calc-demo-box {
+      background: rgba(20, 184, 166, 0.04); border: 1px dashed rgba(20, 184, 166, 0.2);
+      border-radius: var(--radius-sm); padding: 1.25rem; font-family: var(--font-mono); font-size: 0.82rem;
+    }
+    .demo-line { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .demo-line:last-child { border: none; }
+    .demo-lbl { color: var(--text-secondary); }
+    .demo-val { color: var(--text-primary); }
+    .demo-val.accent { color: var(--book-color); font-weight: 600; }
+  </style>
+</head>
+<body>
+<div id="reading-progress"></div>
+<nav class="site-nav">
+  <a href="library.html" class="nav-home"><span class="icon">⬅</span> Library</a>
+  <div class="nav-title">Networking &amp; Routing Protocols</div>
+  <div class="nav-split-badge">
+    <a href="book-8-protocols.html" class="split-btn">Hardware (A)</a>
+    <a href="book-8-app-protocols.html" class="split-btn">Application (B)</a>
+    <a href="book-8-net-protocols.html" class="split-btn active">Networking (C)</a>
+  </div>
+  <div class="nav-actions">
+    <a href="book-8-app-protocols.html" class="nav-btn">← Book VIII-B</a>
+  </div>
+</nav>
+
+<button class="toc-toggle" id="tocToggle"><span></span><span></span><span></span></button>
+<nav class="toc-sidebar" id="tocSidebar">
+  <div class="toc-header">🌐 Contents</div>
+  <a href="#prologue" class="toc-item">Prologue — The Connection Layer</a>
+  <a href="#ip" class="toc-item">I — IP Addressing Mechanics</a>
+  <a href="#masking" class="toc-item">II — Subnets &amp; Masking Math</a>
+  <a href="#calculator" class="toc-item">III — Subnet Calculator</a>
+  <a href="#gateway" class="toc-item">IV — Gateways &amp; Routers</a>
+  <a href="#helpers" class="toc-item">V — DHCP, ARP &amp; ICMP</a>
+  <a href="#backbone" class="toc-item">VI — DNS &amp; BGP backbone</a>
+</nav>
+
+<main class="book-main">
+  <header class="book-hero" style="--book-color:#14b8a6">
+    <div class="book-number" style="color:#14b8a6">Book VIII-C</div>
+    <h1>Networking &amp; Routing Protocols</h1>
+    <p class="subtitle">Decoding the logical pathways of the global internet — subnet dividers, gateways, bitwise IP masking, and border routing.</p>
+    <div class="meta">
+      <span class="meta-badge"><span class="dot" style="background:#14b8a6"></span> IPv4 &amp; IPv6 octets</span>
+      <span class="meta-badge"><span class="dot" style="background:#14b8a6"></span> Subnet Masking, CIDR</span>
+      <span class="meta-badge"><span class="dot" style="background:#14b8a6"></span> NAT, Gateway, DNS, BGP</span>
+    </div>
+  </header>
+
+  <div class="epigraph" style="border-left-color:#14b8a6">
+    "Hardware links single silicon boards. Application protocols form the dialogue between services. But networking protocols map the global avenues, build local dividers, and route packets securely across a billion nodes."
+  </div>
+
+  <!-- PROLOGUE -->
+  <section class="chapter" id="prologue">
+    <div class="chapter-label" style="color:#14b8a6">Prologue</div>
+    <h2>The Infrastructure Mapping</h2>
+    
+    <div class="story-content">
+      <p>Before application layer data (like HTTP, WebSockets, or video buffers) can be negotiated, packets must travel along physical and logical pathways. This companion volume serves as a complete textbook guide from basic computer networking up to cloud gateways and global internet border routing.</p>
+      <p>Every transaction, whether an internal VPC communication or a public DNS request, relies on three infrastructure layers:</p>
+      <ul>
+        <li><strong>Logical Addressing (IP):</strong> Unique identifiers mapped in 32-bit (IPv4) or 128-bit (IPv6) space to locate nodes globally.</li>
+        <li><strong>Local Divider Systems (Subnetting):</strong> Breaking large networks down into secure, low-latency, and modular local sub-networks.</li>
+        <li><strong>Pathways &amp; Translation (Gateways/NAT):</strong> The doorways allowing local hosts to communicate safely with remote web servers.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- LESSON I: IP ADDRESSING -->
+  <section class="chapter" id="ip">
+    <div class="chapter-label" style="color:#14b8a6">Lesson I</div>
+    <h2>IP Addressing — The Global Postal Code</h2>
+    <p class="chapter-subtitle">IPv4 octets, binary representations, and IPv6hex formats</p>
+    
+    <div class="story-content">
+      <p>An IP (Internet Protocol) address is a logical label assigned to every device in a network. It operates at **Layer 3 (Network Layer)** of the OSI model.</p>
+      
+      <h3>1. IPv4 Architecture</h3>
+      <p>A 32-bit address represented in dotted-decimal format as four decimal numbers (octets) separated by dots (e.g., <code>192.168.1.1</code>). Each octet represents exactly 8 binary bits, ranging from 0 to 255.</p>
+      <p><strong>Binary Byte Mapping:</strong> The IP address <code>192.168.1.50</code> translates to the browser and NIC as:<br>
+        <code>192</code> &rarr; <code>11000000</code><br>
+        <code>168</code> &rarr; <code>10101000</code><br>
+        <code>1</code> &rarr; <code>00000001</code><br>
+        <code>50</code> &rarr; <code>00110010</code><br>
+        <strong>Full 32-bit stream:</strong> <code>11000000.10101000.00000001.00110010</code>
+      </p>
+
+      <div class="callout" style="border-left-color:#14b8a6">
+        <div class="callout-header"><span class="callout-icon">🔒</span><span class="callout-title" style="color:#14b8a6">Private IP Ranges (RFC 1918)</span></div>
+        <div class="callout-body">
+          To prevent running out of addresses, specific ranges are designated as <strong>Private IP Networks</strong>. These are used inside homes, companies, and cloud VPC subnets, and are non-routable on the public web:<br>
+          • <strong>Class A Range:</strong> <code>10.0.0.0</code> to <code>10.255.255.255</code><br>
+          • <strong>Class B Range:</strong> <code>172.16.0.0</code> to <code>172.31.255.255</code><br>
+          • <strong>Class C Range:</strong> <code>192.168.0.0</code> to <code>192.168.255.255</code><br>
+          • <strong>Loopback:</strong> <code>127.0.0.1</code> represents the local machine itself (localhost).
+        </div>
+      </div>
+
+      <h3>2. IPv6 Hexadecimal</h3>
+      <p>With only 4.3 billion possible IPv4 addresses, the global network quickly faced exhaustion. **IPv6** was introduced as a 128-bit address written in hexadecimal blocks separated by colons (e.g., <code>2001:0db8:85a3:0000:0000:8a2e:0370:7334</code>). This allows for 340 undecillion addresses—enough to assign an IP to every atom on Earth.</p>
+    </div>
+  </section>
+
+  <!-- LESSON II: SUBNETTING & MASKING -->
+  <section class="chapter" id="masking">
+    <div class="chapter-label" style="color:#14b8a6">Lesson II</div>
+    <h2>Subnetting &amp; Masking — The Mathematical Shield</h2>
+    <p class="chapter-subtitle">Network segment isolation and bitwise AND calculations</p>
+    
+    <div class="story-content">
+      <p>A single physical network can contain thousands of devices, which creates extreme chatty traffic overhead. **Subnetting** is the process of mathematically splitting a single large network into smaller, isolated sub-networks.</p>
+      <p>A computer uses a **Subnet Mask** (a 32-bit filter of consecutive <code>1</code>s followed by <code>0</code>s) to determine which part of an IP address represents the **Network Identifier** and which part represents the individual **Host Identifier**.</p>
+
+      <div class="callout" style="border-left-color:var(--gold)">
+        <div class="callout-header"><span class="callout-icon">⚖️</span><span class="callout-title" style="color:var(--gold)">The Masking Mathematical Logic (Bitwise AND)</span></div>
+        <div class="callout-body">
+          When a computer wants to send data to an IP address, it performs a bitwise <strong>AND</strong> operation between the destination IP and its own Subnet Mask:<br>
+          • Host IP: <code>192.168.1.55</code> &rarr; <code>11000000.10101000.00000001.00110111</code><br>
+          • Subnet Mask: <code>255.255.255.0</code> &rarr; <code>11111111.11111111.11111111.00000000</code><br>
+          • <strong>Resulting Network ID:</strong> <code>192.168.1.0</code> &rarr; <code>11000000.10101000.00000001.00000000</code><br>
+          • <strong>Remaining Host ID:</strong> <code>.55</code> (the last 8 bits).
+        </div>
+      </div>
+
+      <h3>CIDR Notation (Classless Inter-Domain Routing)</h3>
+      <p>Historically, networks were divided into rigid, wasteful classes (A, B, C). Modern networks use **CIDR notation** (a flexible prefix slash format) to represent subnet masks, such as <code>/24</code>, <code>/16</code>, or <code>/8</code>.</p>
+      <p>The number after the slash indicates exactly **how many binary bits** in the mask are set to <code>1</code> (Network bits):</p>
+      
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>CIDR Prefix</th>
+              <th>Subnet Mask (Decimal)</th>
+              <th>Subnet Mask (Binary Bits)</th>
+              <th>Total Available IP Addresses</th>
+              <th>Usable Hosts (Formula: 2<sup>(32-N)</sup> - 2)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>/24</strong></td>
+              <td>255.255.255.0</td>
+              <td>11111111.11111111.11111111.00000000</td>
+              <td>256</td>
+              <td><strong>254 Usable Hosts</strong></td>
+            </tr>
+            <tr>
+              <td><strong>/16</strong></td>
+              <td>255.255.0.0</td>
+              <td>11111111.11111111.00000000.00000000</td>
+              <td>65,536</td>
+              <td><strong>65,534 Usable Hosts</strong></td>
+            </tr>
+            <tr>
+              <td><strong>/8</strong></td>
+              <td>255.0.0.0</td>
+              <td>11111111.00000000.00000000.00000000</td>
+              <td>16,777,216</td>
+              <td><strong>16,777,214 Usable Hosts</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">
+        *Note: In any subnet, we must subtract 2 addresses: the first IP (Network Address, e.g., <code>192.168.1.0</code>) and the last IP (Broadcast Address, e.g., <code>192.168.1.255</code>), which are reserved and cannot be assigned to endpoints.
+      </p>
+    </div>
+  </section>
+
+  <!-- CALCULATOR WIDGET -->
+  <section class="chapter" id="calculator">
+    <div class="chapter-label" style="color:#14b8a6">Lesson III</div>
+    <h2>Interactive Subnet Calculator</h2>
+    <p class="chapter-subtitle">Live CIDR calculation and bitwise parsing</p>
+    
+    <div class="story-content">
+      <p>Enter an IP address and select a CIDR prefix to watch how network boundaries and host spans resolve instantly.</p>
+    </div>
+
+    <!-- Interactive Subnet Calculator Widget -->
+    <div class="subnet-calculator-container">
+      <div class="calc-inputs-row">
+        <div class="calc-input-group">
+          <label for="calc-ip">IP Address</label>
+          <input type="text" class="calc-text-input" id="calc-ip" value="192.168.1.50">
+        </div>
+        <div class="calc-input-group">
+          <label for="calc-cidr">CIDR Prefix</label>
+          <select class="calc-select" id="calc-cidr">
+            <option value="8">/8 (Class A)</option>
+            <option value="12">/12</option>
+            <option value="16">/16 (Class B)</option>
+            <option value="20">/20</option>
+            <option value="22">/22</option>
+            <option value="23">/23</option>
+            <option value="24" selected>/24 (Class C)</option>
+            <option value="25">/25</option>
+            <option value="26">/26</option>
+            <option value="27">/27</option>
+            <option value="28">/28</option>
+            <option value="30">/30 (P2P)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="calc-results-grid">
+        <div class="calc-res-card">
+          <span class="calc-res-label">Subnet Mask</span>
+          <span class="calc-res-val" id="res-mask">255.255.255.0</span>
+          <div class="calc-res-bin" id="res-mask-bin">11111111.11111111.11111111.00000000</div>
+        </div>
+        <div class="calc-res-card">
+          <span class="calc-res-label">Network IP (Network ID)</span>
+          <span class="calc-res-val" id="res-net">192.168.1.0</span>
+          <div class="calc-res-bin" id="res-net-bin">11000000.10101000.00000001.00000000</div>
+        </div>
+        <div class="calc-res-card">
+          <span class="calc-res-label">Broadcast Address</span>
+          <span class="calc-res-val" id="res-broad">192.168.1.255</span>
+          <div class="calc-res-bin" id="res-broad-bin">11000000.10101000.00000001.11111111</div>
+        </div>
+        <div class="calc-res-card">
+          <span class="calc-res-label">Usable Host IP Range</span>
+          <span class="calc-res-val" id="res-range" style="font-size:0.95rem;">192.168.1.1 - 192.168.1.254</span>
+          <div class="calc-res-bin" id="res-total">Total: 254 usable hosts</div>
+        </div>
+      </div>
+
+      <div class="calc-demo-box">
+        <div class="demo-line">
+          <span class="demo-lbl">Bitwise AND Logic Result:</span>
+          <span class="demo-val" id="demo-logic">192.168.1.50 AND 255.255.255.0</span>
+        </div>
+        <div class="demo-line">
+          <span class="demo-lbl">Subnet ID:</span>
+          <span class="demo-val accent" id="demo-net-id">192.168.1.0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LESSON IV: GATEWAYS & ROUTING -->
+  <section class="chapter" id="gateway">
+    <div class="chapter-label" style="color:#14b8a6">Lesson IV</div>
+    <h2>Default Gateways &amp; Routers — The Exit Portals</h2>
+    <p class="chapter-subtitle">Network isolation exit points and address translations (NAT)</p>
+    
+    <div class="story-content">
+      <p>If your computer is <code>192.168.1.50</code> with subnet <code>255.255.255.0</code>, and you want to send a packet to another device inside your local network (e.g., <code>192.168.1.100</code>):</p>
+      <ol>
+        <li>Your machine applies the bitwise mask check and sees the target is in the **same network** (<code>192.168.1.0</code>).</li>
+        <li>It sends the packet **directly** over the switch using its local hardware MAC address.</li>
+      </ol>
+      <p>But what if you want to request data from a public IP like Google (<code>142.250.190.46</code>)?</p>
+      <ol>
+        <li>The mask check reveals Google is on a **remote network**.</li>
+        <li>Your machine immediately forwards the packet to the **Default Gateway** (your router's internal IP address, e.g., <code>192.168.1.1</code>).</li>
+        <li>The router uses **NAT (Network Address Translation)** to swap your private IP for its single public IP, forwards the request across the internet backbone, and routes the response back to your specific port.</li>
+      </ol>
+
+      <p><strong>Mental Model:</strong> A subnet is a room. The Default Gateway is the exit door. If you want to talk to someone in the same room, you talk directly. If you want to talk to someone in another building, you must pass your message through the exit door.</p>
+
+      <div class="callout" style="border-left-color:#14b8a6">
+        <div class="callout-header"><span class="callout-icon">🛰️</span><span class="callout-title" style="color:#14b8a6">NAT / PAT Mechanics</span></div>
+        <div class="callout-body">
+          <strong>Network Address Translation (NAT)</strong> and <strong>Port Address Translation (PAT)</strong> let home and office networks use hundreds of private IPs internally while sharing a single public IP externally. The router maintains a dynamic **translation table** mapping private sockets (e.g., <code>192.168.1.50:5421</code>) to public router ports (e.g., <code>64.233.160.1:10050</code>).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LESSON V: DHCP, ARP & ICMP -->
+  <section class="chapter" id="helpers">
+    <div class="chapter-label" style="color:#14b8a6">Lesson V</div>
+    <h2>Helper Protocols — DHCP, ARP &amp; ICMP</h2>
+    <p class="chapter-subtitle">Dynamic allocation, Layer 2-3 bridging, and error reports</p>
+    
+    <div class="story-content">
+      <p>A network cannot operate on IP addresses alone. A collection of essential helper protocols works quietly behind the scenes to keep data flowing:</p>
+      
+      <h3>1. DHCP (Dynamic Host Configuration Protocol)</h3>
+      <p>When you connect to Wi-Fi, your computer doesn't know its IP. It sends a broadcast **DHCP Discover** request. The local DHCP server responds with a leased IP, subnet mask, default gateway, and DNS servers. This is called the **DORA** handshake:</p>
+      <ul>
+        <li><strong>Discover:</strong> Client broadcasts to locate DHCP servers.</li>
+        <li><strong>Offer:</strong> Server offers an IP configuration lease.</li>
+        <li><strong>Request:</strong> Client accepts the offered configuration.</li>
+        <li><strong>Acknowledge:</strong> Server confirms the lease is active.</li>
+      </ul>
+
+      <h3>2. ARP (Address Resolution Protocol)</h3>
+      <p>IP addresses are logical layer structures, but switches and cards only understand physical Layer 2 **MAC addresses** (e.g., <code>00:1A:2B:3C:4D:5E</code>). When your computer wants to talk to local IP <code>192.168.1.1</code>, it broadcasts: *"Who has IP 192.168.1.1? Tell me your MAC!"* The target responds, and your computer caches the hardware MAC locally.</p>
+
+      <h3>3. ICMP (Internet Control Message Protocol)</h3>
+      <p>A Layer 3 feedback channel designed to report routing errors, hops, and outages. It powers two vital diagnostic utilities:</p>
+      <ul>
+        <li><strong>Ping:</strong> Sends echo requests to a target IP to calculate round-trip latency.</li>
+        <li><strong>Traceroute:</strong> Increments packet TTL (Time to Live) counts to force routers along the path to return ICMP TTL-Expired errors, mapping every single hop across the internet.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- LESSON VI: DNS & BGP -->
+  <section class="chapter" id="backbone">
+    <div class="chapter-label" style="color:#14b8a6">Lesson VI</div>
+    <h2>Internet Backbone — DNS &amp; BGP Routing</h2>
+    <p class="chapter-subtitle">Global domain translation and Autonomous System routing paths</p>
+    
+    <div class="story-content">
+      <p>The global internet is a massive collection of independent networks called **Autonomous Systems (AS)** (run by ISPs, tech companies, and universities). Two core backbone protocols bind them together:</p>
+      
+      <h3>1. DNS (Domain Name System)</h3>
+      <p>DNS is the distributed database that translates human-readable domain names (<code>google.com</code>) to computer IP addresses. It functions hierarchically:</p>
+      <ol>
+        <li><strong>Local Cache / Resolver:</strong> Checks if the domain has been requested recently. If not, forwards to the Root Server.</li>
+        <li><strong>Root Server (<code>.</code>):</strong> Directs the resolver to the appropriate TLD (Top-Level Domain) server.</li>
+        <li><strong>TLD Server (e.g., <code>.com</code>, <code>.org</code>):</strong> Points to the Authoritative Name Server of the specific domain.</li>
+        <li><strong>Authoritative Name Server:</strong> Provides the final, binding IP record.</li>
+      </ol>
+
+      <h3>2. BGP (Border Gateway Protocol)</h3>
+      <p>BGP is the routing protocol of the internet backbone. Unlike local routing protocols that measure simple node counts, BGP determines paths across the global internet. It continually negotiates policies, pathways, and network health between Autonomous Systems, ensuring packets take the most optimal path globally.</p>
+    </div>
+  </section>
+
+  <footer class="book-footer">
+    <div class="nav-books">
+      <a href="library.html" class="book-nav-link">🏛️ Library</a>
+      <a href="book-8-protocols.html" class="book-nav-link">VIII-A · Hardware</a>
+      <a href="book-8-app-protocols.html" class="book-nav-link">VIII-B · Application</a>
+      <a href="book-8-net-protocols.html" class="book-nav-link current">VIII-C · Networking</a>
+      <a href="book-9-databases.html" class="book-nav-link">IX · Databases</a>
+    </div>
+    <p class="footer-credit">"The wires route voltage. The packets route bytes. The backbone routes networks. Master the stack, master the web."</p>
+  </footer>
+</main>
+
+<script>
+  // Reading progress scroll listener
+  const bar = document.getElementById('reading-progress');
+  window.addEventListener('scroll', () => { 
+    const h = document.documentElement.scrollHeight - window.innerHeight; 
+    bar.style.width = (window.scrollY / h * 100) + '%'; 
+  });
+  
+  // TOC toggle
+  const toggle = document.getElementById('tocToggle'), sidebar = document.getElementById('tocSidebar');
+  toggle.addEventListener('click', () => { 
+    toggle.classList.toggle('open'); 
+    sidebar.classList.toggle('open'); 
+  });
+  
+  const io = new IntersectionObserver((e) => { 
+    e.forEach(en => { 
+      if (en.isIntersecting) { 
+        document.querySelectorAll('.toc-item').forEach(t => t.classList.remove('active')); 
+        const a = document.querySelector(`.toc-item[href="#${en.target.id}"]`); 
+        if (a) a.classList.add('active'); 
+      } 
+    }); 
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('[id]').forEach(s => io.observe(s));
+
+  // --- Subnet Calculator Logic ---
+  const ipInput = document.getElementById('calc-ip');
+  const cidrSelect = document.getElementById('calc-cidr');
+
+  function calculateSubnet() {
+    let ipStr = ipInput.value.trim();
+    let cidrVal = parseInt(cidrSelect.value);
+
+    // Validate IP address format
+    const ipReg = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    if (!ipReg.test(ipStr)) {
+      ipInput.style.borderColor = 'var(--red)';
+      return;
+    }
+    ipInput.style.borderColor = '';
+
+    const parts = ipStr.split('.').map(Number);
+    if (parts.some(p => p > 255)) {
+      ipInput.style.borderColor = 'var(--red)';
+      return;
+    }
+
+    // Convert IP parts to 32-bit integer
+    let ipInt = (parts[0] << 24) >>> 0;
+    ipInt = (ipInt | (parts[1] << 16)) >>> 0;
+    ipInt = (ipInt | (parts[2] << 8)) >>> 0;
+    ipInt = (ipInt | parts[3]) >>> 0;
+
+    // Create 32-bit subnet mask integer
+    let maskInt = 0;
+    if (cidrVal > 0) {
+      maskInt = (0xFFFFFFFF << (32 - cidrVal)) >>> 0;
+    }
+
+    // Calculate Network ID & Broadcast Address
+    let netInt = (ipInt & maskInt) >>> 0;
+    let broadInt = (netInt | ~maskInt) >>> 0;
+
+    // Format decimal IP outputs
+    const intToIp = (val) => {
+      return [
+        (val >>> 24) & 255,
+        (val >>> 16) & 255,
+        (val >>> 8) & 255,
+        val & 255
+      ].join('.');
+    };
+
+    const intToBinStr = (val) => {
+      const pad = (s) => s.padStart(8, '0');
+      return [
+        pad(((val >>> 24) & 255).toString(2)),
+        pad(((val >>> 16) & 255).toString(2)),
+        pad(((val >>> 8) & 255).toString(2)),
+        pad((val & 255).toString(2))
+      ].join('.');
+    };
+
+    // Calculate host constraints
+    let totalAddresses = Math.pow(2, 32 - cidrVal);
+    let usableHosts = totalAddresses - 2;
+    let firstUsable = netInt + 1;
+    let lastUsable = broadInt - 1;
+
+    if (cidrVal >= 31) {
+      // P2P or special link exceptions
+      usableHosts = totalAddresses;
+      firstUsable = netInt;
+      lastUsable = broadInt;
+    }
+
+    // Update UI elements
+    document.getElementById('res-mask').textContent = intToIp(maskInt);
+    document.getElementById('res-mask-bin').textContent = intToBinStr(maskInt);
+
+    document.getElementById('res-net').textContent = intToIp(netInt);
+    document.getElementById('res-net-bin').textContent = intToBinStr(netInt);
+
+    document.getElementById('res-broad').textContent = intToIp(broadInt);
+    document.getElementById('res-broad-bin').textContent = intToBinStr(broadInt);
+
+    if (cidrVal >= 31) {
+      document.getElementById('res-range').textContent = `${intToIp(firstUsable)} - ${intToIp(lastUsable)}`;
+      document.getElementById('res-total').textContent = `Total: ${usableHosts} Link IP addresses`;
+    } else {
+      document.getElementById('res-range').textContent = `${intToIp(firstUsable)} - ${intToIp(lastUsable)}`;
+      document.getElementById('res-total').textContent = `Total: ${usableHosts} usable host IPs`;
+    }
+
+    document.getElementById('demo-logic').textContent = `${ipStr} AND ${intToIp(maskInt)}`;
+    document.getElementById('demo-net-id').textContent = intToIp(netInt);
+  }
+
+  // Bind calculation listeners
+  ipInput.addEventListener('input', calculateSubnet);
+  cidrSelect.addEventListener('change', calculateSubnet);
+
+  // Initial calculation
+  calculateSubnet();
+</script>
+</body>
+</html>

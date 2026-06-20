@@ -177,6 +177,95 @@
     .b10 .book-spine-num,.b10 .book-tag{color:#10b981;}
     .b10:hover{border-color:rgba(16,185,129,0.35);box-shadow:0 0 40px rgba(16,185,129,0.08);}
 
+    /* ── Trilogy Volume Selector Styles ── */
+    .volume-selector-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin: 1.2rem 0 0.5rem;
+    }
+    .volume-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-deep);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.8rem 1.2rem;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .volume-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .vl-a::before { background: radial-gradient(circle at 10% 50%, rgba(59, 130, 246, 0.1), transparent 50%); }
+    .vl-b::before { background: radial-gradient(circle at 10% 50%, rgba(37, 99, 235, 0.1), transparent 50%); }
+    .vl-c::before { background: radial-gradient(circle at 10% 50%, rgba(20, 184, 166, 0.1), transparent 50%); }
+    
+    .volume-link:hover {
+      transform: translateX(4px);
+      border-color: var(--vl-hover-border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .volume-link:hover::before {
+      opacity: 1;
+    }
+    .vl-a { --vl-hover-border: rgba(59, 130, 246, 0.4); }
+    .vl-b { --vl-hover-border: rgba(37, 99, 235, 0.4); }
+    .vl-c { --vl-hover-border: rgba(20, 184, 166, 0.4); }
+    
+    .vl-num {
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--vl-num-color);
+      background: var(--vl-num-bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      min-width: 55px;
+      text-align: center;
+    }
+    .vl-a .vl-num { --vl-num-color: #3b82f6; --vl-num-bg: rgba(59, 130, 246, 0.1); }
+    .vl-b .vl-num { --vl-num-color: #2563eb; --vl-num-bg: rgba(37, 99, 235, 0.1); }
+    .vl-c .vl-num { --vl-num-color: #14b8a6; --vl-num-bg: rgba(20, 184, 166, 0.1); }
+    
+    .vl-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .vl-title {
+      font-family: var(--font-story);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .vl-sub {
+      font-family: var(--font-ui);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+    .vl-arrow {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+    .volume-link:hover .vl-arrow {
+      color: var(--vl-arrow-hover-color);
+      transform: translateX(4px);
+    }
+    .vl-a { --vl-arrow-hover-color: #3b82f6; }
+    .vl-b { --vl-arrow-hover-color: #2563eb; }
+    .vl-c { --vl-arrow-hover-color: #14b8a6; }
+
     /* ── Characters Section ── */
     .characters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
     .char-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
@@ -206,7 +295,7 @@
     .study-list li::before{content:'→';color:var(--gold);flex-shrink:0;margin-top:0.05rem;}
 
     /* ── FAANG Section ── */
-    .faang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
+    .faang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;}
     .faang-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
       padding:1.25rem;border-left:3px solid var(--gold);}
     .faang-q{font-family:var(--font-ui);font-size:0.82rem;font-weight:600;color:var(--text-primary);
@@ -230,9 +319,652 @@
     .reveal{opacity:0;transform:translateY(24px);transition:all 0.7s cubic-bezier(0.4,0,0.2,1);}
     .reveal.visible{opacity:1;transform:translateY(0);}
 
+    /* ── Vocabulary Trainer Styles ── */
+    .vocab-trainer {
+      background: rgba(13, 13, 32, 0.45);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      margin-top: 2rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+    
+    .vocab-header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    
+    .vocab-title-desc {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .vocab-stats-summary {
+      display: flex;
+      gap: 2rem;
+      background: rgba(26, 26, 53, 0.4);
+      border: 1px solid var(--border-subtle);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-lg);
+      align-items: center;
+    }
+    
+    .vocab-stat-box {
+      text-align: center;
+    }
+    
+    .vocab-stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1.2;
+      display: block;
+      font-family: var(--font-story);
+    }
+    
+    .vocab-stat-lbl {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+    
+    .vocab-stat-divider {
+      width: 1px;
+      height: 35px;
+      background: var(--border-subtle);
+    }
+    
+    /* Progress Bar */
+    .vocab-progress-wrapper {
+      margin-bottom: 2.5rem;
+    }
+    
+    .vocab-progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      font-family: var(--font-ui);
+    }
+    
+    .vocab-progress-outer {
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: 100px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    
+    .vocab-progress-inner {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #f59e0b);
+      width: 0%;
+      border-radius: 100px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Daily Challenge Widget */
+    .daily-challenge-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(13, 13, 32, 0.8) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.15);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .daily-challenge-box::before {
+      content: '🔥';
+      position: absolute;
+      right: -20px;
+      top: -20px;
+      font-size: 8rem;
+      opacity: 0.03;
+      pointer-events: none;
+    }
+    
+    .challenge-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .challenge-title {
+      font-family: var(--font-story);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .streak-badge {
+      padding: 0.35rem 0.85rem;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--gold);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    .challenge-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      max-width: 700px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .challenge-controls {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .challenge-active-area {
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1.5rem;
+    }
+
+    .challenge-progress-mini {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .challenge-dots {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .challenge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+    }
+
+    .challenge-dot.active {
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      border-color: var(--gold);
+    }
+
+    .challenge-dot.completed {
+      background: #10b981;
+      border-color: #10b981;
+    }
+
+    .challenge-card-outer {
+      position: relative;
+      min-height: 180px;
+    }
+
+    .challenge-card-item {
+      background: rgba(26, 26, 53, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .challenge-card-item.active {
+      display: block;
+    }
+
+    .challenge-card-word-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .challenge-word-title {
+      font-family: var(--font-story);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .challenge-word-cat {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      background: rgba(245, 158, 11, 0.1);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .challenge-sentences {
+      margin-bottom: 1.5rem;
+    }
+
+    .challenge-sentence {
+      position: relative;
+      padding-left: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .challenge-sentence::before {
+      content: '“';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-size: 1.5rem;
+      top: -0.2rem;
+    }
+
+    .challenge-sentence::after {
+      content: '”';
+      color: var(--gold);
+      font-size: 1.5rem;
+    }
+
+    .challenge-action-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .challenge-speak-btn {
+      padding: 0.6rem 1.5rem;
+      background: #10b981;
+      color: #000;
+      border: none;
+      border-radius: 100px;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.3s ease;
+    }
+
+    .challenge-speak-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .challenge-speak-btn.practiced {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .challenge-nav-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .challenge-nav-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 50%;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .challenge-nav-btn:hover:not(:disabled) {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .challenge-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .claim-streak-box {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: var(--radius-md);
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .claim-streak-btn {
+      padding: 0.8rem 2.5rem;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      border-radius: 100px;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .claim-streak-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(16, 185, 129, 0.45);
+    }
+    
+    /* Navigation Tabs */
+    .vocab-filter-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 1rem;
+    }
+    
+    .vocab-tabs {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      background: rgba(13, 13, 32, 0.8);
+      padding: 0.3rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-subtle);
+    }
+    
+    .vocab-tab {
+      padding: 0.5rem 1.2rem;
+      background: transparent;
+      border: none;
+      border-radius: 100px;
+      color: var(--text-secondary);
+      font-family: var(--font-ui);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .vocab-tab:hover {
+      color: var(--text-primary);
+    }
+    
+    .vocab-tab.active {
+      background: var(--gold);
+      color: #000;
+    }
+    
+    /* Search */
+    .vocab-search-box {
+      position: relative;
+      min-width: 250px;
+      flex: 1;
+      max-width: 400px;
+    }
+    
+    .vocab-search-input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      background: rgba(26, 26, 53, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 100px;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    
+    .vocab-search-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+      background: rgba(26, 26, 53, 0.9);
+    }
+    
+    .vocab-search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+    
+    /* Vocab Grid */
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      min-height: 200px;
+    }
+    
+    .vocab-card {
+      background: rgba(20, 20, 45, 0.4);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .vocab-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top right, rgba(245, 158, 11, 0.05), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    
+    .vocab-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245, 158, 11, 0.25);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .vocab-card:hover::before {
+      opacity: 1;
+    }
+
+    .vocab-card.practiced {
+      border-color: rgba(16, 185, 129, 0.25);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(20, 20, 45, 0.4) 100%);
+    }
+
+    .vocab-card.practiced::before {
+      background: radial-gradient(ellipse at top right, rgba(16, 185, 129, 0.05), transparent 70%);
+    }
+    
+    .vocab-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    
+    .vocab-card-num {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .vocab-card-word {
+      font-family: var(--font-story);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .vocab-card-part {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+    
+    .vocab-card-sentences {
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+    
+    .vocab-card-sentence {
+      position: relative;
+      padding-left: 1.25rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+    
+    .vocab-card-sentence::before {
+      content: '•';
+      position: absolute;
+      left: 0.2rem;
+      color: var(--gold);
+      font-size: 1.2rem;
+      top: -0.1rem;
+    }
+
+    .vocab-card.practiced .vocab-card-sentence::before {
+      color: #10b981;
+    }
+    
+    .vocab-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 1rem;
+      margin-top: auto;
+    }
+    
+    .vocab-card-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+    
+    .vocab-badge-arch { color: var(--gold); background: rgba(245, 158, 11, 0.08); }
+    .vocab-badge-rel { color: var(--purple); background: rgba(139, 92, 246, 0.08); }
+    .vocab-badge-micro { color: var(--blue); background: rgba(59, 130, 246, 0.08); }
+    .vocab-badge-sec { color: #10b981; background: rgba(16, 185, 129, 0.08); }
+    
+    .vocab-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      border-radius: 100px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.72rem;
+      font-family: var(--font-ui);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.3s ease;
+    }
+    
+    .vocab-toggle-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    
+    .vocab-toggle-btn.active {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    .vocab-toggle-btn.active:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--red);
+    }
+
+    /* Grid Empty State */
+    .vocab-empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-lg);
+      background: rgba(13, 13, 32, 0.2);
+    }
+
+    .vocab-empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .streak-pop {
+      animation: streakGlow 1s ease infinite alternate;
+    }
+
+    @keyframes streakGlow {
+      from { box-shadow: 0 0 5px rgba(245, 158, 11, 0.2); }
+      to { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media(max-width:640px){
       .book-card{flex-direction:column;}.book-spine{width:100%;flex-direction:row;height:60px;padding:0 1rem;}
       .hero-stats{gap:1.5rem;}.stat-num{font-size:1.8rem;}
+      .faang-grid{grid-template-columns:1fr;}
+      .vocab-trainer { padding: 1.5rem; }
+      .vocab-header-panel { padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+      .vocab-stats-summary { width: 100%; justify-content: center; }
+      .vocab-filter-row { flex-direction: column; align-items: stretch; }
+      .vocab-search-box { max-width: 100%; }
+      .vocab-tabs { width: 100%; justify-content: center; }
+      .vocab-tab { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -259,7 +991,7 @@
       each one teaching a different layer of what it means to build systems that last.
     </p>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num" data-target="400">0</span><span class="stat-label">Patterns &amp; Concepts</span></div>
+      <div class="stat"><span class="stat-num" data-target="500">0</span><span class="stat-label">Patterns &amp; Concepts</span></div>
       <div class="stat"><span class="stat-num" data-target="170">0</span><span class="stat-label">System Design Problems</span></div>
       <div class="stat"><span class="stat-num" data-target="23">0</span><span class="stat-label">GoF Design Patterns</span></div>
       <div class="stat"><span class="stat-num" data-target="20">0</span><span class="stat-label">Real Outage Case Studies</span></div>
@@ -479,25 +1211,48 @@
       <div class="book-connector reveal">Master Communications &amp; Protocols</div>
 
       <!-- Protocols Card -->
-      <a href="book-8-protocols.html" class="book-card b5 reveal" style="--bc:#3b82f6;">
+      <div class="book-card b5 reveal" style="--bc:#3b82f6;">
         <div class="book-spine" style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2);">
           <span class="book-spine-num" style="color:#3b82f6;">VIII</span>
           <span class="book-spine-label" style="color:rgba(255,255,255,0.5);">P</span>
         </div>
         <div class="book-body">
           <div class="book-tag" style="color:#3b82f6;">🔌 Communications</div>
-          <div class="book-title">Communication Protocols (Hardware &amp; Software)</div>
-          <div class="book-sub">UART, I2C, SPI, CAN Bus, and USB (Hardware) paired with HTTP/3, WebSockets, Server-Sent Events (SSE), and TLS Cryptography (Software).</div>
-          <div class="book-tags">
-            <span class="tag">Hardware &amp; Software</span><span class="tag">TLS Handshakes</span>
-            <span class="tag">Live Encoding Tool</span><span class="tag">P2P WebRTC</span>
+          <div class="book-title">Communication Protocols Trilogy</div>
+          <div class="book-sub">Master the complete communications stack through three dedicated companion volumes: hardware signals, software/security tunnels, and local/border routing pathways.</div>
+          
+          <div class="volume-selector-container">
+            <a href="book-8-protocols.html" class="volume-link vl-a">
+              <span class="vl-num">VIII-A</span>
+              <div class="vl-details">
+                <span class="vl-title">Hardware Protocols</span>
+                <span class="vl-sub">UART, I2C, SPI, CAN Bus, USB, Ethernet</span>
+              </div>
+              <span class="vl-arrow">→</span>
+            </a>
+            <a href="book-8-app-protocols.html" class="volume-link vl-b">
+              <span class="vl-num">VIII-B</span>
+              <div class="vl-details">
+                <span class="vl-title">Application &amp; Security</span>
+                <span class="vl-sub">HTTP/3, WebSockets, SSE, Cryptography, TLS 1.3</span>
+              </div>
+              <span class="vl-arrow">→</span>
+            </a>
+            <a href="book-8-net-protocols.html" class="volume-link vl-c">
+              <span class="vl-num">VIII-C</span>
+              <div class="vl-details">
+                <span class="vl-title">Networking &amp; Routing</span>
+                <span class="vl-sub">IP Mechanics, Masking Math, NAT, DHCP, BGP</span>
+              </div>
+              <span class="vl-arrow">→</span>
+            </a>
           </div>
-          <div class="book-footer-line">
-            <span class="book-count">~6 hours · Double Companion Volumes</span>
-            <span class="book-arrow" style="color:#3b82f6">→</span>
+          
+          <div class="book-footer-line" style="margin-top: 1.5rem;">
+            <span class="book-count">~9 hours total · Three Complete Volumes</span>
           </div>
         </div>
-      </a>
+      </div>
 
       <div class="book-connector reveal">Master Every Database</div>
 
@@ -709,6 +1464,108 @@
     </div>
   </section>
 
+  <!-- ─── VOCABULARY MASTERCLASS ────────────────────────────── -->
+  <section class="section" id="vocabulary">
+    <div class="section-header">
+      <div class="section-label">Active Speech &amp; Communication</div>
+      <h2>The Advanced Engineer's Speech Trainer</h2>
+      <p>System design is 50% technical and 50% communication. Master 100 high-frequency engineering terms grouped into smart modules to speak like an architect.</p>
+    </div>
+
+    <div class="vocab-trainer">
+      
+      <!-- Vocabulary Header Panel -->
+      <div class="vocab-header-panel">
+        <div class="vocab-title-desc">
+          <h3 style="font-family: var(--font-story); font-size: 1.4rem; color: var(--gold); margin-bottom: 0.5rem;">Interactive Mastery Sandbox</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; max-width: 650px;">
+            Practice speaking the curated sentences aloud. Mark them off as completed, or take the <strong>Daily 10 Speaking Challenge</strong> to build your speaking routine step-by-step without feeling overwhelmed.
+          </p>
+        </div>
+        
+        <div class="vocab-stats-summary">
+          <div class="vocab-stat-box">
+            <span class="vocab-stat-val" id="vocab-stat-mastered">0/100</span>
+            <span class="vocab-stat-lbl">Mastered</span>
+          </div>
+          <div class="vocab-stat-divider"></div>
+          <div class="vocab-stat-box">
+            <span class="vocab-stat-val" id="vocab-stat-streak">0 days</span>
+            <span class="vocab-stat-lbl">Daily Streak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mastery Progress Bar -->
+      <div class="vocab-progress-wrapper">
+        <div class="vocab-progress-info">
+          <span>Overall Vocabulary Mastery</span>
+          <span id="vocab-progress-text">0% Mastered</span>
+        </div>
+        <div class="vocab-progress-outer">
+          <div class="vocab-progress-inner" id="vocab-progress-bar"></div>
+        </div>
+      </div>
+
+      <!-- 🔥 Daily 10 Challenge Widget -->
+      <div class="daily-challenge-box" id="daily-challenge-section">
+        <div class="challenge-title-row">
+          <div class="challenge-title">
+            <span>🔥</span> Daily 10 Speaking Challenge
+          </div>
+          <div class="streak-badge" id="daily-streak-badge">
+            <span>⚡</span> Streak: 0 days
+          </div>
+        </div>
+        <p class="challenge-desc" id="challenge-instructions">
+          Don't overwhelm yourself practicing all 100 words today. Speak 10 curated terms aloud (2 high-yield engineering sentences per word) to absorb and speak like a Senior Architect.
+        </p>
+        
+        <div class="challenge-controls" id="challenge-initial-controls">
+          <button class="btn-primary" id="start-challenge-btn" style="font-size: 0.85rem; padding: 0.6rem 1.5rem;">Start Today's Challenge →</button>
+        </div>
+
+        <div class="challenge-active-area" id="challenge-active-area" style="display: none;">
+          <div class="challenge-progress-mini">
+            <span id="challenge-progress-lbl">Word 1 of 10</span>
+            <div class="challenge-dots" id="challenge-dots-container">
+              <!-- Dots generated dynamically -->
+            </div>
+          </div>
+          
+          <div class="challenge-card-outer">
+            <div id="challenge-card-container">
+              <!-- Card contents populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Tabs Filter Row -->
+      <div class="vocab-filter-row">
+        <div class="vocab-tabs">
+          <button class="vocab-tab active" data-filter="all">All (100)</button>
+          <button class="vocab-tab" data-filter="part1">1. Architecture (1-20)</button>
+          <button class="vocab-tab" data-filter="part2">2. Reliability &amp; Data (21-40)</button>
+          <button class="vocab-tab" data-filter="part3">3. Services &amp; Cloud (41-70)</button>
+          <button class="vocab-tab" data-filter="part4">4. Security &amp; Leadership (71-100)</button>
+          <button class="vocab-tab" data-filter="unpracticed">To Practice</button>
+        </div>
+        
+        <div class="vocab-search-box">
+          <span class="vocab-search-icon">🔍</span>
+          <input type="text" class="vocab-search-input" id="vocab-search" placeholder="Search terms or sentences...">
+        </div>
+      </div>
+
+      <!-- Vocabulary Cards Grid -->
+      <div class="vocab-grid" id="vocab-grid-container">
+        <!-- Cards generated dynamically by JavaScript -->
+      </div>
+
+    </div>
+  </section>
+
   <!-- ─── FAANG PREP ──────────────────────────────────────────── -->
   <section class="section" id="faang">
     <div class="section-header reveal">
@@ -724,36 +1581,36 @@
 
     <div class="faang-grid reveal">
       <div class="faang-card">
-        <div class="faang-q">"Design a payment system for 1M merchants"</div>
-        <div class="faang-books">→ Book I (vocabulary) + Book III (architecture) + Book V (EDA failures)</div>
+        <div class="faang-q">"Design a distributed rate limiter for a high-traffic API gateway (e.g. Netflix, Amazon)"</div>
+        <div class="faang-books">→ Book I (Chapter on rate limiting) + Book VII (Envoy/Nginx config) + Book VIII-B (API Gateway protocols)</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"How would you handle duplicate events in Kafka?"</div>
-        <div class="faang-books">→ Book V, Act I — At-Least-Once Delivery + Idempotency</div>
+        <div class="faang-q">"How do you design a real-time collaborative document editor like Google Docs with zero sync lag?"</div>
+        <div class="faang-books">→ Book VI (Masterclass Section 3) + Book VIII-B (WebSockets full-duplex tunnel) + Book X (OT/CRDT DSA blueprints)</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"Design a caching strategy for a high-read system"</div>
-        <div class="faang-books">→ Book III, Lesson IX — Cache-Aside, Write-Through, Write-Behind</div>
+        <div class="faang-q">"How do you handle duplicate payment processing events in a highly available checkout service?"</div>
+        <div class="faang-books">→ Book V, Act I — Event Idempotency + Book IX (Cassandra/DynamoDB light transactions)</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"Tell me about a production failure you've handled"</div>
-        <div class="faang-books">→ Book IV — 20 outage case studies as interview-ready postmortems</div>
+        <div class="faang-q">"Design a globally scalable search autocomplete service (like Google Search) with under 10ms latency"</div>
+        <div class="faang-books">→ Book VI (Masterclass Group II) + Book IX (Elasticsearch sharding) + Book X (Trie data structure blueprint)</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"When would you use Observer vs Mediator pattern?"</div>
-        <div class="faang-books">→ Book II, Patterns 16 & 18 — Mediator vs Observer with city analogies</div>
+        <div class="faang-q">"Tell me how you would design a highly available notification service that handles spikes of 100k requests/sec"</div>
+        <div class="faang-books">→ Book I (Scalability foundations) + Book V (Kafka pub-sub &amp; backpressure) + Book VII (Kubernetes autoscaling)</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"How do microservices handle distributed transactions?"</div>
-        <div class="faang-books">→ Book V, Act II + Book I (Chapter on Saga Pattern)</div>
+        <div class="faang-q">"Explain how you would migrate a massive, active billing monolith to microservices with zero production downtime"</div>
+        <div class="faang-books">→ Book III, Lesson V — Strangler Fig Pattern with the Palace migration story</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"Explain DDD and Bounded Contexts"</div>
-        <div class="faang-books">→ Book III, Lesson II — Full DDD coverage with 7 concepts</div>
+        <div class="faang-q">"How do you secure data-in-transit and establish mutual authentication in a zero-trust microservice mesh?"</div>
+        <div class="faang-books">→ Book VII (Istio Mutual TLS) + Book VIII-B (TLS 1.3 Cryptographic Handshake)</div>
       </div>
       <div class="faang-card">
-        <div class="faang-q">"What is the Strangler Fig pattern and when do you use it?"</div>
-        <div class="faang-books">→ Book III, Lesson V — Strangler Fig with the Palace migration story</div>
+        <div class="faang-q">"Design a resilient caching layer that prevents Cache Penetration, Cache Stampede, and Cache Avalanche under peak load"</div>
+        <div class="faang-books">→ Book III, Lesson IX — Cache-Aside, Write-Behind, Bloom Filters, and Mutex Keys</div>
       </div>
     </div>
   </section>
@@ -771,6 +1628,7 @@
       <a href="book-8-bigdata.html" class="footer-book-link" style="border-color:rgba(139,92,246,0.2);color:#8b5cf6">VIII · Big Data</a>
       <a href="book-8-protocols.html" class="footer-book-link" style="border-color:rgba(59,130,246,0.2);color:#3b82f6">VIII-A · Hardware</a>
       <a href="book-8-app-protocols.html" class="footer-book-link" style="border-color:rgba(37,99,235,0.2);color:#2563eb">VIII-B · Application</a>
+      <a href="book-8-net-protocols.html" class="footer-book-link" style="border-color:rgba(20,184,166,0.2);color:#14b8a6">VIII-C · Networking</a>
       <a href="book-9-databases.html" class="footer-book-link" style="border-color:rgba(16,185,129,0.2);color:#10b981">IX · Databases</a>
       <a href="book-10-dsa.html" class="footer-book-link" style="border-color:rgba(16,185,129,0.2);color:#10b981">X · DSA Mastery</a>
     </div>
@@ -945,6 +1803,543 @@ const counterObs = new IntersectionObserver((entries) => {
 
 const statsEl = document.querySelector('.hero-stats');
 if (statsEl) counterObs.observe(statsEl);
+
+// ── Vocabulary & Speech Trainer Interactivity ─────────────────
+// Data Database
+const VOCAB_DATA = [
+  // PART 1: Architecture & System Design (1-20)
+  { id: 1, word: "Scalable", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "We need a scalable system that can handle millions of users without degradation.", sentence2: "Horizontal scaling is preferred for building highly scalable architectures." },
+  { id: 2, word: "Resilient", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The system is resilient enough to recover from partial failures.", sentence2: "We designed a resilient pipeline using retries and fallbacks." },
+  { id: 3, word: "Fault-tolerant", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "Our architecture is fault-tolerant, so a single node failure won't impact users.", sentence2: "Replication helps build fault-tolerant systems." },
+  { id: 4, word: "Distributed", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "This is a distributed system spread across multiple regions.", sentence2: "Debugging a distributed architecture is more complex." },
+  { id: 5, word: "Decoupled", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "We designed decoupled services using Kafka.", sentence2: "A decoupled architecture improves maintainability." },
+  { id: 6, word: "Modular", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The codebase is modular, making it easy to extend.", sentence2: "We follow a modular design for better reusability." },
+  { id: 7, word: "Extensible", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The system is extensible, allowing new features without major changes.", sentence2: "We built an extensible framework for plugins." },
+  { id: 8, word: "Maintainable", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "Clean code ensures the system remains maintainable.", sentence2: "We refactored the service to improve maintainability." },
+  { id: 9, word: "Observable", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The system is fully observable with logs and metrics.", sentence2: "We added tracing to make the service more observable." },
+  { id: 10, word: "Robust", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The application is robust under heavy load.", sentence2: "We implemented validation to make the system more robust." },
+  { id: 11, word: "Latency", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "We reduced API latency by optimizing queries.", sentence2: "High latency can degrade user experience." },
+  { id: 12, word: "Throughput", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "Kafka provides high throughput for streaming data.", sentence2: "We improved system throughput by parallel processing." },
+  { id: 13, word: "Bottleneck", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "Database queries became a bottleneck.", sentence2: "We identified a network bottleneck during peak traffic." },
+  { id: 14, word: "Optimize", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "We need to optimize the query performance.", sentence2: "Caching helped us optimize response time." },
+  { id: 15, word: "Efficient", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "This algorithm is more efficient in terms of time complexity.", sentence2: "We built an efficient data pipeline." },
+  { id: 16, word: "Overhead", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "Serialization adds processing overhead.", sentence2: "We minimized network overhead using batching." },
+  { id: 17, word: "Benchmark", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "We benchmarked the system under heavy load.", sentence2: "Benchmark results helped us compare performance." },
+  { id: 18, word: "Degradation", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The system shows performance degradation at high load.", sentence2: "We observed gradual degradation in response time." },
+  { id: 19, word: "Peak load", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "The system must handle peak load during sales.", sentence2: "We tested the service under peak load conditions." },
+  { id: 20, word: "Throttling", part: "part1", partLabel: "Architecture", badgeClass: "vocab-badge-arch", sentence1: "We applied throttling to control API usage.", sentence2: "Rate limiting helps in request throttling." },
+
+  // PART 2: Reliability & Data Systems (21-40)
+  { id: 21, word: "Redundancy", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We added redundancy to avoid single points of failure.", sentence2: "Data redundancy improves reliability." },
+  { id: 22, word: "Replication", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "Database replication ensures high availability.", sentence2: "We use multi-region replication." },
+  { id: 23, word: "Failover", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "Automatic failover ensures uptime.", sentence2: "We tested the failover mechanism." },
+  { id: 24, word: "Recovery", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "The system supports fast recovery after crashes.", sentence2: "Backup helps in disaster recovery." },
+  { id: 25, word: "Consistency", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We chose strong consistency for critical data.", sentence2: "Eventual consistency is acceptable here." },
+  { id: 26, word: "Availability", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "High availability is a key requirement.", sentence2: "We ensured 99.99% availability." },
+  { id: 27, word: "Durability", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "Writes are guaranteed with high durability.", sentence2: "Logs ensure data durability." },
+  { id: 28, word: "Idempotent", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "APIs must be idempotent for retries.", sentence2: "This operation is idempotent." },
+  { id: 29, word: "Retry mechanism", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We implemented a retry mechanism for failures.", sentence2: "Exponential backoff improves the retry strategy." },
+  { id: 30, word: "Circuit breaker", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We used a circuit breaker to prevent cascading failures.", sentence2: "Circuit breakers improve system resilience." },
+  { id: 31, word: "Partitioning", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "Data partitioning improves scalability.", sentence2: "We used time-based partitioning." },
+  { id: 32, word: "Sharding", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "User data is split using sharding.", sentence2: "Sharding reduces database load." },
+  { id: 33, word: "Indexing", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "Proper indexing speeds up queries.", sentence2: "We optimized queries with indexing." },
+  { id: 34, word: "Schema", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We designed a flexible schema.", sentence2: "Schema evolution is important in big data." },
+  { id: 35, word: "Normalization", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We applied normalization to reduce redundancy.", sentence2: "Normalization improves data integrity." },
+  { id: 36, word: "Denormalization", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We used denormalization for faster reads.", sentence2: "Denormalization improves performance." },
+  { id: 37, word: "Aggregation", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We used aggregation queries for reports.", sentence2: "Data aggregation reduces complexity." },
+  { id: 38, word: "Ingestion", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "Data ingestion happens in real time.", sentence2: "We built a scalable ingestion pipeline." },
+  { id: 39, word: "Serialization", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We use Avro for serialization.", sentence2: "Serialization reduces data size." },
+  { id: 40, word: "Compression", part: "part2", partLabel: "Reliability & Data", badgeClass: "vocab-badge-rel", sentence1: "We enabled compression to save storage.", sentence2: "Compression improves network efficiency." },
+
+  // PART 3: Microservices & Event & Cloud (41-70)
+  { id: 41, word: "Stateless", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "The service is stateless and easy to scale horizontally.", sentence2: "Storing session state in Redis allows our API servers to remain stateless." },
+  { id: 42, word: "Stateful", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "This is a stateful component that maintains connection states in memory.", sentence2: "Managing stateful workloads in Kubernetes requires StatefulSets." },
+  { id: 43, word: "REST", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We exposed REST endpoints to standardise external integrations.", sentence2: "Designing clean REST APIs makes integration straightforward for third-party developers." },
+  { id: 44, word: "API Contract", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "API contracts must be stable to prevent breaking client applications.", sentence2: "We use OpenAPI specifications to document and enforce our API contract." },
+  { id: 45, word: "API Versioning", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We use API versioning to support legacy clients while rolling out new updates.", sentence2: "Path-based API versioning is easier to route at the gateway level." },
+  { id: 46, word: "Backward Compatibility", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We must maintain backward compatibility when updating our database schema.", sentence2: "Automated contract testing ensures backward compatibility is never broken." },
+  { id: 47, word: "Rate Limiting", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We added rate limiting to protect our downstream services from malicious traffic.", sentence2: "Token bucket algorithms are commonly used to implement granular rate limiting." },
+  { id: 48, word: "Gateway", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "The API Gateway handles routing, authentication, and request logging.", sentence2: "We centralized cross-cutting concerns like SSL termination at the gateway." },
+  { id: 49, word: "Orchestration", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We used orchestration to manage complex, multi-step workflows sequentially.", sentence2: "Temporal is an excellent tool for orchestrating stateful business transactions." },
+  { id: 50, word: "Choreography", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Event choreography reduces coupling between our microservices.", sentence2: "In a choreography pattern, each service listens for events and acts independently." },
+  { id: 51, word: "Event-driven", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We built an event-driven system to handle real-time user notifications.", sentence2: "An event-driven architecture enables asynchronous communication between services." },
+  { id: 52, word: "Asynchronous", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Processing is asynchronous, which prevents blocking the main execution thread.", sentence2: "We offloaded heavy PDF generation to an asynchronous background worker." },
+  { id: 53, word: "Stream Processing", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We use stream processing to analyze financial transactions as they occur.", sentence2: "Apache Flink provides low-latency stream processing for real-time analytics." },
+  { id: 54, word: "Real-time", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "This dashboard supports real-time analytics for active web sessions.", sentence2: "WebSocket connections enable real-time updates for collaborative editing tools." },
+  { id: 55, word: "Pub-Sub", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Kafka follows pub-sub, allowing multiple consumers to subscribe to the same topic.", sentence2: "We implemented a pub-sub model to decouple publisher and subscriber lifecycles." },
+  { id: 56, word: "Eventual Consistency", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We accept eventual consistency to achieve higher write availability across regions.", sentence2: "Our search index updates asynchronously, ensuring eventual consistency with the main database." },
+  { id: 57, word: "Message Queue", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Messages go via queue to smooth out sudden spikes in traffic.", sentence2: "We use RabbitMQ as a reliable message queue for tasks that can run out-of-order." },
+  { id: 58, word: "Offsets", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Offsets track consumption progress within a specific Kafka partition.", sentence2: "Committing offsets only after successful processing ensures at-least-once delivery." },
+  { id: 59, word: "Consumer Groups", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Consumer groups scale message consumption by distributing partitions among workers.", sentence2: "Adding more instances to a consumer group increases parallel processing throughput." },
+  { id: 60, word: "Backpressure", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Backpressure is handled by slowing down the upstream ingestion rate.", sentence2: "Reactive streams use backpressure to prevent fast producers from overwhelming slow consumers." },
+  { id: 61, word: "Containerization", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We use containerization to guarantee consistent behavior across dev and production environments.", sentence2: "Containerization makes our microservices lightweight and fast to bootstrap." },
+  { id: 62, word: "Kubernetes", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Kubernetes manages orchestration and self-healing of our containerized services.", sentence2: "We configure Kubernetes horizontal pod autoscaling based on CPU utilization." },
+  { id: 63, word: "Automated Deployment", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Automated deployment is critical to reduce human errors during release cycles.", sentence2: "We use GitOps to trigger automated deployments whenever main is updated." },
+  { id: 64, word: "CI/CD", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We follow CI/CD best practices to deliver value to customers safely and rapidly.", sentence2: "Our CI/CD pipeline runs unit, integration, and security checks on every pull request." },
+  { id: 65, word: "Cloud Infrastructure", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Cloud infrastructure is scalable enough to meet seasonal demand.", sentence2: "We define our cloud infrastructure as code using Terraform." },
+  { id: 66, word: "Auto Provisioning", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "We use auto provisioning to create test environments dynamically for each pull request.", sentence2: "Dynamic auto provisioning reduces idle cloud resource costs." },
+  { id: 67, word: "Autoscaling", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Enabled autoscaling to handle unexpected traffic spikes automatically.", sentence2: "Autoscaling scales down our cluster size at night to minimize expenses." },
+  { id: 68, word: "Monitoring", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "The system has strong monitoring to detect latency anomalies early.", sentence2: "Prometheus provides comprehensive monitoring for our containerized cluster." },
+  { id: 69, word: "Centralized Logging", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Centralized logging enables us to query error logs across microservices instantly.", sentence2: "We implemented ELK stack for centralized logging and log aggregation." },
+  { id: 70, word: "Real-time Alerting", part: "part3", partLabel: "Services & Cloud", badgeClass: "vocab-badge-micro", sentence1: "Real-time alerting notifies the on-call engineer immediately when error rates spike.", sentence2: "We configured PagerDuty with real-time alerting for critical health check failures." },
+
+  // PART 4: Security & Leadership (71-100)
+  { id: 71, word: "Authentication", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "We implemented authentication to verify user identities securely.", sentence2: "OAuth 2.0 is the industry standard for user authentication and authorization." },
+  { id: 72, word: "Authorization", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Role-based authorization restricts access to sensitive admin endpoints.", sentence2: "We enforce fine-grained authorization policies using Open Policy Agent." },
+  { id: 73, word: "Encryption", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Data is protected with encryption both at rest and in transit.", sentence2: "Symmetric encryption like AES-GCM provides high-performance data protection." },
+  { id: 74, word: "Tokenization", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Sensitive data uses tokenization to keep raw credit card numbers out of our databases.", sentence2: "Tokenization replaces private identifiers with non-sensitive reference tokens." },
+  { id: 75, word: "Security Vulnerability", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "We fixed security vulnerabilities discovered during the automated dependency scan.", sentence2: "Regular penetration testing helps us identify and remediate security vulnerabilities." },
+  { id: 76, word: "Compliance", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "The system meets compliance standards such as SOC2 and GDPR.", sentence2: "Compliance requirements dictate how long we must retain user access logs." },
+  { id: 77, word: "Audit Logs", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Audit logs are maintained to track all administrative actions for forensic analysis.", sentence2: "Immutable audit logs are stored in a read-only S3 bucket for compliance." },
+  { id: 78, word: "Secure Coding", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Secure coding practices prevent common exploits like SQL injection and XSS.", sentence2: "We conduct secure coding workshops to train developers on OWASP Top 10 risks." },
+  { id: 79, word: "Process Isolation", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Process isolation prevents a single compromised sandbox from accessing host memory.", sentence2: "Using Docker containers provides process isolation at the operating system level." },
+  { id: 80, word: "Least Privilege", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Follow least privilege by granting database credentials read-only access by default.", sentence2: "IAM policies are audited regularly to enforce the principle of least privilege." },
+  { id: 81, word: "Trade-off", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "There is a clear trade-off between read latency and consistency in this database.", sentence2: "Choosing a relational database involves a trade-off between write speed and query flexibility." },
+  { id: 82, word: "System Constraint", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "We have system constraints that limit our maximum database memory usage.", sentence2: "Network bandwidth is a major system constraint in our multi-region replication setup." },
+  { id: 83, word: "Assumption", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "This is an assumption that our peak traffic will not exceed ten thousand requests per second.", sentence2: "We should document every architectural assumption to validate them during load testing." },
+  { id: 84, word: "Edge Cases", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Handle edge cases, such as network timeouts and database connection drops, gracefully.", sentence2: "Unit tests should specifically target edge cases like empty inputs and boundary values." },
+  { id: 85, word: "Scenario", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Consider all scenarios, including catastrophic regional cloud outages, in your disaster recovery plan.", sentence2: "We simulated a database failover scenario to measure system recovery time." },
+  { id: 86, word: "Scalable Approach", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Our approach is scalable because it offloads heavy calculations to client browsers.", sentence2: "Adopting a shard-by-user-id key is a highly scalable approach to database partitioning." },
+  { id: 87, word: "Justification", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "This is the justification for selecting NoSQL over SQL for our unstructured logs.", sentence2: "We prepared a technical proposal containing the trade-off analysis and architecture justification." },
+  { id: 88, word: "System Impact", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Measure system impact before deploying the memory-intensive logging interceptor.", sentence2: "The new query optimization had a highly positive system impact, reducing CPU usage by 40%." },
+  { id: 89, word: "Alternatives", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Consider alternatives like message queues before implementing a database polling loop.", sentence2: "We evaluated three architectural alternatives before choosing a serverless model." },
+  { id: 90, word: "System Limitation", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "The system has limitations regarding the maximum payload size it can ingest.", sentence2: "Understanding system limitations prevents us from over-engineering the application." },
+  { id: 91, word: "Ownership", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "I took ownership of the system redesign, coordinating across three engineering teams.", sentence2: "Fostering ownership ensures developers care about the long-term health of the codebase." },
+  { id: 92, word: "Accountability", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Ensured accountability by establishing clear post-mortem actions after the outage.", sentence2: "Shared dashboards promote accountability for system uptime and performance metrics." },
+  { id: 93, word: "Initiative", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Showed strong initiative by proactively fixing the memory leak before it caused an outage.", sentence2: "We encourage engineers to take the initiative in refactoring legacy bottlenecks." },
+  { id: 94, word: "Team Collaboration", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Team collaboration was key to migrating our main database with zero downtime.", sentence2: "Using collaborative RFCs improves design quality through diverse team feedback." },
+  { id: 95, word: "Alignment", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Maintained alignment between product requirements and architectural capabilities.", sentence2: "Weekly architecture reviews keep the engineering team in close alignment." },
+  { id: 96, word: "Mentorship", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Provided mentorship to junior engineers, helping them master system design concepts.", sentence2: "Mentorship is a core pillar of our engineering culture and career growth framework." },
+  { id: 97, word: "Stakeholder", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Worked with stakeholders to define realistic service level objectives.", sentence2: "Regular stakeholder updates keep business goals and technical engineering aligned." },
+  { id: 98, word: "Delivery", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Focused on delivery by breaking down the large migration into daily incremental releases.", sentence2: "Our focus on continuous delivery allows us to ship bug fixes to users within minutes." },
+  { id: 99, word: "Execution", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Strong execution allowed us to complete the cloud migration two weeks ahead of schedule.", sentence2: "A great architecture plan is worthless without disciplined technical execution." },
+  { id: 100, word: "Product Vision", part: "part4", partLabel: "Security & Leadership", badgeClass: "vocab-badge-sec", sentence1: "Clear product vision helps us prioritize technical scalability work for the coming year.", sentence2: "We align our system design decisions with the long-term product vision." }
+];
+
+// State Management
+let practicedWordIds = new Set();
+let dailyStreak = 0;
+let lastStreakDate = '';
+let activeChallenge = null; // { wordIds: [], currentIndex: 0 }
+
+function initVocabTrainer() {
+  // Load states from localStorage
+  const savedPracticed = localStorage.getItem('vocab_mastery_practiced');
+  if (savedPracticed) {
+    try {
+      const parsed = JSON.parse(savedPracticed);
+      practicedWordIds = new Set(parsed);
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  dailyStreak = parseInt(localStorage.getItem('vocab_daily_streak') || '0', 10);
+  lastStreakDate = localStorage.getItem('vocab_last_streak_date') || '';
+
+  // Update UI Stats & Grid
+  updateMasteryStats();
+  renderVocabGrid();
+
+  // Search Input Handler
+  const searchInput = document.getElementById('vocab-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      renderVocabGrid();
+    });
+  }
+
+  // Filter Tabs Handler
+  const tabs = document.querySelectorAll('.vocab-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderVocabGrid();
+    });
+  });
+
+  // Daily Challenge Start Button
+  const startBtn = document.getElementById('start-challenge-btn');
+  if (startBtn) {
+    startBtn.addEventListener('click', startDailyChallenge);
+  }
+
+  // Check if today's challenge is already completed to toggle streak glow
+  checkStreakStatus();
+}
+
+function updateMasteryStats() {
+  const masteredCount = practicedWordIds.size;
+  const totalCount = VOCAB_DATA.length;
+  const percentage = Math.round((masteredCount / totalCount) * 100);
+
+  // Update numbers
+  const masteredEl = document.getElementById('vocab-stat-mastered');
+  if (masteredEl) masteredEl.textContent = `${masteredCount}/${totalCount}`;
+  
+  const streakEl = document.getElementById('vocab-stat-streak');
+  if (streakEl) streakEl.textContent = `${dailyStreak} day${dailyStreak === 1 ? '' : 's'}`;
+  
+  const progressTextEl = document.getElementById('vocab-progress-text');
+  if (progressTextEl) progressTextEl.textContent = `${percentage}% Mastered`;
+  
+  // Update progress bar
+  const progressBar = document.getElementById('vocab-progress-bar');
+  if (progressBar) {
+    progressBar.style.width = `${percentage}%`;
+  }
+
+  // Update Daily Challenge badge
+  const challengeStreakBadge = document.getElementById('daily-streak-badge');
+  if (challengeStreakBadge) {
+    challengeStreakBadge.textContent = `⚡ Streak: ${dailyStreak} day${dailyStreak === 1 ? '' : 's'}`;
+    if (dailyStreak > 0) {
+      challengeStreakBadge.classList.add('streak-pop');
+    } else {
+      challengeStreakBadge.classList.remove('streak-pop');
+    }
+  }
+}
+
+function renderVocabGrid() {
+  const gridContainer = document.getElementById('vocab-grid-container');
+  if (!gridContainer) return;
+
+  const searchVal = document.getElementById('vocab-search').value.toLowerCase().trim();
+  
+  // Find active filter
+  const activeTab = document.querySelector('.vocab-tab.active');
+  const filterType = activeTab ? activeTab.dataset.filter : 'all';
+
+  gridContainer.innerHTML = '';
+
+  const filtered = VOCAB_DATA.filter(item => {
+    // Tab Filter
+    if (filterType === 'part1' && item.part !== 'part1') return false;
+    if (filterType === 'part2' && item.part !== 'part2') return false;
+    if (filterType === 'part3' && item.part !== 'part3') return false;
+    if (filterType === 'part4' && item.part !== 'part4') return false;
+    if (filterType === 'unpracticed' && practicedWordIds.has(item.id)) return false;
+
+    // Search Filter
+    if (searchVal !== '') {
+      const matchWord = item.word.toLowerCase().includes(searchVal);
+      const matchS1 = item.sentence1.toLowerCase().includes(searchVal);
+      const matchS2 = item.sentence2.toLowerCase().includes(searchVal);
+      return matchWord || matchS1 || matchS2;
+    }
+
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    gridContainer.innerHTML = `
+      <div class="vocab-empty-state">
+        <span class="vocab-empty-icon">🔍</span>
+        <h4 style="color: var(--text-primary); margin-bottom: 0.5rem; font-family: var(--font-story); font-size: 1.2rem;">No Terms Found</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Try clearing your search or choosing another module category tab.</p>
+      </div>
+    `;
+    return;
+  }
+
+  filtered.forEach(item => {
+    const isPracticed = practicedWordIds.has(item.id);
+    const card = document.createElement('div');
+    card.className = `vocab-card ${isPracticed ? 'practiced' : ''}`;
+    card.dataset.id = item.id;
+    card.innerHTML = `
+      <div>
+        <div class="vocab-card-header">
+          <span class="vocab-card-num">#${String(item.id).padStart(3, '0')}</span>
+          <span class="vocab-card-badge ${item.badgeClass}">${item.partLabel}</span>
+        </div>
+        <div class="vocab-card-word">${item.word}</div>
+        <div class="vocab-card-sentences">
+          <div class="vocab-card-sentence">${item.sentence1}</div>
+          <div class="vocab-card-sentence">${item.sentence2}</div>
+        </div>
+      </div>
+      <div class="vocab-card-footer">
+        <button class="vocab-toggle-btn ${isPracticed ? 'active' : ''}" onclick="toggleWordState(${item.id})">
+          ${isPracticed ? '🟢 Practiced' : '⚪ Mark Practiced'}
+        </button>
+      </div>
+    `;
+    gridContainer.appendChild(card);
+  });
+}
+
+window.toggleWordState = function(id) {
+  if (practicedWordIds.has(id)) {
+    practicedWordIds.delete(id);
+  } else {
+    practicedWordIds.add(id);
+  }
+  
+  // Save to LocalStorage
+  localStorage.setItem('vocab_mastery_practiced', JSON.stringify(Array.from(practicedWordIds)));
+  
+  // Update UI elements
+  updateMasteryStats();
+  renderVocabGrid();
+
+  // If there's an active daily challenge, synchronize its cards and dots too
+  if (activeChallenge) {
+    updateChallengeUI();
+  }
+}
+
+// 🔥 DAILY CHALLENGE ENGINE 🔥
+function startDailyChallenge() {
+  const initialControls = document.getElementById('challenge-initial-controls');
+  const activeArea = document.getElementById('challenge-active-area');
+  
+  if (initialControls) initialControls.style.display = 'none';
+  if (activeArea) activeArea.style.display = 'block';
+
+  // Choose 10 random words
+  // First, prefer unpracticed words to ensure user practices new ones
+  const unpracticed = VOCAB_DATA.filter(item => !practicedWordIds.has(item.id));
+  const shuffleArray = (arr) => arr.sort(() => Math.random() - 0.5);
+
+  let selected = [];
+  if (unpracticed.length >= 10) {
+    selected = shuffleArray(unpracticed).slice(0, 10);
+  } else {
+    selected = [...unpracticed];
+    // Fill the rest with randomly selected practiced words
+    const practiced = VOCAB_DATA.filter(item => practicedWordIds.has(item.id));
+    const extra = shuffleArray(practiced).slice(0, 10 - selected.length);
+    selected = selected.concat(extra);
+  }
+
+  // Shuffle the final selected 10 to mixed up order
+  selected = shuffleArray(selected);
+
+  activeChallenge = {
+    wordIds: selected.map(item => item.id),
+    currentIndex: 0
+  };
+
+  // Build dots
+  const dotsContainer = document.getElementById('challenge-dots-container');
+  if (dotsContainer) {
+    dotsContainer.innerHTML = '';
+    activeChallenge.wordIds.forEach((wordId, idx) => {
+      const dot = document.createElement('div');
+      dot.className = `challenge-dot ${idx === 0 ? 'active' : ''} ${practicedWordIds.has(wordId) ? 'completed' : ''}`;
+      dot.dataset.index = idx;
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  updateChallengeUI();
+}
+
+function updateChallengeUI() {
+  if (!activeChallenge) return;
+  const container = document.getElementById('challenge-card-container');
+  if (!container) return;
+
+  const currentIdx = activeChallenge.currentIndex;
+  const wordId = activeChallenge.wordIds[currentIdx];
+  const item = VOCAB_DATA.find(w => w.id === wordId);
+  const isPracticed = practicedWordIds.has(wordId);
+
+  // Check if challenge is completely mastered
+  const allChallengePracticed = activeChallenge.wordIds.every(id => practicedWordIds.has(id));
+
+  // Render active card or finish card
+  if (allChallengePracticed && currentIdx === activeChallenge.wordIds.length) {
+    // Show claim streak panel!
+    renderClaimStreakPanel();
+    return;
+  }
+
+  // Update Mini Title
+  document.getElementById('challenge-progress-lbl').textContent = `Word ${currentIdx + 1} of 10`;
+
+  // Update Dots Active classes
+  const dots = document.querySelectorAll('.challenge-dot');
+  dots.forEach((dot, idx) => {
+    dot.className = `challenge-dot ${idx === currentIdx ? 'active' : ''} ${practicedWordIds.has(activeChallenge.wordIds[idx]) ? 'completed' : ''}`;
+  });
+
+  container.innerHTML = `
+    <div class="challenge-card-item active">
+      <div class="challenge-card-word-row">
+        <div>
+          <div class="challenge-word-title">${item.word}</div>
+          <span class="vocab-card-part">${item.partLabel}</span>
+        </div>
+        <span class="challenge-word-cat">#${String(item.id).padStart(3, '0')}</span>
+      </div>
+      
+      <div class="challenge-sentences">
+        <div class="challenge-sentence">${item.sentence1}</div>
+        <div class="challenge-sentence">${item.sentence2}</div>
+      </div>
+
+      <div class="challenge-action-row">
+        <button class="challenge-speak-btn ${isPracticed ? 'practiced' : ''}" onclick="toggleChallengeWord(${item.id})">
+          ${isPracticed ? '🟢 Mastered (Speak Aloud)' : '🗣️ Mark Practiced (Speak Aloud)'}
+        </button>
+        
+        <div class="challenge-nav-btns">
+          <button class="challenge-nav-btn" onclick="prevChallengeWord()" ${currentIdx === 0 ? 'disabled' : ''}>←</button>
+          <button class="challenge-nav-btn" onclick="nextChallengeWord()">${currentIdx === 9 && allChallengePracticed ? '🎉' : '→'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+window.toggleChallengeWord = function(id) {
+  // Toggle in general list
+  toggleWordState(id);
+  
+  // If the word was successfully marked, automatically advance to next word after 600ms for natural flow
+  const itemIdx = activeChallenge.wordIds.indexOf(id);
+  const isPracticed = practicedWordIds.has(id);
+  
+  if (isPracticed && itemIdx < 9) {
+    setTimeout(() => {
+      if (activeChallenge && activeChallenge.currentIndex === itemIdx) {
+        nextChallengeWord();
+      }
+    }, 800);
+  } else if (isPracticed && itemIdx === 9) {
+    // If last word, re-render to check if Claim Streak button can be shown
+    setTimeout(() => {
+      const allChallengePracticed = activeChallenge.wordIds.every(wid => practicedWordIds.has(wid));
+      if (allChallengePracticed) {
+        activeChallenge.currentIndex = 10; // Advance to finish step
+        updateChallengeUI();
+      }
+    }, 800);
+  }
+}
+
+window.nextChallengeWord = function() {
+  if (!activeChallenge) return;
+  
+  const allChallengePracticed = activeChallenge.wordIds.every(id => practicedWordIds.has(id));
+  
+  if (activeChallenge.currentIndex < 9) {
+    activeChallenge.currentIndex++;
+    updateChallengeUI();
+  } else if (activeChallenge.currentIndex === 9 && allChallengePracticed) {
+    activeChallenge.currentIndex = 10;
+    updateChallengeUI();
+  }
+}
+
+window.prevChallengeWord = function() {
+  if (!activeChallenge) return;
+  if (activeChallenge.currentIndex > 0) {
+    activeChallenge.currentIndex--;
+    updateChallengeUI();
+  }
+}
+
+function renderClaimStreakPanel() {
+  const container = document.getElementById('challenge-card-container');
+  if (!container) return;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const alreadyClaimedToday = lastStreakDate === todayStr;
+
+  container.innerHTML = `
+    <div class="claim-streak-box">
+      <h3 style="font-family: var(--font-story); font-size: 1.6rem; color: var(--gold); margin-bottom: 0.5rem;">🎉 Daily Challenge Complete!</h3>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto 1.5rem;">
+        Excellent work! You spoke all 10 engineering vocabulary words and their high-yield sentences aloud. Keep speaking like a Senior Architect.
+      </p>
+      
+      ${alreadyClaimedToday ? `
+        <div style="color: #10b981; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+          <span>✅</span> Today's Streak Point Already Claimed! (Streak: ${dailyStreak} days)
+        </div>
+        <button class="btn-ghost" onclick="resetChallengeWidget()" style="margin-top: 1rem; font-size: 0.78rem; padding: 0.5rem 1.2rem;">Back to Library</button>
+      ` : `
+        <button class="claim-streak-btn" onclick="claimStreakPoint()">Claim Today's Streak Point 🔥</button>
+      `}
+    </div>
+  `;
+}
+
+window.claimStreakPoint = function() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  
+  if (lastStreakDate !== todayStr) {
+    // Check if yesterday was the last streak date, or reset to 1
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (lastStreakDate === yesterdayStr) {
+      dailyStreak += 1;
+    } else {
+      dailyStreak = 1; // start new streak or restart
+    }
+
+    lastStreakDate = todayStr;
+    localStorage.setItem('vocab_daily_streak', dailyStreak);
+    localStorage.setItem('vocab_last_streak_date', lastStreakDate);
+
+    // Trigger dynamic counter/glow
+    updateMasteryStats();
+    
+    // Play a CSS sparkle effect or animation
+    const streakBadge = document.getElementById('daily-streak-badge');
+    if (streakBadge) {
+      streakBadge.classList.add('streak-pop');
+      setTimeout(() => streakBadge.classList.remove('streak-pop'), 2000);
+    }
+  }
+
+  renderClaimStreakPanel();
+}
+
+window.resetChallengeWidget = function() {
+  activeChallenge = null;
+  const initialControls = document.getElementById('challenge-initial-controls');
+  const activeArea = document.getElementById('challenge-active-area');
+  
+  if (initialControls) initialControls.style.display = 'flex';
+  if (activeArea) activeArea.style.display = 'none';
+  
+  updateMasteryStats();
+  renderVocabGrid();
+}
+
+function checkStreakStatus() {
+  // If last streak date was more than 1 day ago, the streak has technically expired.
+  // We can let the user see it resets once they claim their next point.
+  if (lastStreakDate) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    const lastStreak = new Date(lastStreakDate);
+    lastStreak.setHours(0,0,0,0);
+    
+    const diffTime = Math.abs(today - lastStreak);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 1) {
+      // Streak broken, reset
+      dailyStreak = 0;
+      localStorage.setItem('vocab_daily_streak', 0);
+      updateMasteryStats();
+    }
+  }
+}
+
+// Run initializer
+initVocabTrainer();
+
 </script>
 </body>
 </html>
