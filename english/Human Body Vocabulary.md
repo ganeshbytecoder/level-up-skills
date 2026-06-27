@@ -425,7 +425,7 @@ A complete **1000+ word list** is too large for one response, so the best approa
 
 ---
 
-## To truly reach **1000+ words**, the course should continue into:
+## 1000+ words Human Body Mastery Course
 
 1. **Detailed Anatomy** (every bone, muscle, and organ)
 2. **Medical Vocabulary**

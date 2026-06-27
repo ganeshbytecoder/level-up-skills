@@ -164,7 +164,7 @@ Not at all. Native English contains **thousands of idioms**. Here are **100 of t
 | Hit the sack       | Go to bed         |
 | Under the weather  | Feeling sick      |
 | Keep an eye on     | Watch carefully   |
-| Hold your horses   | Wait              |
+| Hold your horses   | Wait  (calm your tits)            |
 | Hang in there      | Stay strong       |
 | No sweat           | No problem        |
 | Give me a hand     | Help me           |
