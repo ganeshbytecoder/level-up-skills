@@ -305,11 +305,18 @@ The remaining major vocabulary topics to master are:
 9. Preposition patterns (*interested in*, *good at*, *afraid of*)
 10. Academic and professional vocabulary
 11. Business English vocabulary
+
+
+ Preposition patterns
 12. Transition and linking words
+
+
 13. Common fixed expressions and chunks
 14. Proverbs
+
+17. Commonly confused words (*affect/effect*, *borrow/lend*, *say/tell*, *raise/rise*)
+
+
+
 15. Slang and informal expressions
 16. Formal vs. informal English
-17. Commonly confused words (*affect/effect*, *borrow/lend*, *say/tell*, *raise/rise*)
-18. English register (choosing the right level of formality)
-
