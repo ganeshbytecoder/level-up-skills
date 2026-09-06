@@ -8,18 +8,7 @@ Examples:
 
 # Level 1: Beginner (1–100)
 
-### Daily Actions
 
-1. Make a mistake
-2. Make a decision
-3. Make a plan
-4. Make a list
-5. Make money
-6. Do homework
-7. Do exercise
-8. Do business
-9. Do the dishes
-10. Do your best
 
 ### Common Verbs
 
@@ -47,18 +36,7 @@ Examples:
 29. At the moment
 30. On time
 
-### Work
 
-31. Get a job
-32. Lose a job
-33. Find a job
-34. Start work
-35. Finish work
-36. Hard work
-37. Full-time job
-38. Part-time job
-39. Office worker
-40. Team member
 
 ### Home
 
