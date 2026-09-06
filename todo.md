@@ -1792,9 +1792,13 @@ Design:
 Kafka
 Flink
 Spark
-Iceberg
+Iceberg 
+parquet
 ClickHouse
 BigQuery
+Airflow
+Jupyter Notebook
+python
 ```
 
 ### 5. 100PB Data Lake

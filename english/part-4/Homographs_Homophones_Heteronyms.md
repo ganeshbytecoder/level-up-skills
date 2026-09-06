@@ -71,6 +71,31 @@ If your goal is to become highly fluent in English, learning **homographs** (oft
 | drill | tool          | practice         |
 | duck  | bird          | lower your head  |
 
+| word | Pronunciation | Meaning 1 | Meaning 2 |
+|-----|-----|-----|-----|
+| Desert (DEZ-ert) | dry land (n.) |abandon (v.) |
+| Dessert (dih-ZERT) | sweet food after dinner (n.) |
+
+Example: The desert is a beautiful place, but it is easy to get lost there. For dessert, I would like some ice cream.
+
+| word | Pronunciation | Meaning 1 | Meaning 2 |
+|-----|-----|-----|-----|
+| Bass (bays) | fish (n.) |Low male singing voice (n.) |
+| Bass (bas) | low-pitched sound (n.) | electric bass guitar (n.) |
+
+Example: The bass in this song is really deep. I caught a large bass while fishing yesterday.
+
+| word | Meaning 1 | Meaning 2 |
+|-----|-----|-----|
+| word | Meaning 1 | Meaning 2 |
+|-----|-----|-----|-----|
+| Close (klohs) | near (adv.) |tight (adj.) |
+| Close (klohz) | shut (v.) |end (v.) |
+| Close (klohz) | intimate (adj.) |secret (n.) |
+
+Example: Close the door quietly. The two concepts are very close. I want to share a close secret with you.
+
+
 ---
 
 ## E

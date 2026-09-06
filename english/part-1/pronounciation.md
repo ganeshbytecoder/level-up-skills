@@ -421,6 +421,7 @@ Those few symbols account for a large share of pronunciation mistakes made by Hi
 s       → sun, sit, same
 ss      → class, pass
 c(e,i,y)→ city, center, cycle
+
 श Sound (/ʃ/)
 sh      → ship, shop
 ti      → nation, station
