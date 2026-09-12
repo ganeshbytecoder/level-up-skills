@@ -1,49 +1,313 @@
 
 
-# PART 1 — SOFTWARE & PROGRAMMING FUNDAMENTALS
+# 🚀 PART 1: Architecture & System Design (Words 1–20)
 
-### 1–20
+## 1. Scalable
 
-| #  | Term               | Simple meaning                                                 |
-| -- | ------------------ | -------------------------------------------------------------- |
-| 1  | Software           | Instructions executed by a computer                            |
-| 2  | Application        | Software built to perform a specific purpose                   |
-| 3  | Program            | A set of executable instructions                               |
-| 4  | Process            | A running instance of a program                                |
-| 5  | Thread             | A unit of execution inside a process                           |
-| 6  | CPU                | Executes program instructions                                  |
-| 7  | Memory / RAM       | Temporary working memory                                       |
-| 8  | Storage            | Persistent data storage                                        |
-| 9  | Binary             | Data represented using 0s and 1s                               |
-| 10 | Source Code        | Human-readable program code                                    |
-| 11 | Compiler           | Converts source code into executable form                      |
-| 12 | Interpreter        | Executes code without traditional compilation to native binary |
-| 13 | Runtime            | Environment where software executes                            |
-| 14 | Runtime Error      | Error occurring while program executes                         |
-| 15 | Compile-time Error | Error detected during compilation                              |
-| 16 | Dependency         | External code/library your application requires                |
-| 17 | Library            | Reusable collection of code                                    |
-| 18 | Framework          | Structure and conventions for building applications            |
-| 19 | SDK                | Tools/libraries provided for developing against a platform     |
-| 20 | API                | Contract through which software components communicate         |
+* “We need a **scalable system** that can handle millions of users without degradation.”
+* “Horizontal scaling is preferred for building highly **scalable architectures**.”
 
-**Mental model:**
+## 2. Resilient
 
-```text
-Source Code
-    ↓
-Compiler / Interpreter
-    ↓
-Program
-    ↓
-Process
-    ↓
-Threads
-    ↓
-CPU + Memory
-```
+* “The system is **resilient** enough to recover from partial failures.”
+* “We designed a **resilient pipeline** using retries and fallbacks.”
+
+## 3. Fault-tolerant
+
+* “Our architecture is **fault-tolerant**, so a single node failure won’t impact users.”
+* “Replication helps build **fault-tolerant systems**.”
+
+## 4. Distributed
+
+* “This is a **distributed system** spread across multiple regions.”
+* “Debugging a **distributed architecture** is more complex.”
+
+## 5. Decoupled
+
+* “We designed **decoupled services** using Kafka.”
+* “A **decoupled architecture** improves maintainability.”
+
+## 6. Modular
+
+* “The codebase is **modular**, making it easy to extend.”
+* “We follow a **modular design** for better reusability.”
+
+## 7. Extensible
+
+* “The system is **extensible**, allowing new features without major changes.”
+* “We built an **extensible framework** for plugins.”
+
+## 8. Maintainable
+
+* “Clean code ensures the system remains **maintainable**.”
+* “We refactored the service to improve **maintainability**.”
+
+## 9. Observable
+
+* “The system is fully **observable** with logs and metrics.”
+* “We added tracing to make the service more **observable**.”
+
+## 10. Robust
+
+* “The application is **robust** under heavy load.”
+* “We implemented validation to make the system more **robust**.”
 
 ---
+
+## 11. Latency
+
+* “We reduced API **latency** by optimizing queries.”
+* “High **latency** can degrade user experience.”
+
+## 12. Throughput
+
+* “Kafka provides high **throughput** for streaming data.”
+* “We improved system **throughput** by parallel processing.”
+
+## 13. Bottleneck
+
+* “Database queries became a **bottleneck**.”
+* “We identified a network **bottleneck** during peak traffic.”
+
+## 14. Optimize
+
+* “We need to **optimize** the query performance.”
+* “Caching helped us **optimize** response time.”
+
+## 15. Efficient
+
+* “This algorithm is more **efficient** in terms of time complexity.”
+* “We built an **efficient data pipeline**.”
+
+## 16. Overhead
+
+* “Serialization adds processing **overhead**.”
+* “We minimized network **overhead** using batching.”
+
+## 17. Benchmark
+
+* “We **benchmarked** the system under heavy load.”
+* “Benchmark results helped us compare performance.”
+
+## 18. Degradation
+
+* “The system shows performance **degradation** at high load.”
+* “We observed gradual **degradation** in response time.”
+
+## 19. Peak load
+
+* “The system must handle **peak load** during sales.”
+* “We tested the service under **peak load conditions**.”
+
+## 20. Throttling
+
+* “We applied **throttling** to control API usage.”
+* “Rate limiting helps in request **throttling**.”
+
+---
+
+# 🚀 PART 2: Reliability + Data Systems (21–40)
+
+## 21. Redundancy
+
+* “We added **redundancy** to avoid single points of failure.”
+* “Data **redundancy** improves reliability.”
+
+## 22. Replication
+
+* “Database **replication** ensures high availability.”
+* “We use multi-region **replication**.”
+
+## 23. Failover
+
+* “Automatic **failover** ensures uptime.”
+* “We tested the **failover mechanism**.”
+
+## 24. Recovery
+
+* “The system supports fast **recovery** after crashes.”
+* “Backup helps in disaster **recovery**.”
+
+## 25. Consistency
+
+* “We chose strong **consistency** for critical data.”
+* “Eventual **consistency** is acceptable here.”
+
+## 26. Availability
+
+* “High **availability** is a key requirement.”
+* “We ensured 99.99% **availability**.”
+
+## 27. Durability
+
+* “Writes are guaranteed with high **durability**.”
+* “Logs ensure data **durability**.”
+
+## 28. Idempotent
+
+* “APIs must be **idempotent** for retries.”
+* “This operation is **idempotent**.”
+
+## 29. Retry mechanism
+
+* “We implemented a **retry mechanism** for failures.”
+* “Exponential backoff improves the retry strategy.”
+
+## 30. Circuit breaker
+
+* “We used a **circuit breaker** to prevent cascading failures.”
+* “Circuit breakers improve system resilience.”
+
+---
+
+## 31. Partitioning
+
+* “Data **partitioning** improves scalability.”
+* “We used time-based **partitioning**.”
+
+## 32. Sharding
+
+* “User data is split using **sharding**.”
+* “Sharding reduces database load.”
+
+## 33. Indexing
+
+* “Proper **indexing** speeds up queries.”
+* “We optimized queries with **indexing**.”
+
+## 34. Schema
+
+* “We designed a flexible **schema**.”
+* “Schema evolution is important in big data.”
+
+## 35. Normalization
+
+* “We applied **normalization** to reduce redundancy.”
+* “Normalization improves data integrity.”
+
+## 36. Denormalization
+
+* “We used **denormalization** for faster reads.”
+* “Denormalization improves performance.”
+
+## 37. Aggregation
+
+* “We used **aggregation** queries for reports.”
+* “Data **aggregation** reduces complexity.”
+
+## 38. Ingestion
+
+* “Data **ingestion** happens in real time.”
+* “We built a scalable ingestion pipeline.”
+
+## 39. Serialization
+
+* “We use Avro for **serialization**.”
+* “Serialization reduces data size.”
+
+## 40. Compression
+
+* “We enabled **compression** to save storage.”
+* “Compression improves network efficiency.”
+
+---
+
+# 🚀 PART 3: Microservices + Event + Cloud (41–70)
+
+(I’ll keep this concise but powerful)
+
+## 41–50 (Microservices)
+
+* “The service is **stateless** and easy to scale.”
+* “This is a **stateful** component.”
+* “We exposed REST **endpoints**.”
+* “API **contracts** must be stable.”
+* “We use API **versioning**.”
+* “Maintain **backward compatibility**.”
+* “We added **rate limiting**.”
+* “Gateway handles routing.”
+* “We used **orchestration**.”
+* “Event **choreography** reduces coupling.”
+
+---
+
+## 51–60 (Event Systems)
+
+* “We built an **event-driven** system.”
+* “Processing is **asynchronous**.”
+* “We use **stream processing**.”
+* “This supports **real-time** analytics.”
+* “Kafka follows **pub-sub**.”
+* “We accept **eventual consistency**.”
+* “Messages go via **queue**.”
+* “Offsets track consumption.”
+* “Consumer groups scale.”
+* “Backpressure is handled.”
+
+---
+
+## 61–70 (Cloud/DevOps)
+
+* “We use **containerization**.”
+* “Kubernetes manages **orchestration**.”
+* “Automated **deployment** is critical.”
+* “We follow **CI/CD**.”
+* “Cloud **infrastructure** is scalable.”
+* “We use auto **provisioning**.”
+* “Enabled **autoscaling**.”
+* “System has strong **monitoring**.”
+* “Centralized **logging**.”
+* “Real-time **alerting**.”
+
+---
+
+# 🚀 PART 4: Security + Communication + Leadership (71–100)
+
+## 71–80 (Security)
+
+* “We implemented **authentication**.”
+* “Role-based **authorization**.”
+* “Data is protected with **encryption**.”
+* “Sensitive data uses **tokenization**.”
+* “We fixed security **vulnerabilities**.”
+* “System meets **compliance** standards.”
+* “Audit logs are maintained.”
+* “Secure coding practices.”
+* “Process isolation.”
+* “Follow least privilege.”
+
+---
+
+## 81–90 (Problem Solving)
+
+* “There is a clear **trade-off**.”
+* “We have system **constraints**.”
+* “This is an **assumption**.”
+* “Handle **edge cases**.”
+* “Consider all **scenarios**.”
+* “Our **approach** is scalable.”
+* “This is the **justification**.”
+* “Measure system **impact**.”
+* “Consider **alternatives**.”
+* “System has **limitations**.”
+
+---
+
+## 91–100 (Leadership)
+
+* “I took **ownership** of the system.”
+* “Ensured **accountability**.”
+* “Showed strong **initiative**.”
+* “Team **collaboration** was key.”
+* “Maintained **alignment**.”
+* “Provided **mentorship**.”
+* “Worked with **stakeholders**.”
+* “Focused on **delivery**.”
+* “Strong **execution**.”
+* “Clear product **vision**.”
+
+---
+
 
 # PART 2 — OBJECT-ORIENTED & SOFTWARE DESIGN
 
@@ -73,51 +337,12 @@ CPU + Memory
 | 40 | Technical Debt         | Future cost created by shortcuts/design compromises         |
 
 ---
-
-# PART 3 — DATA STRUCTURES & ALGORITHMS
-
-### 41–60
-
-| #  | Term             | Simple meaning                                         |
-| -- | ---------------- | ------------------------------------------------------ |
-| 41 | Array            | Ordered collection stored in contiguous memory         |
-| 42 | List             | Ordered collection                                     |
-| 43 | Linked List      | Nodes connected through references                     |
-| 44 | Stack            | LIFO data structure                                    |
-| 45 | Queue            | FIFO data structure                                    |
-| 46 | Deque            | Queue supporting both ends                             |
-| 47 | Hash Table       | Key-value structure using hashing                      |
-| 48 | Hash Function    | Converts input into a hash value                       |
-| 49 | Tree             | Hierarchical data structure                            |
-| 50 | Binary Tree      | Tree where nodes have at most two children             |
-| 51 | Heap             | Tree-based structure commonly used for priority queues |
-| 52 | Graph            | Nodes connected by edges                               |
-| 53 | BFS              | Breadth-first search                                   |
-| 54 | DFS              | Depth-first search                                     |
-| 55 | Recursion        | Function calling itself                                |
-| 56 | Iteration        | Repeating through loops                                |
-| 57 | Big O            | Describes algorithm growth/complexity                  |
-| 58 | Time Complexity  | Computational time required as input grows             |
-| 59 | Space Complexity | Memory required as input grows                         |
-| 60 | Sorting          | Arranging data according to an ordering                |
-
----
-
 # PART 4 — GIT, CODE QUALITY & SOFTWARE DEVELOPMENT
 
 ### 61–80
 
 | #  | Term                   | Simple meaning                                    |
 | -- | ---------------------- | ------------------------------------------------- |
-| 61 | Git                    | Distributed version-control system                |
-| 62 | Repository             | Storage location for source code/history          |
-| 63 | Commit                 | Snapshot of code changes                          |
-| 64 | Branch                 | Independent line of development                   |
-| 65 | Merge                  | Combine branches                                  |
-| 66 | Rebase                 | Replay commits onto another base                  |
-| 67 | Pull Request           | Proposed code change for review                   |
-| 68 | Code Review            | Reviewing code before integration                 |
-| 69 | Merge Conflict         | Git cannot automatically combine changes          |
 | 70 | Tag                    | Named Git reference, often used for releases      |
 | 71 | Release                | Published version of software                     |
 | 72 | Semantic Versioning    | Versioning convention such as 2.4.1               |
