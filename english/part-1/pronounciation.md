@@ -1,19 +1,51 @@
-Yes. In fact, if your goal is to pronounce words correctly without guessing, the table should always have **4 columns**:
+| Level | Sound    | Hindi approximation | Core words                                                                                         | Intermediate / Professional vocabulary                                                                                                                                                                                                                                                                                                                                 |
+| ----- | -------- | ------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | **/iː/** | ई                   | see, tree, green, need, meet, feel, team, keep, sleep, read, speak, clean                          | complete, achieve, believe, receive, release, increase, decrease, feature, requirement, agreement, meeting, team, leadership, feedback, improve, maintain, reliable, scalable, strategic, efficient, meaningful, realistic, measurable, **communicate, clarify, explain, confirm, review, team, service, pipeline, schema, stream, database, machine**                 |
+| **1** | **/ɪ/**  | इ                   | sit, big, fish, ship, milk, live, ring, build, system, window                                      | different, simple, business, difficult, decision, limit, critical, existing, specific, significant, system, implementation, integration, incident, issue, identify, investigate, mitigate, minimum, maximum, distributed, consistency, dependency, configuration, **business, system, service, pipeline, infrastructure, risk, impact, constraint, requirement**       |
+| **2** | **/eɪ/** | एइ                  | day, may, say, pay, way, play, stay, rain, pain, train, make, take, name, change                   | explain, maintain, communicate, evaluate, validate, migrate, enable, create, update, upgrade, scale, data, database, gateway, framework, architecture, capability, latency, availability, failure, behavior, trade-off, alternative, stakeholder, alignment, **analyze, evaluate, validate, demonstrate, facilitate, enable, architecture, scalability, availability** |
+| **2** | **/ɛ/**  | ए                   | bed, red, pen, best, help, tell, friend, desk, ready, head, get, set, next, better, effort, method | technical, development, deployment, dependency, regression, remediation, performance, enterprise, error, estimate, metric, deadline, benefit, challenge, level, effort, requirement, assessment, environment, endpoint, event, event-driven, **address, assess, determine, develop, test, benchmark, enterprise, technical, deployment, dependency**                   |
+| **2** | **/æ/**  | ऐ / अॅ              | cat, bat, apple, happy, family, black, match, bank, stand, map, man, plan                          | happen, natural, application, understand, analysis, capacity, platform, access, batch, cache, dashboard, backup, traffic, transaction, impact, scalable, practical, backlog, pattern, abstraction, **analyze, application, capacity, database, batch, Kafka, cache, dashboard, backup, traffic, transaction**                                                          |
+| **3** | **/ɑː/** | आ                   | father, car, art, bar, park, arm, heart, dark, mark, start, hard, large                            | architecture, partner, market, target, data, startup, platform, scalability, deployment, database, Cassandra, Kafka, Spark, large-scale, hard, smart, architecture, **architecture, large-scale, target, partner, platform, data, market, start, hard, scalability**                                                                                                   |
+| **3** | **/ʌ/**  | अ                   | cup, bus, sun, love, money, country, enough, lunch, trouble, company, run, come, much              | customer, under, understand, support, problem, function, production, reliability, coverage, discussion, assumption, outcome, ownership, accountability, structure, current, upstream, downstream, **customer, support, problem, function, production, assumption, outcome, ownership, accountability, upstream, downstream, troubleshoot**                             |
+| **3** | **/ɔː/** | ऑ                   | law, saw, draw, jaw, flaw, straw, yawn, talk, walk, call, thought                                  | according, performance, important, source, resource, processing, orchestration, authorization, coordination, monitoring, reporting, workload, workflow, fallback, fault, **performance, resource, processing, orchestration, coordination, monitoring, reporting, workload, workflow, fault tolerance**                                                                |
+| **4** | **/uː/** | ऊ                   | food, school, moon, room, tool, cool, move, choose, improve, prove, true, blue, group              | solution, opportunity, optimize, throughput, consumer, producer, queue, boot, root, loop, reusable, reusable component, continuous, improvement, **solution, opportunity, improve, optimize, throughput, consumer, producer, queue, reusable, continuous**                                                                                                             |
+| **4** | **/ʊ/**  | उ                   | book, good, look, cook, foot, put, pull, full, should, could, would                                | understood, push, pull, lookup, output, input, throughput, full-load, workflow, good practice, **should, could, would, output, input, lookup, push, pull, full-load, understood**                                                                                                                                                                                      |
+| **5** | **/oʊ/** | ओउ                  | go, no, so, show, know, home, phone, hope, open, close                                             | approach, process, proposal, remote, local, ownership, workflow, roadmap, scope, goal, rollback, deployment, storage, source, mode, node, **approach, proposal, process, roadmap, scope, goal, rollback, deployment, storage, source, node, ownership**                                                                                                                |
+| **5** | **/ə/**  | अ                   | about, ago, around, above, support, problem, system, teacher, computer                             | developer, engineer, particular, available, important, communication, collaboration, configuration, dependency, production, operational, organizational, technical, architecture, **developer, engineer, available, important, communication, collaboration, configuration, dependency, production, operational, organizational**                                      |
+| **6** | **/ɝː/** | अर्                 | work, word, world, learn, first, third, person, service, version, search                           | performance, developer, customer, enterprise, server, architecture, workflow, production, current, research, requirement, concern, purpose, further, **server, enterprise, architecture, workflow, production, requirement, research, purpose, concern, version, service**                                                                                             |
+| **6** | **/θ/**  | थ                   | think, three, thing, thought, through, thousand, theory, method, both, health, month               | technical, method, throughput, architecture, authentication, authorization, theory, third-party, thousand, both, further, therefore, **throughput, authentication, authorization, third-party, method, theory, therefore, both, further**                                                                                                                              |
+| **6** | **/ð/**  | द / ध               | this, that, these, those, they, them, their, then, though                                          | therefore, another, together, whether, although, within, without, otherwise, furthermore, additionally, rather, either, neither, **therefore, another, together, whether, although, within, without, otherwise, furthermore, additionally**                                                                                                                            |
 
-| Word | IPA (Phonetic Symbol) | Hindi Approximation | Meaning |
-| ---- | --------------------- | ------------------- | ------- |
 
-For example:
 
-| Word  | IPA     | Hindi Pronunciation | Meaning |
-| ----- | ------- | ------------------- | ------- |
-| See   | /siː/   | सी                  | देखना   |
-| Sit   | /sɪt/   | सिट                 | बैठना   |
-| Ship  | /ʃɪp/   | शिप                 | जहाज    |
-| Sheep | /ʃiːp/  | शीप                 | भेड़    |
-| Bird  | /bɜːrd/ | बर्ड                | पक्षी   |
 
----
+
+
+| Level | Sound | Example | Hindi approximation |
+| ----- | ----- | ------- | ------------------- |
+| 1     | /iː/  | see, read,  leave, need, meet, feel, team, keep, sleep, read,  | ई                   |
+| 1     | /ɪ/   | sit, big, fish, ship, milk, live, ring, build, system, window,  | इ                   |
+| 2     | /eɪ/  | day, may, say, pay, way, play, stay, rain, pain, train,  | एइ                  |
+| 2     | /ɛ/   | bed, red, pen, best, help, tell, friend, desk, ready, head,  | ए                   |
+| 2     | /æ/   | cat, bat, apple, happy, family, black, match, bank, stand, map,  | ऐ/अॅ                |
+| 3     | /ɑː/  | father, car, art, bar, park, arm, heart, dark, mark, shark,  | आ                   |
+| 3     | /ʌ/   | cup, bus, sun, love, money, country, enough, lunch, trouble, company,  | अ                   |
+| 3     | /ɔː/  | law, saw, draw, jaw, claw, flaw, straw, yawn, talk, walk,  | ऑ                   |
+| 4     | /uː/  | food, school,  | ऊ                   |
+| 4     | /ʊ/   | book,  | उ                   |
+| 5     | /oʊ/  | go, no, so,  | ओउ                  |
+| 5     | /ə/   | about, teacher,  | अ                   |
+| 6     | /ɝː/  | work,  | अर्                 |
+| 6     | /θ/   | think,  | थ                   |
+| 6     | /ð/   | this    | द/ध                 |
+
+
+
+
+
+
+
+
 
 # Level 1 (Improved Version)
 
